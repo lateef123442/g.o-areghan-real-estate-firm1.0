@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= property.title %> | G.O AREGBAN REAL ESTATE FIRM</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --navy:#0d2137; --navy-mid:#163352; --navy-light:#1e4a78;
+            --gold:#c8922a; --gold-light:#e0aa45; --gold-pale:#f5e6c8;
+            --cream:#faf7f2; --white:#ffffff;
+            --gray-100:#f1f5f9; --gray-200:#e2e8f0; --gray-400:#94a3b8; --gray-600:#475569; --text:#0d1f35;
+            --green:#16a34a; --red:#dc2626;
+            --shadow-sm:0 1px 3px rgba(13,33,55,0.08);
+            --shadow-md:0 4px 20px rgba(13,33,55,0.10);
+            --shadow-lg:0 12px 50px rgba(13,33,55,0.15);
+            --shadow-xl:0 24px 80px rgba(13,33,55,0.20);
+            --radius:16px; --radius-sm:10px;
+        }
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+        html{scroll-behavior:smooth;}
+        body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text);min-height:100vh;}
+        h1,h2,h3,h4{font-family:'Cormorant Garamond',serif;}
+
+        /* NAVBAR */
+        .navbar{position:sticky;top:0;z-index:100;background:rgba(255,255,255,0.97);backdrop-filter:blur(12px);border-bottom:1px solid var(--gray-200);box-shadow:var(--shadow-sm);}
+        .nav-inner{max-width:1400px;margin:0 auto;padding:0 32px;height:70px;display:flex;align-items:center;justify-content:space-between;gap:20px;}
+        .nav-brand{display:flex;align-items:center;gap:12px;text-decoration:none;flex-shrink:0;}
+        .nav-logo{width:44px;height:44px;border-radius:50%;overflow:hidden;border:2px solid var(--gold);}
+        .nav-logo img{width:100%;height:100%;object-fit:cover;}
+        .brand-name{display:block;font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:700;color:var(--navy);}
+        .brand-tagline{display:block;font-size:0.62rem;font-weight:600;color:var(--gold);letter-spacing:0.1em;text-transform:uppercase;}
+        .nav-links{display:flex;align-items:center;gap:2px;flex:1;justify-content:center;}
+        .nav-link{display:flex;align-items:center;gap:5px;padding:7px 12px;border-radius:8px;font-size:0.82rem;font-weight:600;color:var(--gray-600);text-decoration:none;transition:all 0.2s;white-space:nowrap;}
+        .nav-link i{font-size:0.75rem;opacity:0.8;}
+        .nav-link:hover{background:var(--gray-100);color:var(--navy);}
+        .nav-link.active{background:#e8eef8;color:var(--navy-light);}
+        .dropdown{position:relative;}
+        .dropdown-toggle{display:flex;align-items:center;gap:5px;padding:7px 12px;border-radius:8px;font-size:0.82rem;font-weight:600;color:var(--gray-600);background:none;border:none;cursor:pointer;transition:all 0.2s;font-family:inherit;}
+        .dropdown-toggle:hover{background:var(--gray-100);color:var(--navy);}
+        .dropdown-menu{position:absolute;top:calc(100% + 10px);left:0;background:var(--white);border:1px solid var(--gray-200);border-radius:12px;box-shadow:var(--shadow-lg);min-width:190px;padding:8px;opacity:0;visibility:hidden;transform:translateY(8px);transition:all 0.2s;}
+        .dropdown-menu.show{opacity:1;visibility:visible;transform:translateY(0);}
+        .dropdown-item{display:flex;align-items:center;gap:10px;padding:10px 14px;font-size:0.85rem;font-weight:500;color:var(--text);text-decoration:none;border-radius:8px;transition:background 0.15s;}
+        .dropdown-item i{width:16px;color:var(--navy-light);font-size:0.8rem;}
+        .dropdown-item:hover{background:var(--gray-100);color:var(--navy);}
+        .nav-right{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+        #desktop-login-container{display:flex;align-items:center;}
+        .btn-primary{background:var(--navy);color:white;padding:9px 22px;border-radius:8px;font-size:0.82rem;font-weight:700;border:none;cursor:pointer;transition:all 0.2s;text-decoration:none;display:inline-block;font-family:inherit;}
+        .btn-primary:hover{background:var(--navy-light);transform:translateY(-1px);}
+        .btn-logout{background:#fee2e2;color:#dc2626;padding:9px 22px;border-radius:8px;font-size:0.82rem;font-weight:700;border:none;cursor:pointer;transition:all 0.2s;text-decoration:none;display:inline-block;}
+        .btn-logout:hover{background:#fecaca;}
+        .mobile-menu-btn{display:none;background:none;border:1px solid var(--gray-200);border-radius:8px;padding:8px 10px;cursor:pointer;color:var(--text);font-size:1rem;}
+        #mobile-menu{display:none;position:fixed;inset:0;background:var(--white);z-index:200;overflow-y:auto;}
+        #mobile-menu.show{display:block;}
+        .mobile-menu-inner{padding:24px;}
+        .mobile-menu-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:32px;padding-bottom:20px;border-bottom:1px solid var(--gray-200);}
+        .mobile-close-btn{width:36px;height:36px;border-radius:8px;background:var(--gray-100);border:none;cursor:pointer;color:var(--gray-600);font-size:1rem;display:flex;align-items:center;justify-content:center;}
+        .mobile-nav-link{display:flex;align-items:center;gap:12px;padding:14px 0;font-size:1rem;font-weight:600;color:var(--text);text-decoration:none;border-bottom:1px solid var(--gray-100);}
+        .mobile-nav-link i{width:20px;color:var(--navy-light);}
+        #mobile-login-section{margin-top:28px;}
+
+        /* BREADCRUMB */
+        .breadcrumb{background:var(--white);border-bottom:1px solid var(--gray-200);padding:14px 0;}
+        .breadcrumb-inner{max-width:1400px;margin:0 auto;padding:0 32px;display:flex;align-items:center;gap:8px;font-size:0.8rem;color:var(--gray-400);}
+        .breadcrumb-inner a{color:var(--gray-600);text-decoration:none;font-weight:500;transition:color 0.2s;}
+        .breadcrumb-inner a:hover{color:var(--navy);}
+        .breadcrumb-inner i{font-size:0.65rem;}
+        .breadcrumb-inner .current{color:var(--navy);font-weight:600;}
+
+        /* PAGE LAYOUT */
+        .page-container{max-width:1400px;margin:0 auto;padding:36px 32px 80px;}
+        .detail-grid{display:grid;grid-template-columns:1fr 420px;gap:32px;align-items:start;}
+
+        /* ===== LEFT COLUMN ===== */
+
+        /* Media section */
+        .media-section{margin-bottom:24px;}
+        .main-image-wrap{border-radius:var(--radius);overflow:hidden;border:1px solid var(--gray-200);box-shadow:var(--shadow-md);margin-bottom:12px;position:relative;}
+        .main-image-wrap img{width:100%;height:480px;object-fit:cover;display:block;transition:transform 0.5s ease;}
+        .main-image-wrap:hover img{transform:scale(1.02);}
+        .img-overlay-badge{position:absolute;top:16px;left:16px;display:inline-flex;align-items:center;gap:6px;background:var(--navy);color:white;padding:6px 14px;border-radius:8px;font-size:0.75rem;font-weight:700;letter-spacing:0.04em;}
+        .img-overlay-badge.for-rent{background:linear-gradient(135deg,#0e7490,#0891b2);}
+
+        /* Video */
+        .video-section{margin-top:20px;}
+        .video-label{display:flex;align-items:center;gap:8px;font-size:0.7rem;font-weight:700;color:var(--gray-400);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px;}
+        .video-label i{color:var(--gold);}
+        .video-wrap{border-radius:var(--radius-sm);overflow:hidden;border:1px solid var(--gray-200);box-shadow:var(--shadow-sm);background:var(--navy);}
+        .video-wrap video{width:100%;display:block;max-height:320px;}
+
+        /* Property info card */
+        .info-card{background:var(--white);border-radius:var(--radius);border:1px solid var(--gray-200);box-shadow:var(--shadow-md);overflow:hidden;margin-bottom:20px;}
+        .info-card-header{background:linear-gradient(135deg,var(--navy),var(--navy-light));padding:24px 28px;}
+        .property-type-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(200,146,42,0.18);border:1px solid rgba(200,146,42,0.35);color:var(--gold-light);padding:4px 12px;border-radius:20px;font-size:0.68rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:12px;}
+        .property-title{font-family:'Cormorant Garamond',serif;font-size:clamp(1.6rem,3vw,2.2rem);font-weight:700;color:white;line-height:1.2;margin-bottom:10px;}
+        .property-address{display:flex;align-items:center;gap:8px;font-size:0.875rem;color:rgba(255,255,255,0.65);}
+        .property-address i{color:var(--gold-light);font-size:0.8rem;}
+
+        .info-card-body{padding:24px 28px;}
+        .price-row{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;}
+        .price-block .price-label{font-size:0.68rem;color:var(--gray-400);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px;}
+        .price-block .price-value{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:700;color:var(--navy);}
+        .status-pill{display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:30px;font-size:0.75rem;font-weight:700;}
+        .status-pill.for-sale{background:#e8eef8;color:var(--navy-light);}
+        .status-pill.for-rent{background:#e0f2fe;color:#0284c7;}
+        .status-pill i{font-size:0.7rem;}
+
+        .specs-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:20px;background:var(--cream);border-radius:var(--radius-sm);margin-bottom:20px;border:1px solid var(--gray-200);}
+        .spec-item{text-align:center;}
+        .spec-icon{width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,var(--navy),var(--navy-light));display:flex;align-items:center;justify-content:center;margin:0 auto 6px;font-size:0.8rem;color:var(--gold-light);}
+        .spec-val{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:700;color:var(--navy);}
+        .spec-lbl{font-size:0.65rem;color:var(--gray-400);text-transform:uppercase;letter-spacing:0.06em;margin-top:2px;}
+
+        .desc-section h3{font-family:'Cormorant Garamond',serif;font-size:1.25rem;font-weight:700;color:var(--navy);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+        .desc-section h3 i{color:var(--gold);font-size:1rem;}
+        .desc-section p{font-size:0.875rem;line-height:1.8;color:var(--gray-600);white-space:pre-line;}
+
+        /* ===== RIGHT COLUMN ===== */
+        .right-col{display:flex;flex-direction:column;gap:20px;position:sticky;top:90px;}
+
+        /* Agent card */
+        .agent-card{background:var(--white);border-radius:var(--radius);border:1px solid var(--gray-200);box-shadow:var(--shadow-md);overflow:hidden;}
+        .agent-card-header{background:linear-gradient(135deg,var(--navy),var(--navy-light));padding:20px 24px;display:flex;align-items:center;gap:14px;}
+        .agent-avatar{width:52px;height:52px;border-radius:50%;background:rgba(200,146,42,0.18);border:2px solid rgba(200,146,42,0.4);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:700;color:var(--gold-light);flex-shrink:0;}
+        .agent-info-header h3{font-family:'Cormorant Garamond',serif;font-size:1.05rem;font-weight:700;color:white;}
+        .agent-info-header .role{font-size:0.72rem;color:rgba(255,255,255,0.55);margin-top:2px;}
+        .agent-card-body{padding:20px 24px;}
+        .agent-contact-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--gray-100);font-size:0.82rem;color:var(--gray-600);}
+        .agent-contact-item:last-of-type{border-bottom:none;}
+        .agent-contact-item i{width:28px;height:28px;border-radius:7px;background:var(--gray-100);display:flex;align-items:center;justify-content:center;color:var(--navy-light);font-size:0.72rem;flex-shrink:0;}
+        .agent-contact-item a{color:var(--navy-light);text-decoration:none;font-weight:600;}
+        .agent-contact-item a:hover{color:var(--navy);}
+
+        /* Contact form card */
+        .contact-form-card{background:var(--white);border-radius:var(--radius);border:1px solid var(--gray-200);box-shadow:var(--shadow-md);overflow:hidden;}
+        .contact-form-header{background:linear-gradient(135deg,var(--navy),var(--navy-light));padding:18px 24px;display:flex;align-items:center;gap:10px;}
+        .contact-form-header i{color:var(--gold-light);font-size:1.1rem;}
+        .contact-form-header h3{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:700;color:white;}
+        .contact-form-body{padding:20px 24px;}
+
+        .form-group{margin-bottom:14px;}
+        .form-group label{display:block;font-size:0.75rem;font-weight:700;color:var(--gray-600);margin-bottom:5px;letter-spacing:0.02em;}
+        .form-group input,.form-group textarea{width:100%;padding:10px 14px;border:1.5px solid var(--gray-200);border-radius:8px;font-size:0.875rem;color:var(--text);background:var(--gray-100);outline:none;font-family:inherit;transition:all 0.2s;}
+        .form-group input:focus,.form-group textarea:focus{border-color:var(--navy-light);background:var(--white);box-shadow:0 0 0 3px rgba(30,74,120,0.08);}
+        .form-group input::placeholder,.form-group textarea::placeholder{color:var(--gray-400);}
+        .form-group textarea{resize:vertical;min-height:90px;}
+
+        .btn-submit{width:100%;padding:13px;background:linear-gradient(135deg,var(--navy),var(--navy-light));color:white;border:none;border-radius:10px;font-family:inherit;font-size:0.875rem;font-weight:700;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:7px;}
+        .btn-submit:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 6px 20px rgba(13,33,55,0.3);}
+        .btn-submit:disabled{opacity:0.6;cursor:not-allowed;}
+
+        /* Form message */
+        .form-msg{padding:12px 16px;border-radius:8px;font-size:0.82rem;font-weight:600;margin-bottom:14px;display:none;align-items:center;gap:8px;}
+        .form-msg.success{background:#f0fdf4;border:1px solid #bbf7d0;color:#16a34a;display:flex;}
+        .form-msg.error{background:#fef2f2;border:1px solid #fecaca;color:#dc2626;display:flex;}
+
+        /* Quick actions card */
+        .quick-card{background:var(--white);border-radius:var(--radius);border:1px solid var(--gray-200);box-shadow:var(--shadow-sm);padding:20px 24px;}
+        .quick-card-title{font-size:0.68rem;font-weight:800;color:var(--gray-400);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:14px;}
+        .quick-action{display:flex;align-items:center;gap:12px;padding:12px;border-radius:10px;border:1.5px solid var(--gray-200);text-decoration:none;color:var(--text);transition:all 0.2s;margin-bottom:8px;}
+        .quick-action:last-child{margin-bottom:0;}
+        .quick-action:hover{border-color:var(--navy-light);background:#e8eef8;color:var(--navy);}
+        .quick-action .qa-icon{width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,var(--navy),var(--navy-light));display:flex;align-items:center;justify-content:center;color:var(--gold-light);font-size:0.82rem;flex-shrink:0;}
+        .quick-action .qa-text strong{display:block;font-size:0.82rem;font-weight:700;}
+        .quick-action .qa-text span{display:block;font-size:0.72rem;color:var(--gray-400);}
+        .quick-action .qa-arrow{margin-left:auto;color:var(--gray-400);font-size:0.75rem;}
+        .quick-action:hover .qa-arrow{color:var(--navy-light);}
+
+        /* FOOTER */
+        footer{background:var(--navy);color:white;margin-top:0;}
+        .footer-top{padding:70px 0 50px;}
+        .footer-inner{max-width:1400px;margin:0 auto;padding:0 32px;}
+        .footer-grid{display:grid;grid-template-columns:1.8fr 1fr 1fr 1.4fr;gap:48px;}
+        .footer-brand{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+        .footer-logo{width:42px;height:42px;border-radius:50%;overflow:hidden;border:2px solid var(--gold);}
+        .footer-logo img{width:100%;height:100%;object-fit:cover;}
+        .footer-brand-name{font-family:'Cormorant Garamond',serif;font-size:1rem;font-weight:700;color:white;}
+        .footer-desc{font-size:0.875rem;color:rgba(255,255,255,0.5);line-height:1.75;margin-bottom:22px;}
+        .footer-socials{display:flex;gap:8px;}
+        .footer-social{width:34px;height:34px;border-radius:8px;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.6);display:flex;align-items:center;justify-content:center;font-size:0.78rem;text-decoration:none;transition:all 0.2s;}
+        .footer-social:hover{background:var(--gold);color:var(--navy);}
+        .footer-col-title{font-size:0.7rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold-light);margin-bottom:18px;}
+        .footer-links{list-style:none;}
+        .footer-links li{margin-bottom:9px;}
+        .footer-links a{font-size:0.875rem;color:rgba(255,255,255,0.5);text-decoration:none;transition:color 0.2s;}
+        .footer-links a:hover{color:white;}
+        .footer-contact-item{display:flex;gap:10px;margin-bottom:11px;font-size:0.875rem;color:rgba(255,255,255,0.5);}
+        .footer-contact-item i{color:var(--gold);width:14px;margin-top:2px;flex-shrink:0;}
+        .footer-bottom{border-top:1px solid rgba(255,255,255,0.08);padding:22px 0;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;}
+        .footer-bottom-text{font-size:0.8rem;color:rgba(255,255,255,0.35);}
+        .footer-bottom-links{display:flex;gap:18px;}
+        .footer-bottom-links a{font-size:0.8rem;color:rgba(255,255,255,0.35);text-decoration:none;transition:color 0.2s;}
+        .footer-bottom-links a:hover{color:white;}
+
+        /* RESPONSIVE */
+        @media(max-width:1100px){.footer-grid{grid-template-columns:1fr 1fr;}.detail-grid{grid-template-columns:1fr;}.right-col{position:static;}}
+        @media(max-width:900px){.nav-links{display:none;}.mobile-menu-btn{display:block;}.specs-grid{grid-template-columns:repeat(2,1fr);}}
+        @media(max-width:640px){.nav-inner{padding:0 16px;}.page-container{padding:20px 16px 60px;}.breadcrumb-inner{padding:0 16px;}.footer-inner{padding:0 20px;}.footer-grid{grid-template-columns:1fr;}.footer-bottom{flex-direction:column;text-align:center;}.main-image-wrap img{height:280px;}.specs-grid{grid-template-columns:1fr 1fr;}}
+    </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+    <div class="nav-inner">
+        <a href="/" class="nav-brand">
+            <div class="nav-logo"><img src="/img/Screenshot_20250927-131850_WhatsAppBusiness[1].jpg" alt="Logo"></div>
+            <div><span class="brand-name">G.O AREGBAN</span><span class="brand-tagline">Real Estate Firm</span></div>
+        </a>
+        <div class="nav-links">
+            <a href="/" class="nav-link"><i class="fas fa-home"></i> Home</a>
+            <a href="/customer-buy-page.html" class="nav-link"><i class="fas fa-building"></i> Properties</a>
+            <a href="/property-valuation" class="nav-link"><i class="fas fa-chart-line"></i> Valuation</a>
+            <a href="/chat" class="nav-link"><i class="fas fa-comments"></i> Messages</a>
+            <a href="/gallery" class="nav-link"><i class="fas fa-briefcase"></i> Portfolio</a>
+            <div class="dropdown">
+                <button class="dropdown-toggle" id="service-toggle" aria-expanded="false">
+                    <i class="fas fa-th-large"></i> Services <i class="fas fa-chevron-down" style="font-size:0.65rem;opacity:0.6;"></i>
+                </button>
+                <div class="dropdown-menu" id="service-menu">
+                    <a href="/customer-buy-page.html" class="dropdown-item"><i class="fas fa-shopping-cart"></i> Buy Property</a>
+                    <a href="/customer-rent-page.html" class="dropdown-item"><i class="fas fa-key"></i> Rent Property</a>
+                </div>
+            </div>
+        </div>
+        <div class="nav-right">
+            <div id="desktop-login-container"><a href="/login" class="btn-primary">Login / Register</a></div>
+            <button class="mobile-menu-btn" id="mobile-menu-button"><i class="fas fa-bars"></i></button>
+        </div>
+    </div>
+</nav>
+
+<!-- MOBILE MENU -->
+<div id="mobile-menu">
+    <div class="mobile-menu-inner">
+        <div class="mobile-menu-header">
+            <span style="font-family:'Cormorant Garamond',serif;font-size:1.05rem;font-weight:700;color:var(--navy);">G.O AREGBAN REAL ESTATE</span>
+            <button class="mobile-close-btn" id="mobile-close"><i class="fas fa-times"></i></button>
+        </div>
+        <a href="/" class="mobile-nav-link"><i class="fas fa-home"></i> Home</a>
+        <a href="/customer-buy-page.html" class="mobile-nav-link"><i class="fas fa-building"></i> Properties</a>
+        <a href="/property-valuation" class="mobile-nav-link"><i class="fas fa-chart-line"></i> Property Valuation</a>
+        <a href="/chat" class="mobile-nav-link"><i class="fas fa-comments"></i> Messages</a>
+        <a href="/gallery" class="mobile-nav-link"><i class="fas fa-briefcase"></i> Portfolio</a>
+        <a href="/customer-buy-page.html" class="mobile-nav-link"><i class="fas fa-shopping-cart"></i> Buy Property</a>
+        <a href="/customer-rent-page.html" class="mobile-nav-link"><i class="fas fa-key"></i> Rent Property</a>
+        <div id="mobile-login-section">
+            <a href="/login"><button class="btn-primary" style="width:100%;display:block;text-align:center;padding:13px;margin-top:4px;border-radius:10px;">Login / Register</button></a>
+        </div>
+    </div>
+</div>
+
+<!-- BREADCRUMB -->
+<div class="breadcrumb">
+    <div class="breadcrumb-inner">
+        <a href="/"><i class="fas fa-home"></i> Home</a>
+        <i class="fas fa-chevron-right"></i>
+        <a href="/customer-buy-page.html">Properties</a>
+        <i class="fas fa-chevron-right"></i>
+        <span class="current"><%= property.title %></span>
+    </div>
+</div>
+
+<!-- MAIN -->
+<div class="page-container">
+    <div class="detail-grid">
+
+        <!-- ===== LEFT COLUMN ===== -->
+        <div class="left-col">
+
+            <!-- Image -->
+            <div class="media-section">
+                <div class="main-image-wrap">
+                    <img id="mainImage" src="<%= property.image_data %>" alt="<%= property.title %>">
+                    <div class="img-overlay-badge <%= (property.rentSell || '').toLowerCase().includes('rent') ? 'for-rent' : '' %>">
+                        <i class="fas fa-<%= (property.rentSell || '').toLowerCase().includes('rent') ? 'key' : 'tag' %>"></i>
+                        <%= property.rentSell || 'For Sale' %>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Video -->
+            <% if (property.video) { %>
+            <div class="video-section">
+                <div class="video-label"><i class="fas fa-play-circle"></i> Property Video Tour</div>
+                <div class="video-wrap">
+                    <video controls>
+                        <source src="<%= property.video %>" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            </div>
+            <% } %>
+
+            <!-- Info card -->
+            <div class="info-card" style="margin-top:24px;">
+                <div class="info-card-header">
+                    <div class="property-type-badge"><i class="fas fa-building" style="font-size:0.6rem;"></i> <%= property['property-type'] || 'Property' %></div>
+                    <h1 class="property-title"><%= property.title %></h1>
+                    <div class="property-address"><i class="fas fa-map-marker-alt"></i> <%= property.propertyAddress %></div>
+                </div>
+
+                <div class="info-card-body">
+                    <!-- Price + status -->
+                    <div class="price-row">
+                        <div class="price-block">
+                            <div class="price-label"><%= (property.rentSell || '').toLowerCase().includes('rent') ? 'Annual Rent' : 'Asking Price' %></div>
+                            <div class="price-value">₦<%= property.amount ? property.amount.toLocaleString() : '—' %></div>
+                        </div>
+                        <div class="status-pill <%= (property.rentSell || '').toLowerCase().includes('rent') ? 'for-rent' : 'for-sale' %>">
+                            <i class="fas fa-circle" style="font-size:0.5rem;"></i>
+                            <%= property.rentSell || 'For Sale' %>
+                        </div>
+                    </div>
+
+                    <!-- Specs -->
+                    <div class="specs-grid">
+                        <div class="spec-item">
+                            <div class="spec-icon"><i class="fas fa-bed"></i></div>
+                            <div class="spec-val"><%= property.bedrooms || '—' %></div>
+                            <div class="spec-lbl">Bedrooms</div>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-icon"><i class="fas fa-bath"></i></div>
+                            <div class="spec-val"><%= property.bathrooms || '—' %></div>
+                            <div class="spec-lbl">Bathrooms</div>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-icon"><i class="fas fa-ruler-combined"></i></div>
+                            <div class="spec-val"><%= property.sqft || '—' %></div>
+                            <div class="spec-lbl">Sq Ft</div>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-icon"><i class="fas fa-home"></i></div>
+                            <div class="spec-val" style="font-size:0.85rem;"><%= (property['property-type'] || 'N/A').split('/')[0] %></div>
+                            <div class="spec-lbl">Type</div>
+                        </div>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="desc-section">
+                        <h3><i class="fas fa-align-left"></i> About this Property</h3>
+                        <p><%= property.description %></p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ===== RIGHT COLUMN ===== -->
+        <div class="right-col">
+
+            <!-- Agent card -->
+            <div class="agent-card">
+                <div class="agent-card-header">
+                    <div class="agent-avatar">
+                        <% if (agent) { %><%= agent.firstName.charAt(0).toUpperCase() %><% } else { %><i class="fas fa-user-tie" style="font-size:1rem;"></i><% } %>
+                    </div>
+                    <div class="agent-info-header">
+                        <h3>
+                            <% if (agent) { %>
+                                <%= agent.firstName %> <%= agent.middleName ? agent.middleName + ' ' : '' %><%= agent.lastName %>
+                            <% } else { %>
+                                Property Agent
+                            <% } %>
+                        </h3>
+                        <div class="role"><i class="fas fa-shield-alt" style="margin-right:4px;color:var(--gold-light);font-size:0.65rem;"></i> ESVARBON Licensed Agent</div>
+                    </div>
+                </div>
+                <div class="agent-card-body">
+                    <% if (agent) { %>
+                    <div class="agent-contact-item">
+                        <i class="fas fa-envelope"></i>
+                        <div><span style="font-size:0.68rem;color:var(--gray-400);display:block;margin-bottom:2px;">Email</span><a href="mailto:<%= agent.email %>"><%= agent.email %></a></div>
+                    </div>
+                    <div class="agent-contact-item">
+                        <i class="fas fa-phone-alt"></i>
+                        <div><span style="font-size:0.68rem;color:var(--gray-400);display:block;margin-bottom:2px;">Phone</span><a href="tel:<%= agent.phone %>"><%= agent.phone %></a></div>
+                    </div>
+                    <% } else { %>
+                    <p style="font-size:0.875rem;color:var(--gray-400);text-align:center;padding:12px 0;">Agent details not available.</p>
+                    <% } %>
+                    <a href="/chat" style="display:flex;align-items:center;justify-content:center;gap:7px;width:100%;padding:11px;margin-top:14px;background:var(--cream);border:1.5px solid var(--gold);border-radius:10px;font-size:0.82rem;font-weight:700;color:var(--navy);text-decoration:none;transition:all 0.2s;">
+                        <i class="fas fa-comments" style="color:var(--gold);"></i> Chat with Agent
+                    </a>
+                </div>
+            </div>
+
+            <!-- Contact form -->
+            <div class="contact-form-card">
+                <div class="contact-form-header">
+                    <i class="fas fa-paper-plane"></i>
+                    <h3>Send Enquiry</h3>
+                </div>
+                <div class="contact-form-body">
+                    <div id="agent-form-message" class="form-msg"></div>
+
+                    <form id="contact-agent-form" method="post" action="detail-contact">
+                        <input type="hidden" name="propertyId" value="<%= property.id %>">
+
+                        <div class="form-group">
+                            <label>Your Name</label>
+                            <input type="text" name="name" placeholder="Enter your full name" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Email Address</label>
+                            <input type="email" name="email" placeholder="your@email.com" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Phone Number</label>
+                            <input type="tel" name="phone" placeholder="+234 800 000 0000" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Message</label>
+                            <textarea name="message" rows="4" required>I am interested in <%= property.title %>. Please contact me.</textarea>
+                        </div>
+
+                        <button type="submit" class="btn-submit" id="agent-submit-btn">
+                            <i class="fas fa-paper-plane"></i> Send Enquiry
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Quick actions -->
+            <div class="quick-card">
+                <div class="quick-card-title">Explore More</div>
+                <a href="/property-valuation" class="quick-action">
+                    <div class="qa-icon"><i class="fas fa-chart-line"></i></div>
+                    <div class="qa-text"><strong>Get a Valuation</strong><span>AI-powered market estimate</span></div>
+                    <i class="fas fa-arrow-right qa-arrow"></i>
+                </a>
+                <a href="/customer-buy-page.html" class="quick-action">
+                    <div class="qa-icon"><i class="fas fa-building"></i></div>
+                    <div class="qa-text"><strong>More Properties</strong><span>Browse all listings</span></div>
+                    <i class="fas fa-arrow-right qa-arrow"></i>
+                </a>
+                <a href="/gallery" class="quick-action">
+                    <div class="qa-icon"><i class="fas fa-briefcase"></i></div>
+                    <div class="qa-text"><strong>Our Portfolio</strong><span>See our track record</span></div>
+                    <i class="fas fa-arrow-right qa-arrow"></i>
+                </a>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+    <div class="footer-top">
+        <div class="footer-inner">
+            <div class="footer-grid">
+                <div>
+                    <div class="footer-brand">
+                        <div class="footer-logo"><img src="/img/Screenshot_20250927-131850_WhatsAppBusiness[1].jpg" alt="Logo"></div>
+                        <div class="footer-brand-name">G.O AREGBAN<br><span style="font-size:0.65rem;opacity:0.5;font-family:'DM Sans',sans-serif;letter-spacing:0.06em;text-transform:uppercase;font-weight:400;">Real Estate Firm</span></div>
+                    </div>
+                    <p class="footer-desc">Your trusted partner in real estate for over 15 years. NIESV Member Firm · ESVARBON Licensed.</p>
+                    <div class="footer-socials">
+                        <a href="#" class="footer-social"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="footer-social"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="footer-social"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="footer-social"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" class="footer-social"><i class="fab fa-whatsapp"></i></a>
+                    </div>
+                </div>
+                <div>
+                    <div class="footer-col-title">Quick Links</div>
+                    <ul class="footer-links">
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/gallery">Portfolio</a></li>
+                        <li><a href="/property-valuation">Valuation</a></li>
+                        <li><a href="/chat">Messages</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <div class="footer-col-title">Services</div>
+                    <ul class="footer-links">
+                        <li><a href="/customer-buy-page.html">Buy Property</a></li>
+                        <li><a href="/customer-rent-page.html">Rent Property</a></li>
+                        <li><a href="/property-valuation">Free Valuation</a></li>
+                        <li><a href="/chat">Chat with Agent</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <div class="footer-col-title">Contact Info</div>
+                    <div class="footer-contact-item"><i class="fas fa-map-marker-alt"></i><span>South Ibie, Etsako West LGA, Auchi, Edo State</span></div>
+                    <div class="footer-contact-item"><i class="fas fa-phone-alt"></i><span>+234 806 322 2628</span></div>
+                    <div class="footer-contact-item"><i class="fas fa-envelope"></i><span>ibarealestate2023@gmail.com</span></div>
+                    <div class="footer-contact-item"><i class="fas fa-clock"></i><span>Mon–Fri: 9am–6pm</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="footer-inner">
+        <div class="footer-bottom">
+            <p class="footer-bottom-text">© 2025 G.O AREGBAN REAL ESTATE FIRM. All rights reserved.</p>
+            <div class="footer-bottom-links">
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+                <a href="#">Sitemap</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    // Mobile menu
+    document.getElementById('mobile-menu-button').addEventListener('click', () => document.getElementById('mobile-menu').classList.add('show'));
+    const mc = document.getElementById('mobile-close');
+    if (mc) mc.addEventListener('click', () => document.getElementById('mobile-menu').classList.remove('show'));
+
+    // Dropdown
+    const st = document.getElementById('service-toggle'), sm = document.getElementById('service-menu');
+    if (st && sm) {
+        st.addEventListener('click', e => { e.stopPropagation(); sm.classList.toggle('show'); st.setAttribute('aria-expanded', sm.classList.contains('show')); });
+        document.addEventListener('click', () => sm.classList.remove('show'));
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') sm.classList.remove('show'); });
+    }
+
+    // Login check
+    const dc = document.getElementById('desktop-login-container');
+    const ms = document.getElementById('mobile-login-section');
+    fetch('/api/check-login', { credentials: 'include' })
+        .then(r => r.json())
+        .then(data => {
+            if (data.loggedIn) {
+                if (dc) dc.innerHTML = `<a href="/logout" class="btn-logout" id="logout-btn-desktop"><i class="fas fa-sign-out-alt" style="margin-right:5px;"></i>Logout</a>`;
+                if (ms) ms.innerHTML = `<a href="/logout" class="btn-logout" id="logout-btn-mobile" style="display:block;text-align:center;width:100%;padding:13px;border-radius:10px;"><i class="fas fa-sign-out-alt" style="margin-right:5px;"></i>Logout</a>`;
+                document.addEventListener('click', e => {
+                    if (e.target.closest('#logout-btn-desktop') || e.target.closest('#logout-btn-mobile')) {
+                        if (confirm('Are you sure you want to log out?')) {
+                            fetch('/logout', { method: 'POST', credentials: 'include' }).finally(() => window.location.href = '/');
+                        }
+                        e.preventDefault();
+                    }
+                });
+            }
+        }).catch(() => {});
+
+    // Agent enquiry form
+    const agentForm = document.getElementById('contact-agent-form');
+    const agentSubmitBtn = document.getElementById('agent-submit-btn');
+    const agentMessageDiv = document.getElementById('agent-form-message');
+
+    if (agentForm) {
+        agentForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData(agentForm);
+            const data = Object.fromEntries(formData.entries());
+
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(data.email)) {
+                showMsg('Please enter a valid email address.', 'error');
+                return;
+            }
+
+            if (agentSubmitBtn) {
+                agentSubmitBtn.disabled = true;
+                agentSubmitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+            }
+
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+            try {
+                const response = await fetch('/detail-contact', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                    body: JSON.stringify(data),
+                    credentials: 'include',
+                    signal: controller.signal
+                });
+
+                clearTimeout(timeoutId);
+                const result = await response.json();
+
+                if (!response.ok) {
+                    showMsg(result.message || 'An error occurred.', 'error');
+                    return;
+                }
+
+                if (result.success) {
+                    showMsg(result.message || 'Enquiry sent to agent!', 'success');
+                    agentForm.reset();
+                    // Redirect to chat if server says so
+                    if (result.redirect) {
+                        setTimeout(() => window.location.href = result.redirect, 2000);
+                    }
+                } else {
+                    showMsg(result.message || 'Failed to send enquiry.', 'error');
+                }
+            } catch (err) {
+                clearTimeout(timeoutId);
+                const msg = err.name === 'AbortError' ? 'Request timed out.' : 'Network error.';
+                showMsg(msg + ' Please try again.', 'error');
+            } finally {
+                if (agentSubmitBtn) {
+                    agentSubmitBtn.disabled = false;
+                    agentSubmitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Enquiry';
+                }
+            }
+        });
+    }
+
+    function showMsg(text, type) {
+        if (!agentMessageDiv) return;
+        agentMessageDiv.textContent = text;
+        agentMessageDiv.className = `form-msg ${type}`;
+        setTimeout(() => { agentMessageDiv.style.display = 'none'; agentMessageDiv.className = 'form-msg'; }, 5000);
+    }
+
+    // Lazy loading
+    if ('IntersectionObserver' in window) {
+        const obs = new IntersectionObserver(entries => {
+            entries.forEach(e => { if (e.isIntersecting) { const img = e.target; img.src = img.dataset.src || img.src; obs.unobserve(img); } });
+        });
+        document.querySelectorAll('img[data-src]').forEach(img => obs.observe(img));
+    }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>G.O AREGBAN REAL ESTATE FIRM</title>
+  <!-- Google Material Icons -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/styles.css">
+  
+  <style>
+    /* Add styles for dropdown menu */
+    .admin-dropdown {
+      position: relative;
+    }
+    .dropdown-menu {
+      display: none; /* Hide by default */
+      position: absolute;
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      z-index: 1000;
+      margin-top: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      opacity: 0; /* Start with opacity 0 */
+      transition: opacity 0.3s ease, visibility 0.3s ease; /* Transition for opacity and visibility */
+      visibility: hidden; /* Hide the dropdown initially */
+    }
+    .dropdown-menu.show {
+      display: block; /* Show when toggled */
+      opacity: 1; /* Set opacity to 1 when shown */
+      visibility: visible; /* Make it visible */
+      color:yellow;
+    }
+
+    .status-active {
+          background-color: #d1fae5;
+            color: #0f523f;
+  position: absolute;  /* 'absolute' in Tailwind */
+  top: 0;             /* 'top-0' */
+  right: 0;           /* 'right-0' */
+  margin: 0.5rem;     /* 'm-2' → 0.5rem (8px) */
+  
+  /* 'px-2 py-1' → padding */
+  padding: 0.25rem 0.5rem;  /* (Top/Bottom = 0.25rem, Left/Right = 0.5rem) */
+  
+  border-radius: 9999px; /* 'rounded-full' → makes a pill/circle shape */
+  font-size: 0.75rem;    /* 'text-xs' → 0.75rem (12px) */
+    }
+
+    /* Toast Styles (for success/error messages) */
+    #toast-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 10000;
+    }
+    .toast {
+      padding: 12px 20px;
+      border-radius: 8px;
+      color: white;
+      font-weight: 500;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      max-width: 350px;
+      margin-bottom: 10px;
+      animation: slideIn 0.3s ease-out;
+    }
+    .toast.success {
+      background-color: #10b981; /* Green */
+    }
+    .toast.error {
+      background-color: #ef4444; /* Red */
+    }
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <div id="app" role="application">
+    <aside class="sidebar" aria-label="Main navigation">
+       <nav aria-label="Primary navigation">
+          <a href="track-sales.html" tabindex="0" aria-label="Track Sales" >
+        <span class="material-icons" aria-hidden="true">assessment</span>DASHBOARD
+      </a>
+
+        <a href="index.html"  tabindex="0" aria-current="page" aria-label="Home" class="active">
+          <span class="material-icons" aria-hidden="true">home</span>Avialable properties
+        </a>
+        <!--<a href="buy-page.html" tabindex="0" aria-label="Buy Homes">
+          <span class="material-icons" aria-hidden="true">support_agent</span>Buy
+        </a>
+        <a href="rent-page.html" tabindex="0" aria-label="Rent Homes">
+          <span class="material-icons" aria-hidden="true">key</span>Rent
+        </a>-->
+        <a href="sell-page.html" tabindex="0" aria-label="Sell Homes" >
+          <span class="material-icons" aria-hidden="true" >sell</span>Sell
+        </a>
+       <!-- <a href="home-improvemet-page.html" tabindex="0" aria-label="Home Improvement">
+          <span class="material-icons" aria-hidden="true">home_repair_service</span>Home Improvement
+        </a>
+        <a href="message-page.html" tabindex="0" aria-label="Messages">
+          <span class="material-icons" aria-hidden="true">message</span>Messages
+          
+        </a>-->
+       
+
+          <% if (isAdmin) { %> <a href="sales-approval.html" tabindex="0" aria-label="Sales Approval">
+        <span class="material-icons" aria-hidden="true">check_circle</span>Sales Approval
+      </a>
+      <!--<a href="tour-requested.html" tabindex="0" aria-label="Tour Requested">
+        <span class="material-icons" aria-hidden="true">event_available</span>Tour Requested
+      </a>-->
+       <a href="manage-agent" tabindex="0" aria-label="View All Customers">
+       <span class="material-icons" aria-hidden="true">event_available</span>Manage Agent
+      </a>
+      <a href="view-customers.html" tabindex="0" aria-label="View All Customers">
+        <span class="material-icons" aria-hidden="true">people</span>View All Customers
+      </a>
+       
+    
+
+       <a href="sold-properties" tabindex="0" aria-label="Track Sales" >
+        <span class="material-icons" aria-hidden="true">check_circle</span>Sold property
+      </a>
+
+       <a href="setting-page.html" tabindex="0" aria-label="Settings">
+          <span class="material-icons" aria-hidden="true">settings</span>Settings
+        </a>  <% } %>
+        
+
+
+ <!-- <div class="admin-dropdown">
+    <button class="dropdown-toggle" aria-expanded="false" aria-controls="admin-menu">
+      <span class="material-icons" aria-hidden="true">admin_panel_settings</span>Admin
+      <span class="material-icons dropdown-icon">expand_more</span>
+    </button>
+    <div class="dropdown-menu" id="admin-menu">
+      <a href="sales-approval.html" tabindex="0" aria-label="Sales Approval">
+        <span class="material-icons" aria-hidden="true">check_circle</span>Sales Approval
+      </a>
+      <a href="tour-requested.html" tabindex="0" aria-label="Tour Requested">
+        <span class="material-icons" aria-hidden="true">event_available</span>Tour Requested
+      </a>
+      <a href="view-customers.html" tabindex="0" aria-label="View All Customers">
+        <span class="material-icons" aria-hidden="true">people</span>View All Customers
+      </a>
+       
+                        <a href="track-sales.html" tabindex="0" aria-label="Track Sales">
+                            <span class="material-icons" aria-hidden="true">assessment</span>Track Sales
+                        </a>
+                   
+    </div>
+  </div>-->
+  
+  
+      </nav>
+      <footer>
+        &copy; 2025 G.O AREGBAN REAL ESTATE FIRM. All rights reserved.
+      </footer>
+    </aside>
+
+    <header role="banner" aria-label="Primary header">
+      <div class="header-left">
+        <button class="sidebar-toggle-btn material-icons" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="sidebar">menu</button>
+        <a href="#" class="logo" aria-label="RealEstatePro Home">
+          <span class="material-icons" aria-hidden="true">apartment</span>G.O AREGBAN REAL ESTATE FIRM And Consultant
+        </a>
+        <nav class="primary-nav" role="navigation" aria-label="Primary site navigation">
+          <a href="buy-page.html" class="active" aria-current="page">Buy</a>
+          <!--<a href="rent-page.html">Rent</a>-->
+          <a href="sell-page.html">Sell</a>
+        </nav>
+      </div>
+      <div class="header-right">
+        <button class="icon-btn" aria-label="Notifications" aria-haspopup="true" aria-expanded="false">
+          <a href="notificatin-page.html"><span class="material-icons">notifications</span></a>
+         
+        </button>
+        <button class="icon-btn" aria-label="User    profile menu" aria-haspopup="true" aria-expanded="false">
+          <a href="profile-page.html"><span class="material-icons">person</span></a>
+        </button>
+      </div>
+    </header>
+
+    <main role="main" tabindex="-1" aria-label="Real estate listings and search">
+      <section class="search-bar" aria-label="Property search form">
+        <div>
+          <label for="search-location">Location</label>
+          <input
+            id="search-location"
+            type="text"
+            placeholder="City, neighborhood, address..."
+            autocomplete="off"
+            aria-describedby="search-location-desc"
+          />
+          <small id="search-location-desc" style="color:#666; font-size:0.75rem; user-select:none;">Start typing a location</small>
+        </div>
+        <div>
+          <label for="search-min-price">Min Price</label>
+          <select id="search-min-price" aria-label="Minimum price filter">
+            <option value="">No Min</option>
+            <option value="100000">$100,000</option>
+            <option value="200000">$200,000</option>
+            <option value="300000">$300,000</option>
+            <option value="400000">$400,000</option>
+            <option value="500000">$500,000</option>
+            <option value="750000">$750,000</option>
+            <option value="1000000">$1,000,000</option>
+          </select>
+        </div>
+        <div>
+          <label for="search-max-price">Max Price</label>
+          <select id="search-max-price" aria-label="Maximum price filter">
+            <option value="">No Max</option>
+            <option value="250000">$250,000</option>
+            <option value="500000">$500,000</option>
+            <option value="750000">$750,000</option>
+            <option value="1000000">$1,000,000</option>
+            <option value="1500000">$1,500,000</option>
+            <option value="2500000">$2,500,000</option>
+            <option value="5000000">$5,000,000</option>
+          </select>
+        </div>
+        <div>
+          <label for="search-min-bedrooms">Min Beds</label>
+          <select id="search-min-bedrooms" aria-label="Minimum bedrooms filter">
+            <option value="">Any</option>
+            <option value="1">1+</option>
+            <option value="2">2+</option>
+            <option value="3">3+</option>
+            <option value="4">4+</option>
+            <option value="5">5+</option>
+          </select>
+        </div>
+        <div>
+          <label for="search-min-baths">Min Baths</label>
+          <select id="search-min-baths" aria-label="Minimum bathrooms filter">
+            <option value="">Any</option>
+            <option value="1">1+</option>
+            <option value="2">2+</option>
+            <option value="3">3+</option>
+          </select>
+        </div>
+        <button id="search-submit" aria-label="Submit property search" name="search">
+          <span class="material-icons" aria-hidden="true">search</span> Search
+        </button>
+      </section>
+
+      <section aria-label="Properties for sale">
+        <div class="listings-grid" id="buy-listings" role="list" tabindex="0" aria-live="polite">
+          <% card.forEach(card => { %> 
+            <div class="property-card">
+              <p style="display: none;" name="id"><%= card.id %></p>
+              <div class="relative">
+              <img src="<%= card.image_data %>" loading="lazy" alt="<%= card.description %>" width="320" height="180" />
+              <span class="status-active absolute top-0 right-0 m-2 px-2 py-1 rounded-full text-xs">Active</span>
+              </div>
+              <div class="property-content">
+                <h3 class="property-title" title="<%= card.title %>"><%= card.title %></h3>
+                <p class="property-address" title="<%= card.propertyAddress %>"><%= card.propertyAddress %></p>
+                <div class="property-features" aria-label="Property features">
+                  <div class="feature" title="<%= card.bedrooms %> Bedrooms">
+                    <span class="material-icons" aria-hidden="true">bed</span><%= card.bedrooms %>
+                  </div>
+                  <div class="feature" title="<%= card.bathrooms %> Bathrooms">
+                    <span class="material-icons" aria-hidden="true">bathtub</span><%= card.bathrooms %>
+                  </div>
+                  <div class="feature" title="<%= card.sqft %> Square feet">
+                    <span class="material-icons" aria-hidden="true">square_foot</span><%= card.sqft %>
+                  </div>
+                </div>
+                <div class="property-price"># <%= card.amount %></div>
+                <div>
+                <a href="/request-tour?id=<%= card.id %>"><button class="request-tour">View</button></a>
+                  <a href="/sold?id=<%= card.id %>" class="requires-login"><button class="request-tour" style="background-color:gold">Sold</button></a>
+                </div>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      </section>
+
+      <nav class="pagination" aria-label="Pagination controls" role="navigation" aria-live="polite">
+        <button id="prev-page" aria-label="Previous page" disabled>&lt;</button>
+        <button id="next-page" aria-label="Next page">&gt;</button>
+      </nav>
+    </main>
+
+    <footer role="contentinfo" aria-label="Website footer">
+      <div>© 2025 RealEstatePro. All rights reserved.</div>
+      <div class="social-links" aria-label="Social media links">
+        <a href="#" target="_blank" rel="noopener" aria-label="Facebook">
+          <span class="material-icons">facebook</span>
+        </a>
+        <a href="#" target="_blank" rel="noopener" aria-label="Twitter">
+          <span class="material-icons">twitter</span>
+        </a>
+        <a href="#" target="_blank" rel="noopener" aria-label="Instagram">
+          <span class="material-icons">camera_alt</span>
+        </a>
+        <a href="#" target="_blank" rel="noopener" aria-label="LinkedIn">
+          <span class="material-icons">linkedin</span>
+        </a>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Toast notifications container -->
+  <div id="toast-container" aria-live="assertive" role="alert"></div>
+
+  <script src="/js/script.js"></script>
+  <script>
+    (() => {
+      document.querySelector('.dropdown-toggle').addEventListener('click', function() {
+        const expanded = this.getAttribute('aria-expanded') === 'true';
+        this.setAttribute('aria-expanded', !expanded);
+        document.getElementById('admin-menu').classList.toggle('show');
+      });
+    })();
+  </script>
+
+  <!-- New Script: Handle Success/Error Toasts from URL Params -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Parse URL query params
+        const urlParams = new URLSearchParams(window.location.search);
+        const success = urlParams.get('success');
+        const error = urlParams.get('error');
+        const title = urlParams.get('title');  // Optional: For personalized success message
+
+        const toastContainer = document.getElementById('toast-container');
+
+        function showToast(message, type) {
+            if (!toastContainer) return;
+
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            toast.setAttribute('role', 'alert');
+            toast.setAttribute('aria-live', 'assertive');
+
+            toastContainer.appendChild(toast);
+
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.3s ease-in';
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.parentNode.removeChild(toast);
+                    }
+                }, 300);
+            }, 5000);
+
+            // Optional: Add slide-out animation (add to <style> if needed)
+            // @keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
+        }
+
+        // Handle Success
+        if (success === 'sold') {
+            const msg = title ? `Property "${decodeURIComponent(title)}" marked as sold successfully!` : 'Property marked as sold successfully!';
+            showToast(msg, 'success');
+        }
+
+        // Handle Error
+        if (error) {
+            showToast(decodeURIComponent(error), 'error');
+        }
+
+        // Clear URL params after showing toast (clean browser history)
+        if (success || error) {
+            const cleanUrl = window.location.pathname;
+            window.history.replaceState({}, document.title, cleanUrl);
+        }
+    });
+  </script>
+</body>
+</html>

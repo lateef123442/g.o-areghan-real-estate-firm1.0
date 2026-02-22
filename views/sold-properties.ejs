@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sold Properties | G.O AREGBAN REAL ESTATE FIRM</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/styles.css">
+  
+  <style>
+    /* Reuse your existing styles for .admin-dropdown, .status-active, etc. */
+    .admin-dropdown { position: relative; }
+    .dropdown-menu { /* ... your styles ... */ }
+    .status-sold {
+      background-color: #fee2e2; color: #dc2626; position: absolute; top: 0; right: 0; margin: 0.5rem;
+      padding: 0.25rem 0.5rem; border-radius: 9999px; font-size: 0.75rem;
+    }
+    /* Toast Styles (same as sell page) */
+    #toast-container { position: fixed; top: 20px; right: 20px; z-index: 10000; }
+    .toast { padding: 12px 20px; border-radius: 8px; color: white; font-weight: 500; box-shadow: 0 4px 12px rgba(0,0,0,0.15); max-width: 350px; margin-bottom: 10px; animation: slideIn 0.3s ease-out; }
+    .toast.success { background-color: #10b981; }
+    .toast.error { background-color: #ef4444; }
+    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    /* Button Styles */
+    .action-btn { padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; margin-right: 8px; text-decoration: none; display: inline-block; }
+    .edit-btn { background: #3b82f6; color: white; }
+    .unsold-btn { background: #eab308; color: black; }
+    .delete-btn { background: #ef4444; color: white; }
+    .action-btn:hover { opacity: 0.8; }
+    /* Empty State */
+    .empty-state { text-align: center; padding: 4rem 2rem; }
+    .empty-state .material-icons { font-size: 4rem; color: #d1d5db; margin-bottom: 1rem; }
+    /* Pagination */
+    .pagination { display: flex; justify-content: center; align-items: center; margin-top: 2rem; gap: 1rem; }
+    .pagination button { padding: 0.5rem 1rem; border: 1px solid #d1d5db; background: white; border-radius: 0.25rem; cursor: pointer; }
+    .pagination button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .pagination button:hover:not(:disabled) { background: #f3f4f6; }
+  </style>
+</head>
+<body>
+  <div id="app" role="application">
+    <aside class="sidebar" aria-label="Main navigation">
+       <nav aria-label="Primary navigation">
+          <a href="track-sales.html" tabindex="0" aria-label="Track Sales" >
+        <span class="material-icons" aria-hidden="true">assessment</span>DASHBOARD
+      </a>
+
+        <a href="index.html"  tabindex="0" aria-current="page" aria-label="Home">
+          <span class="material-icons" aria-hidden="true">home</span>Avialable properties
+        </a>
+        <!--<a href="buy-page.html" tabindex="0" aria-label="Buy Homes">
+          <span class="material-icons" aria-hidden="true">support_agent</span>Buy
+        </a>
+        <a href="rent-page.html" tabindex="0" aria-label="Rent Homes">
+          <span class="material-icons" aria-hidden="true">key</span>Rent
+        </a>-->
+        <a href="sell-page.html" tabindex="0" aria-label="Sell Homes" >
+          <span class="material-icons" aria-hidden="true" >sell</span>Sell
+        </a>
+       <!-- <a href="home-improvemet-page.html" tabindex="0" aria-label="Home Improvement">
+          <span class="material-icons" aria-hidden="true">home_repair_service</span>Home Improvement
+        </a>
+        <a href="message-page.html" tabindex="0" aria-label="Messages">
+          <span class="material-icons" aria-hidden="true">message</span>Messages
+          
+        </a>-->
+       
+
+          <% if (isAdmin) { %> <a href="sales-approval.html" tabindex="0" aria-label="Sales Approval">
+        <span class="material-icons" aria-hidden="true">check_circle</span>Sales Approval
+      </a>
+      <!--<a href="tour-requested.html" tabindex="0" aria-label="Tour Requested">
+        <span class="material-icons" aria-hidden="true">event_available</span>Tour Requested
+      </a>-->
+       <a href="manage-agent" tabindex="0" aria-label="View All Customers">
+       <span class="material-icons" aria-hidden="true">event_available</span>Manage Agent
+      </a>
+      <a href="view-customers.html" tabindex="0" aria-label="View All Customers">
+        <span class="material-icons" aria-hidden="true">people</span>View All Customers
+      </a>
+       
+    
+
+       <a href="sold-properties" tabindex="0" aria-label="Track Sales" class="active">
+        <span class="material-icons" aria-hidden="true">check_circle</span>Sold property
+      </a>
+
+       <a href="setting-page.html" tabindex="0" aria-label="Settings">
+          <span class="material-icons" aria-hidden="true">settings</span>Settings
+        </a>  <% } %>
+        
+
+
+ <!-- <div class="admin-dropdown">
+    <button class="dropdown-toggle" aria-expanded="false" aria-controls="admin-menu">
+      <span class="material-icons" aria-hidden="true">admin_panel_settings</span>Admin
+      <span class="material-icons dropdown-icon">expand_more</span>
+    </button>
+    <div class="dropdown-menu" id="admin-menu">
+      <a href="sales-approval.html" tabindex="0" aria-label="Sales Approval">
+        <span class="material-icons" aria-hidden="true">check_circle</span>Sales Approval
+      </a>
+      <a href="tour-requested.html" tabindex="0" aria-label="Tour Requested">
+        <span class="material-icons" aria-hidden="true">event_available</span>Tour Requested
+      </a>
+      <a href="view-customers.html" tabindex="0" aria-label="View All Customers">
+        <span class="material-icons" aria-hidden="true">people</span>View All Customers
+      </a>
+       
+                        <a href="track-sales.html" tabindex="0" aria-label="Track Sales">
+                            <span class="material-icons" aria-hidden="true">assessment</span>Track Sales
+                        </a>
+                   
+    </div>
+  </div>-->
+  
+  
+      </nav>
+      <footer>
+        &copy; 2025 G.O AREGBAN REAL ESTATE FIRM. All rights reserved.
+      </footer>
+    </aside>
+
+    <header role="banner" aria-label="Primary header">
+      <div class="header-left">
+        <button class="sidebar-toggle-btn material-icons" aria-label="Toggle navigation">menu</button>
+        <a href="#" class="logo"><span class="material-icons" aria-hidden="true">apartment</span>G.O AREGBAN REAL ESTATE FIRM</a>
+        <nav class="primary-nav">
+          <a href="/sell-page.html">Sell</a>
+          <a href="/sold-properties" class="active">Sold Properties</a>
+        </nav>
+      </div>
+      <div class="header-right">
+        <button class="icon-btn"><a href="notificatin-page.html"><span class="material-icons">notifications</span></a></button>
+        <button class="icon-btn"><a href="profile-page.html"><span class="material-icons">person</span></a></button>
+      </div>
+    </header>
+
+    <main role="main" aria-label="Sold properties management">
+      <section aria-label="Sold properties list">
+        <h1 class="text-2xl font-bold mb-4">Sold Properties (<%= soldProperties.length %>)</h1>
+        <div class="listings-grid" id="sold-listings" role="list">
+          <% soldProperties.forEach(property => { %>
+            <div class="property-card">
+              <p style="display: none;" name="id"><%= property.id %></p>
+              <div class="relative">
+                <% if (property.image_data) { %>
+                  <img src="<%= property.image_data %>" loading="lazy" alt="<%= property.title || 'Sold Property' %>" width="320" height="180" />
+                <% } else { %>
+                  <div class="w-full h-48 bg-gray-200 flex items-center justify-center">
+                    <span class="material-icons text-gray-400">apartment</span>
+                  </div>
+                <% } %>
+                <span class="status-sold">Sold</span>
+              </div>
+              <div class="property-content">
+                <h3 class="property-title"><%= property.title || 'Untitled' %></h3>
+                <p class="property-address"><%= property.propertyAddress || 'N/A' %></p>
+                <div class="property-features">
+                  <div class="feature"><span class="material-icons">bed</span><%= property.bedrooms || 'N/A' %></div>
+                  <div class="feature"><span class="material-icons">bathtub</span><%= property.bathrooms || 'N/A' %></div>
+                  <div class="feature"><span class="material-icons">square_foot</span><%= property.sqft || 'N/A' %> sqft</div>
+                </div>
+                <div class="property-price"># <%= property.amount || 'N/A' %></div>
+                <p class="text-sm text-gray-600 mt-2"><%= (property.description || '').substring(0, 100) %>...</p>
+                <div class="mt-4">
+                  <!-- Edit Button -->
+                  <a href="/edit-sold?id=<%= property.id %>" class="action-btn edit-btn">
+                    <span class="material-icons" aria-hidden="true">edit</span> Edit
+                  </a>
+                  <!-- Unsold Button (Form POST) -->
+                  <form action="/unsold" method="POST" style="display: inline;" onsubmit="return confirm('Move this property back to active sales?');">
+                    <input type="hidden" name="id" value="<%= property.id %>">
+                    <button type="submit" class="action-btn unsold-btn">
+                      <span class="material-icons" aria-hidden="true">sell</span> Unsold/Sell
+                    </button>
+                  </form>
+                  <!-- Delete Button (Form POST) -->
+                  <form action="/delete-sold" method="POST" style="display: inline;" onsubmit="return confirm('Permanently delete this property?');">
+                    <input type="hidden" name="id" value="<%= property.id %>">
+                    <button type="submit" class="action-btn delete-btn">
+                      <span class="material-icons" aria-hidden="true">delete</span> Delete
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          <% }) %>
+          <% if (soldProperties.length === 0) { %>
+            <div class="empty-state">
+              <span class="material-icons">inventory</span>
+              <h3 class="text-xl font-semibold text-gray-500">No Sold Properties</h3>
+              <p class="text-gray-400">All properties are active in sales. Mark some as sold to see them here.</p>
+              <a href="/sell-page.html" class="mt-4 inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                <span class="material-icons" aria-hidden="true">sell</span> View Active Sales
+              </a>
+            </div>
+          <% } %>
+        </div>
+
+        <!-- Basic Pagination (Extend with JS for full functionality) -->
+        <% if (soldProperties.length > 0) { %>
+          <nav class="pagination" aria-label="Pagination controls">
+            <button id="prev-page" aria-label="Previous page" disabled>&lt; Previous</button>
+            <span>Page 1 of 1</span> <!-- Dynamic: Update with JS based on total/itemsPerPage -->
+            <button id="next-page" aria-label="Next page" disabled>Next &gt;</button>
+          </nav>
+        <% } %>
+      </section>
+    </main>
+
+    <footer role="contentinfo" aria-label="Website footer">
+      <div>© 2025 G.O AREGBAN REAL ESTATE FIRM. All rights reserved.</div>
+      <div class="social-links" aria-label="Social media links">
+        <a href="#" target="_blank" rel="noopener" aria-label="Facebook"><span class="material-icons">facebook</span></a>
+        <a href="#" target="_blank" rel="noopener" aria-label="Twitter"><span class="material-icons">twitter</span></a>
+        <a href="#" target="_blank" rel="noopener" aria-label="Instagram"><span class="material-icons">camera_alt</span></a>
+        <a href="#" target="_blank" rel="noopener" aria-label="LinkedIn"><span class="material-icons">linkedin</span></a>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Toast notifications container -->
+  <div id="toast-container" aria-live="assertive" role="alert"></div>
+
+  <script src="/js/script.js"></script>
+  <!-- Sidebar Toggle (if not in script.js) -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const sidebarToggle = document.querySelector('.sidebar-toggle-btn');
+      const sidebar = document.querySelector('.sidebar');
+      if (sidebarToggle && sidebar) {
+        sidebarToggle.addEventListener('click', () => {
+          sidebar.classList.toggle('hidden');
+        });
+      }
+
+      // Pagination (Basic - for demo; extend for real paging)
+      const prevBtn = document.getElementById('prev-page');
+      const nextBtn = document.getElementById('next-page');
+      if (prevBtn) prevBtn.addEventListener('click', () => { /* Load prev page */ });
+      if (nextBtn) nextBtn.addEventListener('click', () => { /* Load next page */ });
+    });
+  </script>
+
+  <!-- Toast Handling Script (Same as Sell Page) -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const success = urlParams.get('success');
+      const error = urlParams.get('error');
+
+      const toastContainer = document.getElementById('toast-container');
+
+      function showToast(message, type) {
+        if (!toastContainer) return;
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.textContent = message;
+        toast.setAttribute('role', 'alert');
+        toast.setAttribute('aria-live', 'assertive');
+        toastContainer.appendChild(toast);
+
+        setTimeout(() => {
+          toast.style.animation = 'slideOut 0.3s ease-in';  // Add @keyframes slideOut if needed
+          setTimeout(() => {
+            if (toast.parentNode) toast.parentNode.removeChild(toast);
+          }, 300);
+        }, 5000);
+      }
+
+      if (success) {
+        showToast(success, 'success');
+      }
+      if (error) {
+        showToast(error, 'error');
+      }
+
+      // Clear URL params
+      if (success || error) {
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    });
+  </script>
+</body>
+</html>

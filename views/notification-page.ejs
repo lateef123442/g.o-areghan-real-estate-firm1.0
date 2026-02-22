@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Buy Homes - RealEstatePro</title>
+  <!-- Google Material Icons -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+  <style>
+    /* Reset and base */
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+        Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      background: #f5f7fa;
+      color: #222;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      scroll-behavior: smooth;
+    }
+    a {
+      color: #1761a0;
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+    a:hover,
+    a:focus {
+      color: #003d66;
+      outline: none;
+    }
+    button {
+      cursor: pointer;
+      border: none;
+      background: #1761a0;
+      color: white;
+      font-weight: 600;
+      border-radius: 6px;
+      padding: 10px 16px;
+      font-size: clamp(0.9rem, 1vw + 0.3rem, 1.1rem);
+      transition: background-color 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      user-select: none;
+    }
+    button:disabled {
+      background: #a0b8cf;
+      cursor: not-allowed;
+    }
+    button:hover:not(:disabled),
+    button:focus-visible:not(:disabled) {
+      background: #004080;
+      outline: none;
+    }
+    input, select {
+      font-family: inherit;
+      font-size: clamp(0.9rem, 1vw + 0.3rem, 1rem);
+      padding: 11px 14px;
+      border-radius: 6px;
+      border: 1.5px solid #cfdde8;
+      transition: border-color 0.3s ease;
+      width: 100%;
+      max-width: 400px;
+      box-sizing: border-box;
+      color: #222;
+    }
+    input:focus,
+    select:focus {
+      outline: none;
+      border-color: #1761a0;
+      box-shadow: 0 0 6px #1761a0aa;
+    }
+    label {
+      font-weight: 600;
+      margin-bottom: 4px;
+      display: inline-block;
+      font-size: clamp(0.85rem, 1vw + 0.1rem, 0.95rem);
+      color: #444;
+      user-select: none;
+    }
+    header {
+      height: 64px;
+      background: rgba(255 255 255 / 0.85);
+      backdrop-filter: saturate(180%) blur(12px);
+      border-bottom: 1px solid #ddd;
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgb(0 0 0 / 0.06);
+    }
+    .logo {
+      font-weight: 800;
+      font-size: 1.5rem;
+      color: #1761a0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      user-select: none;
+    }
+    .logo .material-icons {
+      color: #0d3a66;
+      font-size: 1.8rem;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 36px auto 48px;
+      padding: 0 20px;
+    }
+    h1 {
+      color: #0d3a66;
+      font-weight: 900;
+      font-size: clamp(2rem, 5vw, 3rem);
+      margin-bottom: 16px;
+      user-select: none;
+    }
+    .intro-text {
+      font-size: 1.125rem;
+      color: #444;
+      margin-bottom: 32px;
+      max-width: 600px;
+    }
+    .search-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      padding: 20px;
+      border-radius: 16px;
+      background: white;
+      box-shadow: 0 8px 30px rgb(0 0 0 / 0.07);
+      margin-bottom: 48px;
+      justify-content: center;
+    }
+    .search-bar > div {
+      flex-grow: 1;
+      min-width: 180px;
+      max-width: 280px;
+      display: flex;
+      flex-direction: column;
+    }
+    .listings-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 28px;
+      width: 100%;
+    }
+    .property-card {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgb(0 0 0 / 0.07);
+      display: flex;
+      flex-direction: column;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+      overflow: hidden;
+    }
+    .property-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 22px 46px rgb(0 0 0 / 0.15);
+      z-index: 10;
+    }
+    .property-card img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+      user-select: none;
+    }
+    .property-card:hover img {
+      transform: scale(1.05);
+    }
+    .property-content {
+      padding: 20px 24px;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+      gap: 8px;
+      user-select: none;
+    }
+    .property-title {
+      font-size: clamp(1rem, 1vw + 0.1rem, 1.2rem);
+      font-weight: 700;
+      color: #1761a0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .property-address {
+      font-size: 0.9rem;
+      color: #666;
+      overflow-wrap: anywhere;
+      user-select: text;
+    }
+    .property-features {
+      display: flex;
+      gap: 20px;
+      font-size: 0.9rem;
+      color: #444;
+      font-weight: 500;
+      align-items: center;
+    }
+    .property-features .material-icons {
+      color: #1761a0;
+      font-size: 20px;
+      user-select: none;
+    }
+    .property-price {
+      margin-top: auto;
+      font-size: clamp(1.1rem, 1vw + 0.3rem, 1.4rem);
+      font-weight: 900;
+      color: #0d3a66;
+      letter-spacing: 0.03em;
+      user-select: none;
+    }
+    .pagination {
+      margin-top: 48px;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      user-select: none;
+    }
+    .pagination button {
+      background: #f0f4fa;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-weight: 700;
+      color: #1761a0;
+      font-size: 1.1rem;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    .pagination button:disabled {
+      color: #a1a8ab;
+      cursor: default;
+      background: #dde7f0;
+    }
+    .pagination button:hover:not(:disabled),
+    .pagination button:focus-visible:not(:disabled) {
+      background: #d0e4fb;
+      outline: none;
+    }
+
+  </style>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <div id="app" role="application">
+    <aside class="sidebar" aria-label="Main navigation">
+       <nav aria-label="Primary navigation">
+          <a href="track-sales.html" tabindex="0" aria-label="Track Sales" >
+        <span class="material-icons" aria-hidden="true">assessment</span>DASHBOARD
+      </a>
+
+        <a href="index.html"  tabindex="0" aria-current="page" aria-label="Home">
+          <span class="material-icons" aria-hidden="true">home</span>Avialable properties
+        </a>
+        <!--<a href="buy-page.html" tabindex="0" aria-label="Buy Homes">
+          <span class="material-icons" aria-hidden="true">support_agent</span>Buy
+        </a>
+        <a href="rent-page.html" tabindex="0" aria-label="Rent Homes">
+          <span class="material-icons" aria-hidden="true">key</span>Rent
+        </a>-->
+        <a href="sell-page.html" tabindex="0" aria-label="Sell Homes" >
+          <span class="material-icons" aria-hidden="true" >sell</span>Sell
+        </a>
+       <!-- <a href="home-improvemet-page.html" tabindex="0" aria-label="Home Improvement">
+          <span class="material-icons" aria-hidden="true">home_repair_service</span>Home Improvement
+        </a>
+        <a href="message-page.html" tabindex="0" aria-label="Messages">
+          <span class="material-icons" aria-hidden="true">message</span>Messages
+          
+        </a>-->
+       
+
+          <% if (isAdmin) { %> <a href="sales-approval.html" tabindex="0" aria-label="Sales Approval">
+        <span class="material-icons" aria-hidden="true">check_circle</span>Sales Approval
+      </a>
+      <!--<a href="tour-requested.html" tabindex="0" aria-label="Tour Requested">
+        <span class="material-icons" aria-hidden="true">event_available</span>Tour Requested
+      </a>-->
+       <a href="manage-agent" tabindex="0" aria-label="View All Customers">
+       <span class="material-icons" aria-hidden="true">event_available</span>Manage Agent
+      </a>
+      <a href="view-customers.html" tabindex="0" aria-label="View All Customers">
+        <span class="material-icons" aria-hidden="true">people</span>View All Customers
+      </a>
+       
+    
+
+       <a href="sold-properties" tabindex="0" aria-label="Track Sales" >
+        <span class="material-icons" aria-hidden="true">check_circle</span>Sold property
+      </a>
+
+       <a href="setting-page.html" tabindex="0" aria-label="Settings">
+          <span class="material-icons" aria-hidden="true">settings</span>Settings
+        </a>  <% } %>
+        
+
+
+ <!-- <div class="admin-dropdown">
+    <button class="dropdown-toggle" aria-expanded="false" aria-controls="admin-menu">
+      <span class="material-icons" aria-hidden="true">admin_panel_settings</span>Admin
+      <span class="material-icons dropdown-icon">expand_more</span>
+    </button>
+    <div class="dropdown-menu" id="admin-menu">
+      <a href="sales-approval.html" tabindex="0" aria-label="Sales Approval">
+        <span class="material-icons" aria-hidden="true">check_circle</span>Sales Approval
+      </a>
+      <a href="tour-requested.html" tabindex="0" aria-label="Tour Requested">
+        <span class="material-icons" aria-hidden="true">event_available</span>Tour Requested
+      </a>
+      <a href="view-customers.html" tabindex="0" aria-label="View All Customers">
+        <span class="material-icons" aria-hidden="true">people</span>View All Customers
+      </a>
+       
+                        <a href="track-sales.html" tabindex="0" aria-label="Track Sales">
+                            <span class="material-icons" aria-hidden="true">assessment</span>Track Sales
+                        </a>
+                   
+    </div>
+  </div>-->
+  
+  
+      </nav>
+      <footer>
+        &copy; 2025 G.O AREGBAN REAL ESTATE FIRM. All rights reserved.
+      </footer>
+    </aside>
+
+    <header role="banner" aria-label="Primary header">
+      <div class="header-left">
+        <button class="sidebar-toggle-btn material-icons" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="sidebar">menu</button>
+        <a href="#" class="logo" aria-label="RealEstatePro Home">
+          <span class="material-icons" aria-hidden="true">apartment</span>G.O AREGBAN REAL ESTATE FIRM And Consultant
+        </a>
+        <nav class="primary-nav" role="navigation" aria-label="Primary site navigation">
+          <a href="buy-page.html" class="active" aria-current="page">Buy</a>
+          <!--<a href="rent-page.html">Rent</a>-->
+          <a href="sell-page.html">Sell</a>
+        </nav>
+      </div>
+      <div class="header-right">
+        <button class="icon-btn" aria-label="Notifications" aria-haspopup="true" aria-expanded="false" >
+          <a href="notificatin-page.html"><span class="material-icons">notifications</span></a>
+         
+        </button>
+        <button class="icon-btn" aria-label="User  profile menu" aria-haspopup="true" aria-expanded="false">
+          <a href="profile-page.html"><span class="material-icons">person</span></a>
+        </button>
+      </div>
+    </header>
+
+    <main class="container" role="main" aria-label="Buy homes listings and search">
+      <h1>Notification</h1>
+      
+
+      <section aria-label="Properties for sale">
+    <h3>Nothing available come back later</h3>
+      </section>
+
+      <nav class="pagination" aria-label="Pagination controls" role="navigation">
+     
+      </nav>
+    </main>
+  </div>
+  <script>
+    (() => {
+      let currentPage = 1;
+      const listingsPerPage = 10; // Adjust as needed
+      let filteredListings = []; // This should be populated with your listings data
+
+      function updatePagination() {
+        document.getElementById('prev-btn').disabled = currentPage === 1;
+        document.getElementById('next-btn').disabled = currentPage * listingsPerPage >= filteredListings.length;
+      }
+
+      function goToPreviousPage() {
+        if (currentPage > 1) {
+          currentPage--;
+          renderListings(filteredListings, currentPage);
+          updatePagination();
+        }
+      }
+
+      function goToNextPage() {
+        if (currentPage * listingsPerPage < filteredListings.length) {
+          currentPage++;
+          renderListings(filteredListings, currentPage);
+          updatePagination();
+        }
+      }
+
+      document.getElementById('buy-search-form').addEventListener('submit', e => {
+        e.preventDefault();
+        filterListings(); // Implement this function to filter listings based on search criteria
+      });
+      document.getElementById('prev-btn').addEventListener('click', goToPreviousPage);
+      document.getElementById('next-btn').addEventListener('click', goToNextPage);
+
+      filteredListings = listings; // Assuming 'listings' is your array of property data
+      renderListings(filteredListings, currentPage);
+      updatePagination();
+
+      document.querySelector('.dropdown-toggle').addEventListener('click', function() {
+        const expanded = this.getAttribute('aria-expanded') === 'true';
+        this.setAttribute('aria-expanded', !expanded);
+        document.getElementById('admin-menu').classList.toggle('show');
+      });
+    })();
+    
+  </script>
+  <script src="/js/script.js"></script>
+</body>
+</html>
+<script>
+    
+  (()=>{
+    document.querySelector('.dropdown-toggle').addEventListener('click', function() {
+      const expanded = this.getAttribute('aria-expanded') === 'true';
+      this.setAttribute('aria-expanded', !expanded);
+      document.getElementById('admin-menu').classList.toggle('show');
+    });
+  })();
+ 
+</script>

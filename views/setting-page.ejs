@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Settings - RealEstatePro</title>
+  <!-- Google Material Icons -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+  <style>
+    /* Reset and base */
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+        Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      background: #f5f7fa;
+      color: #222;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      scroll-behavior: smooth;
+    }
+    a {
+      color: #1761a0;
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+    a:hover,
+    a:focus {
+      color: #003d66;
+      outline: none;
+    }
+    button {
+      cursor: pointer;
+      border: none;
+      background: #1761a0;
+      color: white;
+      font-weight: 600;
+      border-radius: 6px;
+      padding: 10px 16px;
+      font-size: clamp(0.9rem, 1vw + 0.3rem, 1.1rem);
+      transition: background-color 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      user-select: none;
+    }
+    button:disabled {
+      background: #a0b8cf;
+      cursor: not-allowed;
+    }
+    button:hover:not(:disabled),
+    button:focus-visible:not(:disabled) {
+      background: #004080;
+      outline: none;
+    }
+    input, select, textarea {
+      font-family: inherit;
+      font-size: clamp(0.9rem, 1vw + 0.3rem, 1rem);
+      padding: 11px 14px;
+      border-radius: 6px;
+      border: 1.5px solid #cfdde8;
+      transition: border-color 0.3s ease;
+      width: 100%;
+      max-width: 600px;
+      box-sizing: border-box;
+      color: #222;
+      resize: vertical;
+    }
+    input:focus,
+    select:focus,
+    textarea:focus {
+      outline: none;
+      border-color: #1761a0;
+      box-shadow: 0 0 6px #1761a0aa;
+    }
+    label {
+      font-weight: 600;
+      margin-bottom: 6px;
+      display: inline-block;
+      font-size: clamp(0.85rem, 1vw + 0.1rem, 0.95rem);
+      color: #444;
+      user-select: none;
+    }
+    header {
+      height: 64px;
+      background: rgba(255 255 255 / 0.85);
+      backdrop-filter: saturate(180%) blur(12px);
+      border-bottom: 1px solid #ddd;
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgb(0 0 0 / 0.06);
+    }
+    .logo {
+      font-weight: 800;
+      font-size: 1.5rem;
+      color: #1761a0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      user-select: none;
+    }
+    .logo .material-icons {
+      color: #0d3a66;
+      font-size: 1.8rem;
+    }
+    .container {
+      max-width: 900px;
+      margin: 40px auto 60px;
+      padding: 0 20px;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgb(0 0 0 / 0.08);
+      padding: 40px 32px;
+    }
+    h1 {
+      font-weight: 900;
+      font-size: clamp(2rem, 5vw, 3rem);
+      color: #0d3a66;
+      margin-bottom: 20px;
+      user-select: none;
+    }
+    form > div {
+      margin-bottom: 24px;
+    }
+    .section-title {
+      font-size: 1.5rem;
+      margin-bottom: 16px;
+      color: #0d3a66;
+      border-bottom: 2px solid #1761a0;
+      padding-bottom: 8px;
+    }
+    .notification-settings {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .notification-settings label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+  </style>
+   <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <div id="app" role="application">
+    <aside class="sidebar" aria-label="Main navigation">
+       <nav aria-label="Primary navigation">
+          <a href="track-sales.html" tabindex="0" aria-label="Track Sales" >
+        <span class="material-icons" aria-hidden="true">assessment</span>DASHBOARD
+      </a>
+
+        <a href="index.html"  tabindex="0" aria-current="page" aria-label="Home" >
+          <span class="material-icons" aria-hidden="true">home</span>Avialable properties
+        </a>
+        <!--<a href="buy-page.html" tabindex="0" aria-label="Buy Homes">
+          <span class="material-icons" aria-hidden="true">support_agent</span>Buy
+        </a>
+        <a href="rent-page.html" tabindex="0" aria-label="Rent Homes">
+          <span class="material-icons" aria-hidden="true">key</span>Rent
+        </a>-->
+        <a href="sell-page.html" tabindex="0" aria-label="Sell Homes" >
+          <span class="material-icons" aria-hidden="true" >sell</span>Sell
+        </a>
+       <!-- <a href="home-improvemet-page.html" tabindex="0" aria-label="Home Improvement">
+          <span class="material-icons" aria-hidden="true">home_repair_service</span>Home Improvement
+        </a>
+        <a href="message-page.html" tabindex="0" aria-label="Messages">
+          <span class="material-icons" aria-hidden="true">message</span>Messages
+          
+        </a>-->
+       
+
+          <% if (isAdmin) { %> <a href="sales-approval.html" tabindex="0" aria-label="Sales Approval">
+        <span class="material-icons" aria-hidden="true">check_circle</span>Sales Approval
+      </a>
+      <!--<a href="tour-requested.html" tabindex="0" aria-label="Tour Requested">
+        <span class="material-icons" aria-hidden="true">event_available</span>Tour Requested
+      </a>-->
+       <a href="manage-agent" tabindex="0" aria-label="View All Customers">
+       <span class="material-icons" aria-hidden="true">event_available</span>Manage Agent
+      </a>
+      <a href="view-customers.html" tabindex="0" aria-label="View All Customers">
+        <span class="material-icons" aria-hidden="true">people</span>View All Customers
+      </a>
+       
+    
+
+       <a href="sold-properties" tabindex="0" aria-label="Track Sales" >
+        <span class="material-icons" aria-hidden="true">check_circle</span>Sold property
+      </a>
+
+       <a href="setting-page.html" tabindex="0" aria-label="Settings" class="active">
+          <span class="material-icons" aria-hidden="true">settings</span>Settings
+        </a>  <% } %>
+        
+
+
+ <!-- <div class="admin-dropdown">
+    <button class="dropdown-toggle" aria-expanded="false" aria-controls="admin-menu">
+      <span class="material-icons" aria-hidden="true">admin_panel_settings</span>Admin
+      <span class="material-icons dropdown-icon">expand_more</span>
+    </button>
+    <div class="dropdown-menu" id="admin-menu">
+      <a href="sales-approval.html" tabindex="0" aria-label="Sales Approval">
+        <span class="material-icons" aria-hidden="true">check_circle</span>Sales Approval
+      </a>
+      <a href="tour-requested.html" tabindex="0" aria-label="Tour Requested">
+        <span class="material-icons" aria-hidden="true">event_available</span>Tour Requested
+      </a>
+      <a href="view-customers.html" tabindex="0" aria-label="View All Customers">
+        <span class="material-icons" aria-hidden="true">people</span>View All Customers
+      </a>
+       
+                        <a href="track-sales.html" tabindex="0" aria-label="Track Sales">
+                            <span class="material-icons" aria-hidden="true">assessment</span>Track Sales
+                        </a>
+                   
+    </div>
+  </div>-->
+  
+  
+      </nav>
+      <footer>
+        &copy; 2025 G.O AREGBAN REAL ESTATE FIRM. All rights reserved.
+      </footer>
+    </aside>
+    <header role="banner" aria-label="Primary header">
+      <div class="header-left">
+        <button class="sidebar-toggle-btn material-icons" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="sidebar">menu</button>
+        <a href="#" class="logo" aria-label="RealEstatePro Home">
+          <span class="material-icons" aria-hidden="true">apartment</span>G.O AREGBAN REAL ESTATE FIRM And Consultant
+        </a>
+        <nav class="primary-nav" role="navigation" aria-label="Primary site navigation">
+          <a href="buy-page.html" class="active" aria-current="page">Buy</a>
+          <!--<a href="rent-page.html">Rent</a>-->
+          <a href="sell-page.html">Sell</a>
+        </nav>
+      </div>
+      <div class="header-right">
+        <button class="icon-btn" aria-label="Notifications" aria-haspopup="true" aria-expanded="false">
+          <a href="notificatin-page.html"><span class="material-icons">notifications</span></a>
+         
+        </button>
+        <button class="icon-btn" aria-label="User  profile menu" aria-haspopup="true" aria-expanded="false">
+          <a href="profile-page.html"><span class="material-icons">person</span></a>
+        </button>
+      </div>
+    </header>
+
+
+  <main class="container" role="main" aria-label="User  settings">
+    <h1>Account Settings</h1>
+
+    <form id="settings-form" aria-label="User  settings form">
+      <div class="section-title">Profile Information</div>
+      <div>
+        <label for="full-name">Full Name</label>
+        <input type="text" id="full-name" name="full-name" required />
+      </div>
+      <div>
+        <label for="email">Email Address</label>
+        <input type="email" id="email" name="email" required />
+      </div>
+      <div>
+        <label for="phone">Phone Number</label>
+        <input type="tel" id="phone" name="phone" placeholder="Optional" />
+      </div>
+
+      <div class="section-title">Change Password</div>
+      <div>
+        <label for="current-password">Current Password</label>
+        <input type="password" id="current-password" name="current-password" required />
+      </div>
+      <div>
+        <label for="new-password">New Password</label>
+        <input type="password" id="new-password" name="new-password" required />
+      </div>
+      <div>
+        <label for="confirm-password">Confirm New Password</label>
+        <input type="password" id="confirm-password" name="confirm-password" required />
+      </div>
+
+      <div class="section-title">Notification Settings</div>
+      <div class="notification-settings">
+        <label>
+          <input type="checkbox" id="email-notifications" name="email-notifications" checked />
+          Email Notifications
+        </label>
+        <label>
+          <input type="checkbox" id="sms-notifications" name="sms-notifications" />
+          SMS Notifications
+        </label>
+        <label>
+          <input type="checkbox" id="push-notifications" name="push-notifications" />
+          Push Notifications
+        </label>
+      </div>
+
+      <a href="update-profile"><button type="submit" aria-label="Save settings">
+        <span class="material-icons" aria-hidden="true">save</span> Save Changes
+      </button></a>
+    </form>
+  </main>
+</div>
+
+</body>
+</html>
+<script src="/js/script.js"></script>
+<script>
+    
+  (()=>{
+    document.querySelector('.dropdown-toggle').addEventListener('click', function() {
+      const expanded = this.getAttribute('aria-expanded') === 'true';
+      this.setAttribute('aria-expanded', !expanded);
+      document.getElementById('admin-menu').classList.toggle('show');
+    });
+  })();
+</script>

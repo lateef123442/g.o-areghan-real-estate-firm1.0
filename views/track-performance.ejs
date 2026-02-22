@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title><%= title %> - Agent Dashboard</title>
+  <!-- Google Material Icons -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+  <!-- Chart.js for graphs -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="/css/styles.css">
+  
+  <style>
+    /* Premium Dashboard Styles */
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+    .dashboard-section {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 15px;
+      padding: 2rem;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      margin: 2rem auto;
+      max-width: 1200px;
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .stat-card {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      color: white;
+      padding: 1.5rem;
+      border-radius: 10px;
+      text-align: center;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+    .stat-card h3 {
+      margin: 0;
+      font-size: 2rem;
+      font-weight: bold;
+    }
+    .stat-card p {
+      margin: 0.5rem 0 0;
+      font-size: 1rem;
+    }
+    .chart-container {
+      background: white;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      margin-bottom: 2rem;
+    }
+    .activities {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+    .activities h3 {
+      margin-top: 0;
+      color: #333;
+    }
+    .activities ul {
+      list-style: none;
+      padding: 0;
+    }
+    .activities li {
+      padding: 0.5rem 0;
+      border-bottom: 1px solid #eee;
+    }
+    .activities li:last-child {
+      border-bottom: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="app" role="application">
+    <!-- Sidebar (Simplified for this page) -->
+    <aside class="sidebar" aria-label="Main navigation">
+      <nav aria-label="Primary navigation">
+        <a href="/submit-listing" tabindex="0" aria-label="Submit Listing">
+          <span class="material-icons" aria-hidden="true">add_circle</span>Submit Listing
+        </a>
+        <a href="/manage-listings" tabindex="0" aria-label="Manage Listings">
+          <span class="material-icons" aria-hidden="true">edit</span>Manage Listings
+        </a>
+        <a href="/track-performance" tabindex="0" aria-label="Track Performance" class="active">
+          <span class="material-icons" aria-hidden="true">bar_chart</span>Track Performance
+        </a>
+        <a href="/inquiries" tabindex="0" aria-label="Inquiries">
+          <span class="material-icons" aria-hidden="true">question_answer</span>Inquiries
+        </a>
+        <a href="/chat" tabindex="0" aria-label="Client Chat">
+          <span class="material-icons" aria-hidden="true">chat</span>Client Chat
+        </a>
+      </nav>
+      <footer>
+        &copy; 2025 G.O AREGBAN REAL ESTATE FIRM. All rights reserved.
+      </footer>
+    </aside>
+
+    <header role="banner" aria-label="Primary header">
+      <div class="header-left">
+        <button class="sidebar-toggle-btn material-icons" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="sidebar">menu</button>
+        <a href="#" class="logo" aria-label="G.O AREGBAN REAL ESTATE FIRM Home">
+          <span class="material-icons" aria-hidden="true">apartment</span>G.O AREGBAN REAL ESTATE FIRM And Consultant
+        </a>
+        <nav class="primary-nav" role="navigation" aria-label="Primary site navigation">
+          <a href="index.html">Home</a>
+          <a href="sell-page.html">Sell</a>
+        </nav>
+      </div>
+      <div class="header-right">
+        <button class="icon-btn" aria-label="Notifications">
+          <a href="notificatin-page.html"><span class="material-icons">notifications</span></a>
+        </button>
+        <button class="icon-btn" aria-label="User profile menu">
+          <a href="profile-page.html"><span class="material-icons">person</span></a>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main role="main" aria-label="Track Performance">
+      <section id="track-performance" class="dashboard-section">
+        <h1><%= title %></h1>
+        
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <h3><%= totalProperties %></h3>
+            <p>Total Properties</p>
+          </div>
+          <div class="stat-card">
+            <h3><%= pendingApprovals %></h3>
+            <p>Pending Approvals</p>
+          </div>
+          <div class="stat-card">
+            <h3><%= soldProperties %></h3>
+            <p>Sold Properties</p>
+          </div>
+          <div class="stat-card">
+            <h3>₦<%= (soldProperties * 3000000).toLocaleString() %></h3> <!-- Sample revenue calc -->
+            <p>Estimated Revenue</p>
+          </div>
+        </div>
+
+        <!-- Chart -->
+        <div class="chart-container">
+          <h2>Performance Trends</h2>
+          <canvas id="performanceChart"></canvas>
+        </div>
+
+        <!-- Recent Activities -->
+        <div class="activities">
+          <h3>Recent Activities</h3>
+          <ul>
+            <% activities.forEach(activity => { %>
+              <li><%= activity.description %> - <%= new Date(activity.date).toLocaleDateString() %></li>
+            <% }); %>
+          </ul>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // Chart.js for Performance Graph
+    const ctx = document.getElementById('performanceChart').getContext('2d');
+    const chartData = <%- JSON.stringify(chartData) %>; // Pass data from server
+
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: chartData.labels,
+        datasets: [
+          {
+            label: 'Views',
+            data: chartData.views,
+            borderColor: '#667eea',
+            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+            tension: 0.4,
+            fill: true
+          },
+          {
+            label: 'Inquiries',
+            data: chartData.inquiries,
+            borderColor: '#764ba2',
+            backgroundColor: 'rgba(118, 75, 162, 0.1)',
+            tension: 0.4,
+            fill: true
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'top',
+          },
+          title: {
+            display: true,
+            text: 'Monthly Views & Inquiries'
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        }
+      }
+    });
+  </script>
+</body>
+</html>

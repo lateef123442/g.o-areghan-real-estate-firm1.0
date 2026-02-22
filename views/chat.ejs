@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= receiverId ? `Chat with ${receiverName}` : 'Messages' %> — G.O AREGBAN REAL ESTATE</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="/socket.io/socket.io.js"></script>
+  <style>
+    :root {
+      --navy:#0d2137; --navy-mid:#163352; --navy-light:#1e4a78;
+      --gold:#c8922a; --gold-light:#e0aa45;
+      --cream:#faf7f2; --white:#ffffff;
+      --gray-100:#f1f5f9; --gray-200:#e2e8f0; --gray-400:#94a3b8; --gray-600:#475569;
+      --text:#0d1f35; --online:#22c55e;
+      --shadow-sm:0 1px 3px rgba(13,33,55,0.08);
+      --shadow-md:0 4px 20px rgba(13,33,55,0.10);
+      --shadow-lg:0 12px 50px rgba(13,33,55,0.15);
+      --radius:16px; --radius-sm:10px;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text);min-height:100vh;}
+
+    /* NAVBAR */
+    .navbar{position:sticky;top:0;z-index:100;background:rgba(255,255,255,0.97);backdrop-filter:blur(12px);border-bottom:1px solid var(--gray-200);box-shadow:var(--shadow-sm);}
+    .nav-inner{max-width:1400px;margin:0 auto;padding:0 32px;height:70px;display:flex;align-items:center;justify-content:space-between;gap:20px;}
+    .nav-brand{display:flex;align-items:center;gap:12px;text-decoration:none;flex-shrink:0;}
+    .nav-logo{width:44px;height:44px;border-radius:50%;overflow:hidden;border:2px solid var(--gold);}
+    .nav-logo img{width:100%;height:100%;object-fit:cover;}
+    .brand-name{display:block;font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:700;color:var(--navy);}
+    .brand-tagline{display:block;font-size:0.62rem;font-weight:600;color:var(--gold);letter-spacing:0.1em;text-transform:uppercase;}
+    .nav-links{display:flex;align-items:center;gap:2px;flex:1;justify-content:center;}
+    .nav-link{display:flex;align-items:center;gap:5px;padding:7px 12px;border-radius:8px;font-size:0.82rem;font-weight:600;color:var(--gray-600);text-decoration:none;transition:all 0.2s;white-space:nowrap;}
+    .nav-link i{font-size:0.75rem;opacity:0.8;}
+    .nav-link:hover{background:var(--gray-100);color:var(--navy);}
+    .nav-link.active{background:#e8eef8;color:var(--navy-light);}
+    .dropdown{position:relative;}
+    .dropdown-toggle{display:flex;align-items:center;gap:5px;padding:7px 12px;border-radius:8px;font-size:0.82rem;font-weight:600;color:var(--gray-600);background:none;border:none;cursor:pointer;transition:all 0.2s;font-family:inherit;}
+    .dropdown-toggle:hover{background:var(--gray-100);color:var(--navy);}
+    .dropdown-menu{position:absolute;top:calc(100% + 10px);left:0;background:var(--white);border:1px solid var(--gray-200);border-radius:12px;box-shadow:var(--shadow-lg);min-width:190px;padding:8px;opacity:0;visibility:hidden;transform:translateY(8px);transition:all 0.2s;}
+    .dropdown-menu.show{opacity:1;visibility:visible;transform:translateY(0);}
+    .dropdown-item{display:flex;align-items:center;gap:10px;padding:10px 14px;font-size:0.85rem;font-weight:500;color:var(--text);text-decoration:none;border-radius:8px;transition:background 0.15s;}
+    .dropdown-item i{width:16px;color:var(--navy-light);font-size:0.8rem;}
+    .dropdown-item:hover{background:var(--gray-100);color:var(--navy);}
+    .nav-right{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+    #desktop-login-container{display:flex;align-items:center;}
+    .btn-primary{background:var(--navy);color:white;padding:9px 22px;border-radius:8px;font-size:0.82rem;font-weight:700;border:none;cursor:pointer;transition:all 0.2s;text-decoration:none;display:inline-block;font-family:inherit;}
+    .btn-primary:hover{background:var(--navy-light);transform:translateY(-1px);}
+    .btn-logout{background:#fee2e2;color:#dc2626;padding:9px 22px;border-radius:8px;font-size:0.82rem;font-weight:700;border:none;cursor:pointer;transition:all 0.2s;text-decoration:none;display:inline-block;}
+    .btn-logout:hover{background:#fecaca;}
+    .mobile-menu-btn{display:none;background:none;border:1px solid var(--gray-200);border-radius:8px;padding:8px 10px;cursor:pointer;color:var(--text);font-size:1rem;}
+    #mobile-menu{display:none;position:fixed;inset:0;background:var(--white);z-index:200;overflow-y:auto;}
+    #mobile-menu.show{display:block;}
+    .mobile-menu-inner{padding:24px;}
+    .mobile-menu-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:32px;padding-bottom:20px;border-bottom:1px solid var(--gray-200);}
+    .mobile-close-btn{width:36px;height:36px;border-radius:8px;background:var(--gray-100);border:none;cursor:pointer;color:var(--gray-600);font-size:1rem;display:flex;align-items:center;justify-content:center;}
+    .mobile-nav-link{display:flex;align-items:center;gap:12px;padding:14px 0;font-size:1rem;font-weight:600;color:var(--text);text-decoration:none;border-bottom:1px solid var(--gray-100);}
+    .mobile-nav-link i{width:20px;color:var(--navy-light);}
+    #mobile-login-section{margin-top:28px;}
+
+    /* LAYOUT */
+    .chat-page{max-width:1400px;margin:0 auto;padding:24px 32px;height:calc(100vh - 70px);display:flex;flex-direction:column;}
+    .page-heading{padding-bottom:18px;}
+    .page-heading h1{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:700;color:var(--navy);display:flex;align-items:center;gap:12px;}
+    .page-heading h1 i{color:var(--gold);font-size:1.5rem;}
+    .page-heading p{font-size:0.875rem;color:var(--gray-600);margin-top:4px;}
+    .chat-layout{display:grid;grid-template-columns:320px 1fr;gap:20px;flex:1;min-height:0;}
+
+    /* SIDEBAR */
+    .sidebar{display:flex;flex-direction:column;background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow-md);border:1px solid var(--gray-200);overflow:hidden;}
+    .sidebar-header{padding:20px;background:linear-gradient(135deg,var(--navy),var(--navy-light));color:white;}
+    .sidebar-header h2{font-family:'Cormorant Garamond',serif;font-size:1.15rem;font-weight:700;margin-bottom:3px;display:flex;align-items:center;gap:8px;}
+    .sidebar-header h2 i{color:var(--gold-light);font-size:0.95rem;}
+    .sidebar-header p{font-size:0.75rem;opacity:0.65;}
+    .sidebar-search{padding:14px 16px;border-bottom:1px solid var(--gray-200);background:var(--gray-100);}
+    .search-wrap{position:relative;}
+    .search-wrap i{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--gray-400);font-size:0.8rem;}
+    .sidebar-search input{width:100%;padding:9px 14px 9px 34px;border-radius:8px;border:1px solid var(--gray-200);background:var(--white);font-family:inherit;font-size:0.875rem;color:var(--text);transition:border-color 0.2s;}
+    .sidebar-search input:focus{outline:none;border-color:var(--navy-light);}
+    .sidebar-tabs{display:flex;padding:10px 14px 0;gap:2px;background:var(--gray-100);border-bottom:1px solid var(--gray-200);}
+    .sidebar-tab{flex:1;padding:8px 4px;font-size:0.75rem;font-weight:700;color:var(--gray-600);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;transition:all 0.2s;text-align:center;font-family:inherit;}
+    .sidebar-tab.active{color:var(--navy);border-bottom-color:var(--gold);}
+    .sidebar-tab:hover:not(.active){color:var(--navy);}
+    .sidebar-body{flex:1;overflow-y:auto;}
+    .section-label{padding:10px 16px 6px;font-size:0.68rem;font-weight:700;color:var(--gray-400);letter-spacing:0.08em;text-transform:uppercase;background:var(--gray-100);border-bottom:1px solid var(--gray-200);display:flex;justify-content:space-between;align-items:center;}
+    .section-count{background:var(--gray-200);color:var(--gray-600);font-size:0.62rem;padding:2px 8px;border-radius:20px;font-weight:700;}
+    .contact-item{display:flex;align-items:center;gap:12px;padding:12px 16px;cursor:pointer;transition:background 0.15s;border-bottom:1px solid var(--gray-100);text-decoration:none;}
+    .contact-item:hover{background:var(--cream);}
+    .contact-item.active{background:#e8eef8;border-left:3px solid var(--navy-light);}
+    .contact-avatar{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--navy-mid),var(--navy-light));color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.95rem;flex-shrink:0;position:relative;}
+    .contact-avatar.agent-avatar{background:linear-gradient(135deg,#7c3aed,#a855f7);}
+    .contact-avatar.admin-avatar{background:linear-gradient(135deg,var(--navy),var(--gold));}
+    .avatar-badge{position:absolute;bottom:-2px;right:-2px;width:16px;height:16px;border-radius:50%;border:2px solid white;font-size:0.45rem;display:flex;align-items:center;justify-content:center;font-weight:700;color:white;}
+    .badge-admin{background:var(--navy);}
+    .badge-agent{background:#7c3aed;}
+    .contact-info{flex:1;min-width:0;}
+    .contact-name{font-size:0.875rem;font-weight:700;color:var(--text);margin-bottom:2px;display:flex;align-items:center;gap:6px;}
+    .role-chip{font-size:0.6rem;font-weight:700;padding:2px 7px;border-radius:20px;text-transform:uppercase;letter-spacing:0.03em;}
+    .chip-admin{background:#dbeafe;color:var(--navy);}
+    .chip-agent{background:#ede9fe;color:#7c3aed;}
+    .contact-preview{font-size:0.78rem;color:var(--gray-600);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .contact-meta{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;}
+    .contact-time{font-size:0.68rem;color:var(--gray-400);font-weight:500;}
+    .start-chat-chip{font-size:0.68rem;font-weight:700;color:var(--navy-light);background:#e8eef8;padding:3px 9px;border-radius:20px;display:flex;align-items:center;gap:4px;}
+    .empty-state{padding:40px 20px;text-align:center;color:var(--gray-400);}
+    .empty-state i{font-size:2.5rem;opacity:0.3;margin-bottom:12px;display:block;}
+    .empty-state p{font-size:0.875rem;}
+
+    /* MAIN */
+    .chat-main{display:flex;flex-direction:column;background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow-md);border:1px solid var(--gray-200);overflow:hidden;}
+    .no-chat-screen{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px;background:var(--cream);}
+    .no-chat-icon{width:90px;height:90px;border-radius:50%;background:linear-gradient(135deg,var(--navy),var(--navy-light));display:flex;align-items:center;justify-content:center;margin:0 auto 24px;box-shadow:0 8px 28px rgba(13,33,55,0.25);}
+    .no-chat-icon i{font-size:36px;color:var(--gold-light);}
+    .no-chat-screen h2{font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:700;color:var(--navy);margin-bottom:10px;}
+    .no-chat-screen p{font-size:0.9rem;color:var(--gray-600);max-width:320px;line-height:1.6;}
+    .no-chat-hint{margin-top:20px;font-size:0.8rem;color:var(--gray-400);background:var(--white);border:1px solid var(--gray-200);padding:10px 18px;border-radius:20px;display:inline-flex;align-items:center;gap:6px;}
+    .no-chat-hint i{color:var(--gold);}
+    .chat-header{padding:16px 24px;border-bottom:1px solid var(--gray-200);display:flex;align-items:center;gap:14px;background:var(--white);}
+    .chat-header-avatar{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,var(--navy-mid),var(--navy-light));color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1.1rem;flex-shrink:0;position:relative;}
+    .chat-header-avatar.agent-avatar{background:linear-gradient(135deg,#7c3aed,#a855f7);}
+    .online-indicator{position:absolute;bottom:1px;right:1px;width:12px;height:12px;border-radius:50%;background:var(--online);border:2px solid white;}
+    .chat-header-info{flex:1;}
+    .chat-header-info h3{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:700;color:var(--navy);}
+    .chat-header-info .status{font-size:0.78rem;color:var(--gray-600);display:flex;align-items:center;gap:5px;margin-top:2px;}
+    .status-dot{width:7px;height:7px;border-radius:50%;background:var(--online);flex-shrink:0;}
+    .chat-header-actions{display:flex;gap:6px;}
+    .icon-btn{width:36px;height:36px;border-radius:8px;background:var(--gray-100);border:1px solid var(--gray-200);display:flex;align-items:center;justify-content:center;color:var(--gray-600);font-size:0.875rem;cursor:pointer;transition:all 0.2s;}
+    .icon-btn:hover{background:#e8eef8;color:var(--navy);border-color:var(--navy-light);}
+    .messages-area{flex:1;overflow-y:auto;padding:24px;display:flex;flex-direction:column;gap:4px;background:var(--cream);background-image:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23e2e8f0' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");}
+    .day-divider{display:flex;align-items:center;gap:12px;margin:12px 0;}
+    .day-divider::before,.day-divider::after{content:'';flex:1;height:1px;background:var(--gray-200);}
+    .day-divider span{font-size:0.72rem;font-weight:600;color:var(--gray-400);background:var(--cream);padding:2px 10px;border-radius:20px;border:1px solid var(--gray-200);}
+    .msg-row{display:flex;flex-direction:column;margin-bottom:2px;}
+    .msg-row.sent{align-items:flex-end;}
+    .msg-row.received{align-items:flex-start;}
+    .msg-bubble{max-width:68%;padding:12px 16px;border-radius:18px;font-size:0.9rem;line-height:1.55;word-break:break-word;}
+    .msg-row.sent .msg-bubble{background:linear-gradient(135deg,var(--navy),var(--navy-light));color:white;border-bottom-right-radius:4px;}
+    .msg-row.received .msg-bubble{background:var(--white);color:var(--text);border:1px solid var(--gray-200);border-bottom-left-radius:4px;box-shadow:var(--shadow-sm);}
+    .msg-time{font-size:0.68rem;color:var(--gray-400);margin-top:4px;padding:0 4px;display:flex;align-items:center;gap:4px;}
+    .msg-row.sent .msg-time{flex-direction:row-reverse;}
+    .chat-input-area{padding:16px 20px;border-top:1px solid var(--gray-200);background:var(--white);}
+    .input-row{display:flex;align-items:center;gap:10px;background:var(--gray-100);border:1.5px solid var(--gray-200);border-radius:30px;padding:6px 6px 6px 18px;transition:border-color 0.2s;}
+    .input-row:focus-within{border-color:var(--navy-light);background:var(--white);}
+    .input-row input{flex:1;border:none;background:transparent;font-family:inherit;font-size:0.9rem;color:var(--text);padding:8px 0;}
+    .input-row input:focus{outline:none;}
+    .input-row input::placeholder{color:var(--gray-400);}
+    .send-btn{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--navy),var(--navy-light));border:none;color:white;font-size:1rem;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.2s;flex-shrink:0;}
+    .send-btn:hover{transform:scale(1.06);box-shadow:0 4px 14px rgba(13,33,55,0.3);}
+    .alert-success{background:#f0fdf4;border:1px solid #bbf7d0;color:#16a34a;padding:12px 18px;border-radius:10px;font-size:0.875rem;font-weight:600;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+    ::-webkit-scrollbar{width:5px;}
+    ::-webkit-scrollbar-track{background:transparent;}
+    ::-webkit-scrollbar-thumb{background:var(--gray-200);border-radius:10px;}
+    ::-webkit-scrollbar-thumb:hover{background:var(--gray-400);}
+
+    @media(max-width:900px){
+      .nav-links{display:none;} .mobile-menu-btn{display:block;}
+      .chat-layout{grid-template-columns:1fr;}
+      .sidebar{display:none;}
+      .sidebar.mobile-show{display:flex;position:fixed;inset:70px 0 0 0;z-index:90;border-radius:0;}
+      .chat-page{padding:16px;}
+    }
+    @media(max-width:600px){.msg-bubble{max-width:85%;}.nav-inner{padding:0 16px;}}
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="/" class="nav-brand">
+      <div class="nav-logo"><img src="/img/OGA AYO COM CARDXS.jpg" alt="Logo"></div>
+      <div><span class="brand-name">G.O AREGBAN</span><span class="brand-tagline">Real Estate Firm</span></div>
+    </a>
+    <div class="nav-links">
+      <a href="/" class="nav-link"><i class="fas fa-home"></i> Home</a>
+      <a href="/chat" class="nav-link active"><i class="fas fa-comments"></i> Messages</a>
+      <a href="/property-valuation" class="nav-link"><i class="fas fa-chart-line"></i> Valuation</a>
+      <a href="/gallery" class="nav-link"><i class="fas fa-briefcase"></i> Portfolio</a>
+      <div class="dropdown">
+        <button class="dropdown-toggle" id="service-toggle" aria-expanded="false">
+          <i class="fas fa-th-large"></i> Services <i class="fas fa-chevron-down" style="font-size:0.65rem;opacity:0.6;"></i>
+        </button>
+        <div class="dropdown-menu" id="service-menu" role="menu">
+          <a href="/customer-buy-page.html" class="dropdown-item"><i class="fas fa-shopping-cart"></i> Buy Property</a>
+          <a href="/customer-rent-page.html" class="dropdown-item"><i class="fas fa-key"></i> Rent Property</a>
+        </div>
+      </div>
+    </div>
+    <div class="nav-right">
+      <div id="desktop-login-container"><a href="/login" class="btn-primary">Login / Register</a></div>
+      <button class="mobile-menu-btn" id="mobile-menu-button"><i class="fas fa-bars"></i></button>
+    </div>
+  </div>
+</nav>
+
+<div id="mobile-menu">
+  <div class="mobile-menu-inner">
+    <div class="mobile-menu-header">
+      <span style="font-family:'Cormorant Garamond',serif;font-size:1.05rem;font-weight:700;color:var(--navy);">G.O AREGBAN REAL ESTATE</span>
+      <button class="mobile-close-btn" id="mobile-close"><i class="fas fa-times"></i></button>
+    </div>
+    <a href="/" class="mobile-nav-link"><i class="fas fa-home"></i> Home</a>
+    <a href="/chat" class="mobile-nav-link"><i class="fas fa-comments"></i> Messages</a>
+    <a href="/property-valuation" class="mobile-nav-link"><i class="fas fa-chart-line"></i> Property Valuation</a>
+    <a href="/gallery" class="mobile-nav-link"><i class="fas fa-briefcase"></i> Portfolio</a>
+    <a href="/customer-buy-page.html" class="mobile-nav-link"><i class="fas fa-shopping-cart"></i> Buy Property</a>
+    <a href="/customer-rent-page.html" class="mobile-nav-link"><i class="fas fa-key"></i> Rent Property</a>
+    <div id="mobile-login-section">
+      <a href="/login"><button class="btn-primary" style="width:100%;display:block;text-align:center;padding:13px;margin-top:4px;border-radius:10px;">Login / Register</button></a>
+    </div>
+  </div>
+</div>
+
+<div class="chat-page">
+  <% if (!receiverId) { %>
+  <div class="page-heading">
+    <h1><i class="fas fa-comments"></i> Messages</h1>
+    <p>Chat with our admins and agents for any property enquiries</p>
+  </div>
+  <% } %>
+
+  <% if (success) { %><div class="alert-success"><i class="fas fa-check-circle"></i> <%= success %></div><% } %>
+
+  <div class="chat-layout">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <h2><i class="fas fa-headset"></i> Support Team</h2>
+        <p>Click anyone to start a conversation</p>
+      </div>
+      <div class="sidebar-search">
+        <div class="search-wrap">
+          <i class="fas fa-search"></i>
+          <input type="text" id="contact-search" placeholder="Search admins & agents...">
+        </div>
+      </div>
+      <div class="sidebar-tabs">
+        <button class="sidebar-tab active" data-tab="all">All</button>
+        <button class="sidebar-tab" data-tab="recent">Recent</button>
+        <button class="sidebar-tab" data-tab="admin">Admins</button>
+        <button class="sidebar-tab" data-tab="agent">Agents</button>
+      </div>
+      <div class="sidebar-body" id="sidebar-body">
+        <% if (chatList && chatList.length > 0) { %>
+        <div class="section-label" id="section-recent">Recent Chats <span class="section-count"><%= chatList.length %></span></div>
+        <% chatList.forEach(chat => { %>
+        <a href="/chat?receiverId=<%= chat.receiverId %>"
+           class="contact-item <%= receiverId && receiverId == chat.receiverId ? 'active' : '' %>"
+           data-role="<%= chat.isAgent ? 'agent' : 'admin' %>" data-name="<%= chat.receiverName.toLowerCase() %>">
+          <div class="contact-avatar <%= chat.isAgent ? 'agent-avatar' : 'admin-avatar' %>">
+            <%= chat.receiverName.charAt(0).toUpperCase() %>
+            <div class="avatar-badge <%= chat.isAgent ? 'badge-agent' : 'badge-admin' %>">
+              <i class="fas fa-<%= chat.isAgent ? 'user-tie' : 'shield-alt' %>" style="font-size:0.4rem;"></i>
+            </div>
+          </div>
+          <div class="contact-info">
+            <div class="contact-name"><%= chat.receiverName %> <span class="role-chip <%= chat.isAgent ? 'chip-agent' : 'chip-admin' %>"><%= chat.isAgent ? 'Agent' : 'Admin' %></span></div>
+            <div class="contact-preview"><%= chat.lastMessage || 'Tap to open conversation' %></div>
+          </div>
+          <div class="contact-meta"><% if (chat.lastMessageTime) { %><span class="contact-time"><%= new Date(chat.lastMessageTime).toLocaleDateString() %></span><% } %></div>
+        </a>
+        <% }) %>
+        <% } %>
+        <div class="section-label" id="section-all-staff" style="display:none;">Message an Admin or Agent <span class="section-count" id="staff-count">0</span></div>
+        <div id="all-staff-list"></div>
+        <div class="empty-state" id="no-contacts-msg" style="display:none;"><i class="fas fa-user-slash"></i><p>No contacts found</p></div>
+      </div>
+    </aside>
+
+    <main class="chat-main">
+      <% if (receiverId) { %>
+        <div class="chat-header">
+          <div class="chat-header-avatar <%= isAgent ? 'agent-avatar' : '' %>">
+            <%= receiverName.charAt(0).toUpperCase() %>
+            <div class="online-indicator"></div>
+          </div>
+          <div class="chat-header-info">
+            <h3><%= receiverName %></h3>
+            <div class="status"><div class="status-dot"></div><%= isAgent ? 'Agent — Property Specialist' : 'Admin — Support Team' %></div>
+          </div>
+          <div class="chat-header-actions">
+            <button class="icon-btn" title="Back" onclick="window.location='/chat'"><i class="fas fa-arrow-left"></i></button>
+          </div>
+        </div>
+        <div class="messages-area" id="chat-messages">
+          <% if (messages && messages.length > 0) { %>
+            <div class="day-divider"><span>Conversation</span></div>
+            <% messages.forEach(msg => { %>
+            <div class="msg-row <%= msg.sender_id === userId ? 'sent' : 'received' %>">
+              <div class="msg-bubble"><%= msg.message %></div>
+              <div class="msg-time">
+                <% if (msg.sender_id === userId) { %><i class="fas fa-check-double" style="color:var(--gold-light);font-size:0.65rem;"></i><% } %>
+                <%= new Date(msg.timestamp).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) %>
+              </div>
+            </div>
+            <% }) %>
+          <% } else { %>
+            <div style="flex:1;display:flex;align-items:center;justify-content:center;">
+              <div style="text-align:center;color:var(--gray-600);">
+                <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--navy),var(--navy-light));display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:1.8rem;">👋</div>
+                <p style="font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:700;color:var(--navy);margin-bottom:6px;">Start the conversation</p>
+                <p style="font-size:0.85rem;">Send a message to <%= receiverName %></p>
+              </div>
+            </div>
+          <% } %>
+        </div>
+        <div class="chat-input-area">
+          <div class="input-row">
+            <input type="text" id="message-input" placeholder="Type your message to <%= receiverName %>..." autocomplete="off">
+            <button class="send-btn" id="send-button"><i class="fas fa-paper-plane"></i></button>
+          </div>
+        </div>
+      <% } else { %>
+        <div class="no-chat-screen">
+          <div class="no-chat-icon"><i class="fas fa-comments"></i></div>
+          <h2>Your Messages</h2>
+          <p>Select an admin or agent from the sidebar to start a conversation. We're here to help with any property questions.</p>
+          <div class="no-chat-hint"><i class="fas fa-lightbulb"></i> Pick a contact on the left to begin chatting</div>
+        </div>
+      <% } %>
+    </main>
+  </div>
+</div>
+
+<script>
+const currentUserId = <%= userId || 'null' %>;
+const currentReceiverId = <%= receiverId || 'null' %>;
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('mobile-menu-button').addEventListener('click', () => document.getElementById('mobile-menu').classList.add('show'));
+  const mc = document.getElementById('mobile-close');
+  if (mc) mc.addEventListener('click', () => document.getElementById('mobile-menu').classList.remove('show'));
+
+  const st = document.getElementById('service-toggle'), sm = document.getElementById('service-menu');
+  if (st && sm) {
+    st.addEventListener('click', e => { e.stopPropagation(); sm.classList.toggle('show'); st.setAttribute('aria-expanded', sm.classList.contains('show')); });
+    document.addEventListener('click', () => sm.classList.remove('show'));
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') sm.classList.remove('show'); });
+  }
+
+  const dc = document.getElementById('desktop-login-container'), ms = document.getElementById('mobile-login-section');
+  fetch('/api/check-login', { credentials: 'include' }).then(r => r.json()).then(data => {
+    if (data.loggedIn) {
+      if (dc) dc.innerHTML = `<a href="/logout" class="btn-logout" id="logout-btn-desktop"><i class="fas fa-sign-out-alt" style="margin-right:5px;"></i>Logout</a>`;
+      if (ms) ms.innerHTML = `<a href="/logout" class="btn-logout" id="logout-btn-mobile" style="display:block;text-align:center;width:100%;padding:13px;border-radius:10px;"><i class="fas fa-sign-out-alt" style="margin-right:5px;"></i>Logout</a>`;
+      document.addEventListener('click', e => {
+        if (e.target.closest('#logout-btn-desktop') || e.target.closest('#logout-btn-mobile')) {
+          if (confirm('Are you sure you want to log out?')) fetch('/logout', { method: 'POST', credentials: 'include' }).finally(() => window.location.href = '/');
+          e.preventDefault();
+        }
+      });
+    }
+  }).catch(() => {});
+
+  fetch('/api/staff-list', { credentials: 'include' }).then(r => r.json()).then(staff => {
+    if (!staff || !staff.length) return;
+    const container = document.getElementById('all-staff-list');
+    const section = document.getElementById('section-all-staff');
+    const countEl = document.getElementById('staff-count');
+    if (section) section.style.display = '';
+    if (countEl) countEl.textContent = staff.length;
+    staff.forEach(person => {
+      const isActive = currentReceiverId && currentReceiverId == person.id;
+      const isAgent = person.role === 'agent';
+      const name = `${person.firstName || ''} ${person.lastName || ''}`.trim() || (isAgent ? 'Agent' : 'Admin');
+      const el = document.createElement('a');
+      el.href = `/chat?receiverId=${person.id}`;
+      el.className = `contact-item${isActive ? ' active' : ''}`;
+      el.setAttribute('data-role', isAgent ? 'agent' : 'admin');
+      el.setAttribute('data-name', name.toLowerCase());
+      el.innerHTML = `
+        <div class="contact-avatar ${isAgent ? 'agent-avatar' : 'admin-avatar'}">${name.charAt(0).toUpperCase()}
+          <div class="avatar-badge ${isAgent ? 'badge-agent' : 'badge-admin'}"><i class="fas fa-${isAgent ? 'user-tie' : 'shield-alt'}" style="font-size:0.4rem;"></i></div>
+        </div>
+        <div class="contact-info">
+          <div class="contact-name">${name} <span class="role-chip ${isAgent ? 'chip-agent' : 'chip-admin'}">${isAgent ? 'Agent' : 'Admin'}</span></div>
+          <div class="contact-preview"><i class="fas fa-comment-dots" style="color:var(--navy-light);margin-right:4px;font-size:0.7rem;"></i>Message ${isAgent ? 'Agent' : 'Admin'}</div>
+        </div>
+        <div class="contact-meta"><span class="start-chat-chip"><i class="fas fa-arrow-right"></i></span></div>`;
+      container.appendChild(el);
+    });
+    setupContactFilters();
+  }).catch(() => {});
+
+  if (currentReceiverId) {
+    const sendBtn = document.getElementById('send-button');
+    const msgInput = document.getElementById('message-input');
+    const msgArea = document.getElementById('chat-messages');
+    if (msgArea) msgArea.scrollTop = msgArea.scrollHeight;
+
+    async function sendMessage() {
+      const message = msgInput.value.trim();
+      if (!message) return;
+      try {
+        const res = await fetch('/chat/send', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ senderId: currentUserId, receiverId: currentReceiverId, message }) });
+        if (res.ok) {
+          const row = document.createElement('div');
+          row.className = 'msg-row sent';
+          row.innerHTML = `<div class="msg-bubble">${escapeHtml(message)}</div><div class="msg-time"><i class="fas fa-check-double" style="color:var(--gold-light);font-size:0.65rem;"></i>${new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</div>`;
+          const empty = msgArea.querySelector('[style*="flex:1"]');
+          if (empty) empty.remove();
+          msgArea.appendChild(row);
+          msgArea.scrollTop = msgArea.scrollHeight;
+          msgInput.value = '';
+          msgInput.focus();
+        } else { alert('Failed to send message.'); }
+      } catch (err) { alert('Network error.'); }
+    }
+    if (sendBtn) sendBtn.addEventListener('click', sendMessage);
+    if (msgInput) msgInput.addEventListener('keypress', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } });
+  }
+});
+
+function setupContactFilters() {
+  const searchInput = document.getElementById('contact-search');
+  const tabs = document.querySelectorAll('.sidebar-tab');
+  let activeTab = 'all';
+  function filterContacts() {
+    const query = searchInput ? searchInput.value.toLowerCase() : '';
+    let visible = 0;
+    document.querySelectorAll('.contact-item').forEach(item => {
+      const role = item.getAttribute('data-role') || '';
+      const name = item.getAttribute('data-name') || '';
+      const matchesSearch = !query || name.includes(query);
+      let show = matchesSearch;
+      if (activeTab === 'recent') show = matchesSearch && !item.closest('#all-staff-list');
+      else if (activeTab === 'admin' || activeTab === 'agent') show = matchesSearch && role === activeTab;
+      item.style.display = show ? '' : 'none';
+      if (show) visible++;
+    });
+    const noMsg = document.getElementById('no-contacts-msg');
+    if (noMsg) noMsg.style.display = visible === 0 ? '' : 'none';
+  }
+  tabs.forEach(tab => { tab.addEventListener('click', () => { tabs.forEach(t => t.classList.remove('active')); tab.classList.add('active'); activeTab = tab.getAttribute('data-tab'); filterContacts(); }); });
+  if (searchInput) searchInput.addEventListener('input', filterContacts);
+}
+
+function escapeHtml(t) { return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;'); }
+</script>
+</body>
+</html>

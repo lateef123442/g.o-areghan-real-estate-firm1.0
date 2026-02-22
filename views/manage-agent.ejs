@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Manage Agents - G.O AREGBAN REAL ESTATE FIRM</title>
+  <!-- Google Material Icons -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/styles.css">
+  
+  <style>
+    /* Add styles for dropdown menu */
+    .admin-dropdown {
+      position: relative;
+    }
+    .dropdown-menu {
+      display: none; /* Hide by default */
+      position: absolute;
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      z-index: 1000;
+      margin-top: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      opacity: 0; /* Start with opacity 0 */
+      transition: opacity 0.3s ease, visibility 0.3s ease; /* Transition for opacity and visibility */
+      visibility: hidden; /* Hide the dropdown initially */
+    }
+    .dropdown-menu.show {
+      display: block; /* Show when toggled */
+      opacity: 1; /* Set opacity to 1 when shown */
+      visibility: visible; /* Make it visible */
+      color:yellow;
+    }
+
+    .status-active {
+      background-color: #d1fae5;
+      color: #0f523f;
+      position: absolute;
+      top: 0;
+      right: 0;
+      margin: 0.5rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+    }
+
+    /* Toast Styles (for success/error messages) */
+    #toast-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 10000;
+    }
+    .toast {
+      padding: 12px 20px;
+      border-radius: 8px;
+      color: white;
+      font-weight: 500;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      max-width: 350px;
+      margin-bottom: 10px;
+      animation: slideIn 0.3s ease-out;
+    }
+    .toast.success {
+      background-color: #10b981; /* Green */
+    }
+    .toast.error {
+      background-color: #ef4444; /* Red */
+    }
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    /* Agent Management Styles */
+    .agent-form {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 15px;
+      padding: 2rem;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      margin-bottom: 2rem;
+    }
+    .agent-form h2 {
+      margin-bottom: 1.5rem;
+      color: #2c3e50;
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+    .form-group label {
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: #34495e;
+    }
+    .form-group input, .form-group select {
+      padding: 0.75rem;
+      border: 2px solid #e1e8ed;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+    .form-group input:focus, .form-group select:focus {
+      border-color: #3498db;
+      outline: none;
+    }
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .btn-primary {
+      background: #3498db;
+      color: white;
+    }
+    .btn-primary:hover:not(:disabled) {
+      background: #2980b9;
+    }
+    .btn-secondary {
+      background: #95a5a6;
+      color: white;
+    }
+    .btn-secondary:hover:not(:disabled) {
+      background: #7f8c8d;
+    }
+    .btn-danger {
+      background: #e74c3c;
+      color: white;
+    }
+    .btn-danger:hover:not(:disabled) {
+      background: #c0392b;
+    }
+
+    /* Spinner Animation */
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid #f3f3f3;
+      border-top: 2px solid #3498db;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .agents-table {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 15px;
+      padding: 2rem;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      overflow-x: auto;
+    }
+    .agents-table table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .agents-table th, .agents-table td {
+      padding: 1rem;
+      text-align: left;
+      border-bottom: 1px solid #e1e8ed;
+    }
+    .agents-table th {
+      background: #f8f9fa;
+      font-weight: 600;
+      color: #2c3e50;
+    }
+    .agents-table .actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    /* Modal for editing and success */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+    .modal.show {
+      display: flex;
+    }
+    .modal-content {
+      background: white;
+      padding: 2rem;
+      border-radius: 15px;
+      width: 90%;
+      max-width: 500px;
+      text-align: center;
+      animation: modalFadeIn 0.3s ease-out; /* Faster modal animation */
+    }
+    @keyframes modalFadeIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .success-modal .modal-content {
+      background: #d4edda;
+      color: #155724;
+    }
+    .success-modal .modal-content h2 {
+      color: #155724;
+    }
+  </style>
+</head>
+<body>
+  <div id="app" role="application">
+    <aside class="sidebar" aria-label="Main navigation">
+       <nav aria-label="Primary navigation">
+          <a href="track-sales.html" tabindex="0" aria-label="Track Sales" >
+        <span class="material-icons" aria-hidden="true">assessment</span>DASHBOARD
+      </a>
+
+        <a href="index.html"  tabindex="0" aria-current="page" aria-label="Home">
+          <span class="material-icons" aria-hidden="true">home</span>Avialable properties
+        </a>
+        <!--<a href="buy-page.html" tabindex="0" aria-label="Buy Homes">
+          <span class="material-icons" aria-hidden="true">support_agent</span>Buy
+        </a>
+        <a href="rent-page.html" tabindex="0" aria-label="Rent Homes">
+          <span class="material-icons" aria-hidden="true">key</span>Rent
+        </a>-->
+        <a href="sell-page.html" tabindex="0" aria-label="Sell Homes" >
+          <span class="material-icons" aria-hidden="true" >sell</span>Sell
+        </a>
+       <!-- <a href="home-improvemet-page.html" tabindex="0" aria-label="Home Improvement">
+          <span class="material-icons" aria-hidden="true">home_repair_service</span>Home Improvement
+        </a>
+        <a href="message-page.html" tabindex="0" aria-label="Messages">
+          <span class="material-icons" aria-hidden="true">message</span>Messages
+          
+        </a>-->
+       
+
+          <% if (isAdmin) { %> <a href="sales-approval.html" tabindex="0" aria-label="Sales Approval">
+        <span class="material-icons" aria-hidden="true">check_circle</span>Sales Approval
+      </a>
+      <!--<a href="tour-requested.html" tabindex="0" aria-label="Tour Requested">
+        <span class="material-icons" aria-hidden="true">event_available</span>Tour Requested
+      </a>-->
+       <a href="manage-agent" tabindex="0" aria-label="View All Customers" class="active">
+       <span class="material-icons" aria-hidden="true">event_available</span>Manage Agent
+      </a>
+      <a href="view-customers.html" tabindex="0" aria-label="View All Customers">
+        <span class="material-icons" aria-hidden="true">people</span>View All Customers
+      </a>
+       
+    
+
+       <a href="sold-properties" tabindex="0" aria-label="Track Sales" >
+        <span class="material-icons" aria-hidden="true">check_circle</span>Sold property
+      </a>
+
+       <a href="setting-page.html" tabindex="0" aria-label="Settings">
+          <span class="material-icons" aria-hidden="true">settings</span>Settings
+        </a>  <% } %>
+        
+
+
+ <!-- <div class="admin-dropdown">
+    <button class="dropdown-toggle" aria-expanded="false" aria-controls="admin-menu">
+      <span class="material-icons" aria-hidden="true">admin_panel_settings</span>Admin
+      <span class="material-icons dropdown-icon">expand_more</span>
+    </button>
+    <div class="dropdown-menu" id="admin-menu">
+      <a href="sales-approval.html" tabindex="0" aria-label="Sales Approval">
+        <span class="material-icons" aria-hidden="true">check_circle</span>Sales Approval
+      </a>
+      <a href="tour-requested.html" tabindex="0" aria-label="Tour Requested">
+        <span class="material-icons" aria-hidden="true">event_available</span>Tour Requested
+      </a>
+      <a href="view-customers.html" tabindex="0" aria-label="View All Customers">
+        <span class="material-icons" aria-hidden="true">people</span>View All Customers
+      </a>
+       
+                        <a href="track-sales.html" tabindex="0" aria-label="Track Sales">
+                            <span class="material-icons" aria-hidden="true">assessment</span>Track Sales
+                        </a>
+                   
+    </div>
+  </div>-->
+  
+  
+      </nav>
+      <footer>
+        &copy; 2025 G.O AREGBAN REAL ESTATE FIRM. All rights reserved.
+      </footer>
+    </aside>
+
+    <header role="banner" aria-label="Primary header">
+      <div class="header-left">
+        <button class="sidebar-toggle-btn material-icons" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="sidebar">menu</button>
+        <a href="#" class="logo" aria-label="G.O AREGBAN REAL ESTATE FIRM Home">
+          <span class="material-icons" aria-hidden="true">apartment</span>G.O AREGBAN REAL ESTATE FIRM And Consultant
+        </a>
+        <nav class="primary-nav" role="navigation" aria-label="Primary site navigation">
+          <a href="buy-page.html">Buy</a>
+          <a href="sell-page.html">Sell</a>
+        </nav>
+      </div>
+      <div class="header-right">
+        <button class="icon-btn" aria-label="Notifications">
+          <a href="notificatin-page.html"><span class="material-icons">notifications</span></a>
+        </button>
+        <button class="icon-btn" aria-label="User profile menu">
+          <a href="profile-page.html"><span class="material-icons">person</span></a>
+        </button>
+      </div>
+    </header>
+
+    <main role="main" aria-label="Manage Agents">
+      <div class="container">
+        <h1>Manage Agents</h1>
+
+        <!-- Add Agent Form -->
+        <form class="agent-form" action="/manage/agent" method="POST" id="add-agent-form">
+          <h2>Add New Agent</h2>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="firstName">First Name *</label>
+              <input type="text" id="firstName" name="firstName" required />
+            </div>
+            <div class="form-group">
+              <label for="middleName">Middle Name</label>
+              <input type="text" id="middleName" name="middleName" />
+            </div>
+            <div class="form-group">
+              <label for="lastName">Last Name *</label>
+              <input type="text" id="lastName" name="lastName" required />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="email">Email *</label>
+              <input type="email" id="email" name="email" required />
+            </div>
+            <div class="form-group">
+              <label for="phone">Phone</label>
+              <input type="tel" id="phone" name="phone" />
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary" id="submit-btn">
+            <span id="btn-text">Add Agent</span>
+          </button>
+        </form>
+
+        <!-- Agents Table -->
+        <div class="agents-table">
+          <h2>Existing Agents</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Properties Added</th>
+                <th>Sold Properties</th>
+                <th>Pending Properties</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% agents.forEach(agent => { %>
+                <tr>
+                  <td><%= agent.firstName %> <%= agent.middleName ? agent.middleName + ' ' : '' %><%= agent.lastName %></td>
+                  <td><%= agent.email %></td>
+                  <td><%= agent.phone || 'N/A' %></td>
+                  <td><%= agent.propertiesAdded || 0 %></td>
+                  <td><%= agent.soldProperties || 0 %></td>
+                  <td><%= agent.pendingProperties || 0 %></td>
+                  <td class="actions">
+                    <button class="btn btn-secondary" onclick="editAgent(<%= agent.id %>, '<%= agent.firstName %>', '<%= agent.middleName %>', '<%= agent.lastName %>', '<%= agent.email %>', '<%= agent.phone %>')">Edit</button>
+                    <button class="btn btn-danger" onclick="deleteAgent(<%= agent.id %>)">Delete</button>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Edit Agent Modal -->
+      <div class="modal" id="edit-modal">
+        <div class="modal-content">
+          <h2>Edit Agent</h2>
+          <form id="edit-agent-form">
+            <input type="hidden" id="edit-id" name="id" />
+            <div class="form-row">
+              <div class="form-group">
+                <label for="edit-firstName">First Name *</label>
+                <input type="text" id="edit-firstName" name="firstName" required />
+              </div>
+              <div class="form-group">
+                <label for="edit-middleName">Middle Name</label>
+                <input type="text" id="edit-middleName" name="middleName" />
+              </div>
+              <div class="form-group">
+                <label for="edit-lastName">Last Name *</label>
+                <input type="text" id="edit-lastName" name="lastName" required />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="edit-email">Email *</label>
+                <input type="email" id="edit-email" name="email" required />
+              </div>
+              <div class="form-group">
+                <label for="edit-phone">Phone</label>
+                <input type="tel" id="edit-phone" name="phone" />
+              </div>
+            </div>
+            <div class="form-row">
+              <button type="submit" class="btn btn-primary">Update Agent</button>
+              <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Success Modal for Agent Added -->
+      <div class="modal success-modal" id="success-modal">
+        <div class="modal-content">
+          <h2>Success!</h2>
+          <p>Agent added successfully! An email has been sent to the agent with login details.</p>
+          <button class="btn btn-primary" onclick="closeSuccessModal()">OK</button>
+        </div>
+      </div>
+    </main>
+
+    <footer role="contentinfo" aria-label="Website footer">
+      <div>© 2025 G.O AREGBAN REAL ESTATE FIRM. All rights reserved.</div>
+      <div class="social-links" aria-label="Social media links">
+        <a href="#" target="_blank" rel="noopener" aria-label="Facebook">
+          <span class="material-icons">facebook</span>
+        </a>
+        <a href="#" target="_blank" rel="noopener" aria-label="Twitter">
+          <span class="material-icons">twitter</span>
+        </a>
+        <a href="#" target="_blank" rel="noopener" aria-label="Instagram">
+          <span class="material-icons">camera_alt</span>
+        </a>
+        <a href="#" target="_blank" rel="noopener" aria-label="LinkedIn">
+          <span class="material-icons">linkedin</span>
+        </a>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Toast notifications container -->
+  <div id="toast-container" aria-live="assertive" role="alert"></div>
+
+  <script src="/js/script.js"></script>
+  <script>
+    // Handle form submission for adding agent
+    document.getElementById('add-agent-form').addEventListener('submit', async () => {
+    
+      const formData = new FormData(e.target);
+      const submitBtn = document.getElementById('submit-btn');
+      const btnText = document.getElementById('btn-text');
+
+      // Show loading animation
+      submitBtn.disabled = true;
+      btnText.textContent = 'Adding Agent...';
+      submitBtn.insertAdjacentHTML('afterbegin', '<div class="spinner"></div>');
+
+      try {
+        const response = await fetch('/manage/agent', {
+          method: 'POST',
+          body: formData
+        });
+        if (response.ok) {
+          showSuccessModal(); // Show success popup immediately
+          setTimeout(() => location.reload(), 3000); // Reload after 3 seconds
+        } else {
+          const error = await response.text();
+          showToast(error, 'error');
+        }
+      } catch (err) {
+        showToast('Failed to add agent', 'error');
+      } finally {
+        // Reset button
+        submitBtn.disabled = false;
+        btnText.textContent = 'Add Agent';
+        const spinner = submitBtn.querySelector('.spinner');
+        if (spinner) spinner.remove();
+      }
+    });
+
+    // Handle edit agent
+    function editAgent(id, firstName, middleName, lastName, email, phone) {
+      document.getElementById('edit-id').value = id;
+      document.getElementById('edit-firstName').value = firstName;
+            document.getElementById('edit-middleName').value = middleName;
+      document.getElementById('edit-lastName').value = lastName;
+      document.getElementById('edit-email').value = email;
+      document.getElementById('edit-phone').value = phone;
+      document.getElementById('edit-modal').classList.add('show');
+    }
+
+    // Handle edit form submission
+    document.getElementById('edit-agent-form').addEventListener('submit', async () => {
+     
+      const formData = new FormData(e.target);
+      const id = formData.get('id');
+      try {
+        const response = await fetch(`/manage/agent/${id}`, {
+          method: 'PUT',
+          body: formData
+        });
+        if (response.ok) {
+          showToast('Agent updated successfully!', 'success');
+          closeModal();
+          setTimeout(() => location.reload(), 2000);
+        } else {
+          const error = await response.text();
+          showToast(error, 'error');
+        }
+      } catch (err) {
+        showToast('Failed to update agent', 'error');
+      }
+    });
+
+    // Handle delete agent
+    function deleteAgent(id) {
+      if (confirm('Are you sure you want to delete this agent?')) {
+        fetch(`/manage/agent/${id}`, { method: 'DELETE' })
+          .then(response => {
+            if (response.ok) {
+              showToast('Agent deleted successfully!', 'success');
+              setTimeout(() => location.reload(), 2000);
+            } else {
+              showToast('Failed to delete agent', 'error');
+            }
+          })
+          .catch(() => showToast('Failed to delete agent', 'error'));
+      }
+    }
+
+    // Close modal
+    function closeModal() {
+      document.getElementById('edit-modal').classList.remove('show');
+    }
+
+    // Show success modal
+    function showSuccessModal() {
+      document.getElementById('success-modal').classList.add('show');
+    }
+
+    // Close success modal
+    function closeSuccessModal() {
+      document.getElementById('success-modal').classList.remove('show');
+    }
+
+    // Toast function
+    function showToast(message, type) {
+      const toastContainer = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.textContent = message;
+      toast.setAttribute('role', 'alert');
+      toast.setAttribute('aria-live', 'assertive');
+      toastContainer.appendChild(toast);
+      setTimeout(() => {
+        toast.style.animation = 'slideOut 0.3s ease-in';
+        setTimeout(() => toast.remove(), 300);
+      }, 5000);
+    }
+
+    // Add slide-out animation to CSS if not present
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes slideOut {
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(100%); opacity: 0; }
+      }
+    `;
+    document.head.appendChild(style);
+  </script>
+</body>
+</html>

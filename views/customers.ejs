@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>G.O AREGBAN REAL ESTATE FIRM</title>
+  <!-- Google Material Icons -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- DataTables CSS (Bootstrap integration) -->
+  <link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+  <!-- DataTables Buttons CSS -->
+  <link href="https://cdn.datatables.net/buttons/2.3.6/css/buttons.bootstrap5.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    /* Styles for dropdown menu */
+    .admin-dropdown {
+      position: relative;
+    }
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      z-index: 1000;
+      margin-top: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      opacity: 0;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+      visibility: hidden;
+    }
+    .dropdown-menu.show {
+      display: block;
+      opacity: 1;
+      visibility: visible;
+    }
+    .spinner {
+      display: none;
+      margin: 20px auto;
+      text-align: center;
+      font-size: 16px;
+      color: #007bff;
+      border: 2px solid #007bff;
+      border-top: 2px solid transparent;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div id="app" role="application">
+    <aside class="sidebar" aria-label="Main navigation">
+       <nav aria-label="Primary navigation">
+          <a href="track-sales.html" tabindex="0" aria-label="Track Sales" >
+        <span class="material-icons" aria-hidden="true">assessment</span>DASHBOARD
+      </a>
+
+        <a href="index.html"  tabindex="0" aria-current="page" aria-label="Home" >
+          <span class="material-icons" aria-hidden="true">home</span>Avialable properties
+        </a>
+        <!--<a href="buy-page.html" tabindex="0" aria-label="Buy Homes">
+          <span class="material-icons" aria-hidden="true">support_agent</span>Buy
+        </a>
+        <a href="rent-page.html" tabindex="0" aria-label="Rent Homes">
+          <span class="material-icons" aria-hidden="true">key</span>Rent
+        </a>-->
+        <a href="sell-page.html" tabindex="0" aria-label="Sell Homes" >
+          <span class="material-icons" aria-hidden="true" >sell</span>Sell
+        </a>
+       <!-- <a href="home-improvemet-page.html" tabindex="0" aria-label="Home Improvement">
+          <span class="material-icons" aria-hidden="true">home_repair_service</span>Home Improvement
+        </a>
+        <a href="message-page.html" tabindex="0" aria-label="Messages">
+          <span class="material-icons" aria-hidden="true">message</span>Messages
+          
+        </a>-->
+       
+
+          <% if (isAdmin) { %> <a href="sales-approval.html" tabindex="0" aria-label="Sales Approval">
+        <span class="material-icons" aria-hidden="true">check_circle</span>Sales Approval
+      </a>
+      <!--<a href="tour-requested.html" tabindex="0" aria-label="Tour Requested">
+        <span class="material-icons" aria-hidden="true">event_available</span>Tour Requested
+      </a>-->
+       <a href="manage-agent" tabindex="0" aria-label="View All Customers">
+       <span class="material-icons" aria-hidden="true">event_available</span>Manage Agent
+      </a>
+      <a href="view-customers.html" tabindex="0" aria-label="View All Customers" class="active">
+        <span class="material-icons" aria-hidden="true">people</span>View All Customers
+      </a>
+       
+    
+
+       <a href="sold-properties" tabindex="0" aria-label="Track Sales" >
+        <span class="material-icons" aria-hidden="true">check_circle</span>Sold property
+      </a>
+
+       <a href="setting-page.html" tabindex="0" aria-label="Settings">
+          <span class="material-icons" aria-hidden="true">settings</span>Settings
+        </a>  <% } %>
+        
+
+
+ <!-- <div class="admin-dropdown">
+    <button class="dropdown-toggle" aria-expanded="false" aria-controls="admin-menu">
+      <span class="material-icons" aria-hidden="true">admin_panel_settings</span>Admin
+      <span class="material-icons dropdown-icon">expand_more</span>
+    </button>
+    <div class="dropdown-menu" id="admin-menu">
+      <a href="sales-approval.html" tabindex="0" aria-label="Sales Approval">
+        <span class="material-icons" aria-hidden="true">check_circle</span>Sales Approval
+      </a>
+      <a href="tour-requested.html" tabindex="0" aria-label="Tour Requested">
+        <span class="material-icons" aria-hidden="true">event_available</span>Tour Requested
+      </a>
+      <a href="view-customers.html" tabindex="0" aria-label="View All Customers">
+        <span class="material-icons" aria-hidden="true">people</span>View All Customers
+      </a>
+       
+                        <a href="track-sales.html" tabindex="0" aria-label="Track Sales">
+                            <span class="material-icons" aria-hidden="true">assessment</span>Track Sales
+                        </a>
+                   
+    </div>
+  </div>-->
+  
+  
+      </nav>
+      <footer>
+        &copy; 2025 G.O AREGBAN REAL ESTATE FIRM. All rights reserved.
+      </footer>
+    </aside>
+
+    <header role="banner" aria-label="Primary header">
+      <div class="header-left">
+        <button class="sidebar-toggle-btn material-icons" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="sidebar">menu</button>
+        <a href="#" class="logo" aria-label="RealEstatePro Home">
+          <span class="material-icons" aria-hidden="true">apartment</span>G.O AREGBAN REAL ESTATE FIRM And Consultant
+        </a>
+        <nav class="primary-nav" role="navigation" aria-label="Primary site navigation">
+          <a href="buy-page.html" class="active" aria-current="page">Buy</a>
+          <a href="sell-page.html">Sell</a>
+        </nav>
+      </div>
+      <div class="header-right">
+        <button class="icon-btn" aria-label="Notifications" aria-haspopup="true" aria-expanded="false">
+          <a href="notificatin-page.html"><span class="material-icons">notifications</span></a>
+        </button>
+        <button class="icon-btn" aria-label="User profile menu" aria-haspopup="true" aria-expanded="false">
+          <a href="profile-page.html"><span class="material-icons">person</span></a>
+        </button>
+      </div>
+    </header>
+
+    <main role="main" tabindex="-1" aria-label="Real estate listings and search">
+      <section aria-label="Customer Management">
+        <h1>Customer Management</h1>
+        <div class="table-responsive">
+          <table id="dataTable" class="table table-striped table-bordered table-hover">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>First Name</th>
+                <th>Middle Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+              </tr>
+            </thead>
+            <tbody>
+              Total Customers: <%= rowCount %>
+              <% customers.forEach(customer => { %>
+                <tr>
+                  <td><%= customer.id %></td>
+                  <td><%= customer.firstName %></td>
+                  <td><%= customer.middleName %></td>
+                  <td><%= customer.email %></td>
+                  <td><%= customer.phone %></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <footer role="contentinfo" aria-label="Website footer">
+      <div>© 2025 RealEstatePro. All rights reserved.</div>
+      <div class="social-links" aria-label="Social media links">
+        <a href="#" target="_blank" rel="noopener" aria-label="Facebook">
+          <span class="material-icons">facebook</span>
+        </a>
+        <a href="#" target="_blank" rel="noopener" aria-label="Twitter">
+          <span class="material-icons">twitter</span>
+        </a>
+        <a href="#" target="_blank" rel="noopener" aria-label="Instagram">
+          <span class="material-icons">camera_alt</span>
+        </a>
+        <a href="#" target="_blank" rel="noopener" aria-label="LinkedIn">
+          <span class="material-icons">linkedin</span>
+        </a>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Toast notifications container -->
+  <div id="toast-container" aria-live="assertive" role="alert"></div>
+
+  <script src="/js/script.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.3.6/js/dataTables.buttons.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.bootstrap5.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.html5.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.print.min.js"></script>
+  <script>
+    function viewCustomerDetail(id) {
+      window.location.href = `/admin/customers/${id}`;
+    }
+    
+    function editCustomer(id) {
+      window.location.href = `/admin/customers/${id}/edit`;
+    }
+
+    (() => {
+      document.querySelector('.dropdown-toggle').addEventListener('click', function() {
+        const expanded = this.getAttribute('aria-expanded') === 'true';
+        this.setAttribute('aria-expanded', !expanded);
+        document.getElementById('admin-menu').classList.toggle('show');
+      });
+    })();
+
+    document.addEventListener('DOMContentLoaded', function() {
+      if ($.fn.DataTable) {
+        const dataTable = $('#dataTable').DataTable({
+          "lengthMenu": [10, 50, 100],
+          "pageLength": 10,
+          "searching": true,
+          "ordering": true,
+          "info": true,
+          "responsive": true,
+          dom: 'Bfrtip',
+          buttons: [
+            'copy', 'csv', 'excel', 'pdf', 'print'
+          ]
+        });
+        
+        console.log('DataTable initialized successfully:', dataTable);
+        alert('DataTable is now initialized. Check for search box and pagination above the table!');
+      } else {
+        console.error('DataTables library is not loaded. Check your scripts.');
+        alert('Error: DataTables is not loading. Please check the console for details.');
+      }
+    });
+  </script>
+</body>
+</html>

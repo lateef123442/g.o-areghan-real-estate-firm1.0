@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buy Properties | G.O AREGBAN REAL ESTATE FIRM - Find Your Dream Home</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #1e40af;
+            --secondary: #1e3a8a;
+            --accent: #e11d48;
+            --light: #f8fafc;
+            --dark: #1e293b;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--dark);
+        }
+        
+        .hero-section {
+            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('/img/Screenshot_20250927-131850_WhatsAppBusiness[1].jpg') no-repeat center center;
+            background-size: cover;
+            height: 70vh;
+        }
+        
+        .property-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .input-highlight:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.2);
+        }
+        
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            background-color: rgba(30, 64, 175, 0.1);
+        }
+        
+        .testimonial-card {
+            background-color: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+        }
+        
+        .filter-tabs {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .filter-tab {
+            padding: 0.5rem 1rem;
+            border: 2px solid transparent;
+            border-radius: 9999px;
+            background: white;
+            color: #6b7280;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .filter-tab.active {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: white;
+        }
+        
+        .filter-tab:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        
+        @media (max-width: 768px) {
+            .hero-section {
+                height: 60vh;
+            }
+            
+            .filter-tabs {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+        /* Dropdown Styles */
+        .dropdown-menu {
+            opacity: 0;
+            visibility: hidden;
+            transform: scale(0.95);
+            transition: all 0.2s ease-in-out;
+        }
+        
+        .dropdown-menu.show {
+            opacity: 1;
+            visibility: visible;
+            transform: scale(1);
+        }
+        
+        .dropdown-icon {
+            transition: transform 0.2s ease-in-out;
+        }
+        
+        .dropdown-icon.rotated {
+            transform: rotate(180deg);
+        }
+        
+        @media (max-width: 768px) {
+            .hero-section {
+                height: 70vh;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+             <div class="flex justify-between h-16">
+                <div class="flex items-center"> <!-- Left side: Logo + Nav Links -->
+                    <div class="flex-shrink-0 flex items-center">
+                        <div class="h-10 w-10 rounded-full bg-blue-700 flex items-center justify-center text-white font-bold text-xl">IB</div>
+                        <span class="ml-2 text-xl font-semibold text-blue-800">G.O AREGBAN REAL ESTATE FIRM</span>
+                    </div>
+                    <div class="hidden sm:ml-6 sm:flex sm:space-x-8 ml-6"> <!-- Nav Links + Dropdown -->
+                        <a href="/" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">Home</a>
+                        <a href="#properties" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">Properties</a>
+                        <a href="#contact" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">Contact</a>
+                        
+                        <!-- Professional Service Dropdown -->
+                        <div class="admin-dropdown relative inline-block">
+                            <button id="service-toggle" class="dropdown-toggle flex items-center px-1 pt-1 border-b-2 border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200" aria-expanded="false" aria-controls="service-menu">
+                                <i class="fas fa-tools text-base mr-1" aria-hidden="true"></i>Services
+                                <i class="fas fa-chevron-down dropdown-icon text-sm ml-1"></i>
+                            </button>
+                            <div class="dropdown-menu absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg py-1 z-50" id="service-menu" role="menu" aria-labelledby="service-toggle">
+                                <!--<a href="costumer-sell-page.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 flex items-center transition duration-150" role="menuitem" tabindex="-1" aria-label="Sell Properties">
+                                    <i class="fas fa-tag text-base mr-3" aria-hidden="true"></i>Sell
+                                </a>-->
+                                <a href="customer-buy-page.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 flex items-center transition duration-150" role="menuitem" tabindex="-1" aria-label="Buy Properties">
+                                    <i class="fas fa-shopping-cart text-base mr-3" aria-hidden="true"></i>Buy
+                                </a>
+                                <a href="customer-rent-page.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 flex items-center transition duration-150" role="menuitem" tabindex="-1" aria-label="Rent Properties">
+                                    <i class="fas fa-key text-base mr-3" aria-hidden="true"></i>Rent
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Right side: Login Button (Desktop) -->
+                <div class="hidden sm:flex sm:items-center">
+                    <a href="login"><button class="bg-blue-700 hover:bg-blue-800 px-4 py-2 rounded-md text-white font-medium transition duration-300">Login / Register</button></a>
+                </div>
+                
+                <!-- Mobile Menu Button -->
+                <div class="-mr-2 flex items-center sm:hidden">
+                    <button type="button" id="mobile-menu-button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500">
+                        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            </div>
+        </div>
+        
+        <!-- Mobile menu, show/hide based on menu state. -->
+        <div class="sm:hidden hidden" id="mobile-menu">
+            <div class="pt-2 pb-3 space-y-1">
+                <a href="/website" class="bg-blue-50 border-blue-500 text-blue-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium">Home</a>
+                <a href="buy-page.html" class="border-blue-500 text-blue-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium">Buy Properties</a>
+                <a href="customer-rent-page.html" class="border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium">Rent</a>
+               <!--<a href="customer-sell-page.html" class="border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium">Sell</a>-->
+                <a href="#contact" class="border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium">Contact</a>
+                <div class="mt-4 px-4">
+                    <a href="login.html"><button class="bg-blue-700 hover:bg-blue-800 px-4 py-2 rounded-md text-white font-medium transition duration-300 w-full">Login / Register</button></a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section for Buy Page -->
+    <section class="hero-section flex items-center justify-center text-white relative">
+        <div class="text-center px-4 sm:px-6 lg:px-8 max-w-3xl">
+            <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold mb-6">Properties for Sale</h1>
+            <p class="text-lg sm:text-xl mb-8">Browse our extensive collection of homes, apartments, and land available for purchase. Find the perfect property to match your vision.</p>
+            
+            <!-- Search Form -->
+            <div class="bg-white rounded-lg shadow-xl p-4 md:p-6">
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                    <div class="md:col-span-2">
+                        <label for="location" class="sr-only">Location</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-map-marker-alt text-gray-400"></i>
+                            </div>
+                            <input type="text" id="location" class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-md input-highlight" placeholder="City, Neighborhood, ZIP">
+                        </div>
+                    </div>
+                    <div>
+                        <label for="property-type" class="sr-only">Property Type</label>
+                        <select id="property-type" class="block w-full pl-3 pr-10 py-3 border border-gray-300 rounded-md input-highlight">
+                            <option value="">All Types</option>
+                            <option>1 room self contain</option>
+                            <option>2 rooms self contain</option>
+                            <option>3+ rooms self contain</option>
+                            <option>single room</option>
+                            <option>plot of land</option>
+                            <option>duplex</option>
+                            <option>bungalow</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="min-price" class="sr-only">Min Price</label>
+                        <select id="min-price" class="block w-full pl-3 pr-10 py-3 border border-gray-300 rounded-md input-highlight">
+                            <option value="">Min Price</option>
+                            <option>#500,000</option>
+                            <option>#1,000,000</option>
+                            <option>#2,000,000</option>
+                            <option>#5,000,000</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="max-price" class="sr-only">Max Price</label>
+                        <select id="max-price" class="block w-full pl-3 pr-10 py-3 border border-gray-300 rounded-md input-highlight">
+                            <option value="">Max Price</option>
+                            <option>#2,000,000</option>
+                            <option>#5,000,000</option>
+                            <option>#10,000,000</option>
+                            <option>#20,000,000+</option>
+                        </select>
+                    </div>
+                    <div>
+                        <a href="#properties"><button type="submit" class="w-full bg-blue-700 hover:bg-blue-800 text-white py-3 px-4 rounded-md transition duration-300 flex items-center justify-center">
+                            <i class="fas fa-search mr-2"></i> Search
+                        </button></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="absolute bottom-4 left-0 right-0 flex justify-center">
+            <a href="#properties" class="animate-bounce bg-white text-blue-800 rounded-full p-2 shadow-lg">
+                <i class="fas fa-chevron-down"></i>
+            </a>
+        </div>
+    </section>
+
+    <!-- Properties for Sale Section -->
+    <section id="properties" class="py-16 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">All Properties Available for Sale</h2>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto">Discover a wide variety of properties including self-contained apartments, bungalows, duplexes, and plots of land. All listings are verified and ready for purchase.</p>
+                
+                <!-- Filter Tabs -->
+                <div class="filter-tabs mt-6">
+                    <button class="filter-tab active" data-filter="all">All Properties</button>
+                    <button class="filter-tab" data-filter="self-contain">Self Contain</button>
+                    <button class="filter-tab" data-filter="land">Plots of Land</button>
+                    <button class="filter-tab" data-filter="duplex">Duplex/Bangalow/Storey building</button>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8" id="property-grid">
+                <!-- Property 1: Oceanview Luxury Villa (Self Contain) -->
+                <div class="bg-white rounded-lg overflow-hidden shadow-md property-card transition duration-300" data-type="self-contain">
+                    <div class="relative">
+                        <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/e9952884-0024-4262-88c5-8f905d636e0c.png" alt="Modern luxury villa with infinity pool overlooking ocean coastline" class="w-full h-48 object-cover" />
+                        <div class="absolute top-4 right-4 bg-green-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                            For Sale
+                        </div>
+                        <div class="absolute bottom-4 left-4 bg-white/80 text-gray-800 px-3 py-1 rounded-full text-sm font-medium flex items-center">
+                            <i class="fas fa-map-marker-alt text-blue-700 mr-1"></i> Lagos, Nigeria
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">Oceanview Luxury Villa</h3>
+                        <p class="text-gray-600 mb-4">Stunning 4-room self contain with breathtaking ocean views and modern amenities.</p>
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <span class="text-blue-700 font-bold text-xl">#15,000,000</span>
+                            </div>
+                            <div class="flex space-x-2 text-gray-500">
+                                <span class="flex items-center">
+                                    <i class="fas fa-bed mr-1 text-blue-700"></i> 4
+                                </span>
+                                <span class="flex items-center">
+                                    <i class="fas fa-bath mr-1 text-blue-700"></i> 3.5
+                                </span>
+                                <span class="flex items-center">
+                                    <i class="fas fa-ruler-combined mr-1 text-blue-700"></i> 4,500 sqft
+                                </span>
+                            </div>
+                        </div>
+                        <a href="property-detail.html?id=1" class="block mt-4 bg-blue-700 hover:bg-blue-800 text-white py-2 rounded-md text-center transition duration-300">View Details</a>
+                    </div>
+                </div>
+                
+                <!-- Property 2: Urban Chic Loft (Self Contain) -->
+                <div class="bg-white rounded-lg overflow-hidden shadow-md property-card transition duration-300" data-type="self-contain">
+                    <div class="relative">
+                        <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/d85c8304-4296-4251-8412-68e850b6192b.png" alt="Contemporary urban loft with exposed brick walls and industrial chic design" class="w-full h-48 object-cover" />
+                        <div class="absolute bottom-4 left-4 bg-white/80 text-gray-800 px-3 py-1 rounded-full text-sm font-medium flex items-center">
+                            <i class="fas fa-map-marker-alt text-blue-700 mr-1"></i> Abuja, Nigeria
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">Urban Chic Loft</h3>
+                        <p class="text-gray-600 mb-4">Stylish 2-room self contain in the heart of the city with modern finishes.</p>
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <span class="text-blue-700 font-bold text-xl">#8,500,000</span>
+                            </div>
+                            <div class="flex space-x-2 text-gray-500">
+                                <span class="flex items-center">
+                                    <i class="fas fa-bed mr-1 text-blue-700"></i> 2
+                                </span>
+                                <span class="flex items-center">
+                                    <i class="fas fa-bath mr-1 text-blue-700"></i> 2
+                                </span>
+                                <span class="flex items-center">
+                                    <i class="fas fa-ruler-combined mr-1 text-blue-700"></i> 2,200 sqft
+                                </span>
+                            </div>
+                        </div>
+                        <a href="property-detail.html?id=2" class="block mt-4 bg-blue-700 hover:bg-blue-800 text-white py-2 rounded-md text-center transition duration-300">View Details</a>
+                    </div>
+                </div>
+                
+                <!-- Property 3: Historic Colonial Estate (Duplex) -->
+                <div class="bg-white rounded-lg overflow-hidden shadow-md property-card transition duration-300" data-type="duplex">
+                    <div class="relative">
+                        <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/769fdf16-ed0e-4eae-a5db-372487da50bc.png" alt="Historic colonial home with manicured gardens and classic architectural details" class="w-full h-48 object-cover" />
+                        <div class="absolute top-4 right-4 bg-yellow-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                            Reduced Price
+                        </div>
+                        <div class="absolute bottom-4 left-4 bg-white/80 text-gray-800 px-3 py-1 rounded-full text-sm font-medium flex                            <i class="fas fa-map-marker-alt text-blue-700 mr-1"></i> Port Harcourt, Nigeria
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">Historic Colonial Estate</h3>
+                        <p class="text-gray-600 mb-4">Exquisitely preserved duplex with period details and modern conveniences in a prime location.</p>
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <span class="text-blue-700 font-bold text-xl">#12,000,000</span>
+                            </div>
+                            <div class="flex space-x-2 text-gray-500">
+                                <span class="flex items-center">
+                                    <i class="fas fa-bed mr-1 text-blue-700"></i> 5
+                                </span>
+                                <span class="flex items-center">
+                                    <i class="fas fa-bath mr-1 text-blue-700"></i> 4
+                                </span>
+                                <span class="flex items-center">
+                                    <i class="fas fa-ruler-combined mr-1 text-blue-700"></i> 5,800 sqft
+                                </span>
+                            </div>
+                        </div>
+                        <a href="property-detail.html?id=3" class="block mt-4 bg-blue-700 hover:bg-blue-800 text-white py-2 rounded-md text-center transition duration-300">View Details</a>
+                    </div>
+                </div>
+
+                <!-- Property 4: Prime Plot of Land -->
+                <div class="bg-white rounded-lg overflow-hidden shadow-md property-card transition duration-300" data-type="land">
+                    <div class="relative">
+                        <img src="https://via.placeholder.com/400x300/4A90E2/FFFFFF?text=Prime+Plot+of+Land" alt="Expansive plot of land in developing estate with road access" class="w-full h-48 object-cover" />
+                        <div class="absolute top-4 right-4 bg-green-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                            For Sale
+                        </div>
+                        <div class="absolute bottom-4 left-4 bg-white/80 text-gray-800 px-3 py-1 rounded-full text-sm font-medium flex items-center">
+                            <i class="fas fa-map-marker-alt text-blue-700 mr-1"></i> Ikeja, Lagos
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">Prime Residential Plot</h3>
+                        <p class="text-gray-600 mb-4">600sqm plot in a gated estate, ideal for building your dream home. C of O title.</p>
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <span class="text-blue-700 font-bold text-xl">#3,500,000</span>
+                            </div>
+                            <div class="flex space-x-2 text-gray-500">
+                                <span class="flex items-center">
+                                    <i class="fas fa-ruler-combined mr-1 text-blue-700"></i> 600 sqm
+                                </span>
+                                <span class="flex items-center">
+                                    <i class="fas fa-certificate mr-1 text-blue-700"></i> C of O
+                                </span>
+                            </div>
+                        </div>
+                        <a href="property-detail.html?id=4" class="block mt-4 bg-blue-700 hover:bg-blue-800 text-white py-2 rounded-md text-center transition duration-300">View Details</a>
+                    </div>
+                </div>
+
+                <!-- Property 5: Modern Bungalow -->
+                <div class="bg-white rounded-lg overflow-hidden shadow-md property-card transition duration-300" data-type="duplex">
+                    <div class="relative">
+                        <img src="https://via.placeholder.com/400x300/7B68EE/FFFFFF?text=Modern+Bungalow" alt="Spacious modern bungalow with open-plan living and garden" class="w-full h-48 object-cover" />
+                        <div class="absolute top-4 right-4 bg-orange-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                            New Listing
+                        </div>
+                        <div class="absolute bottom-4 left-4 bg-white/80 text-gray-800 px-3 py-1 rounded-full text-sm font-medium flex items-center">
+                            <i class="fas fa-map-marker-alt text-blue-700 mr-1"></i> Lekki, Lagos
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">Modern Family Bungalow</h3>
+                        <p class="text-gray-600 mb-4">3-bedroom bungalow with boys quarters, fully furnished and ready to move in.</p>
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <span class="text-blue-700 font-bold text-xl">#18,000,000</span>
+                            </div>
+                            <div class="flex space-x-2 text-gray-500">
+                                <span class="flex items-center">
+                                    <i class="fas fa-bed mr-1 text-blue-700"></i> 3
+                                </span>
+                                <span class="flex items-center">
+                                    <i class="fas fa-bath mr-1 text-blue-700"></i> 3
+                                </span>
+                                <span class="flex items-center">
+                                    <i class="fas fa-ruler-combined mr-1 text-blue-700"></i> 3,200 sqft
+                                </span>
+                            </div>
+                        </div>
+                        <a href="property-detail.html?id=5" class="block mt-4 bg-blue-700 hover:bg-blue-800 text-white py-2 rounded-md text-center transition duration-300">View Details</a>
+                    </div>
+                </div>
+
+                <!-- Property 6: 3-Room Self Contain -->
+                <div class="bg-white rounded-lg overflow-hidden shadow-md property-card transition duration-300" data-type="self-contain">
+                    <div class="relative">
+                        <img src="https://via.placeholder.com/400x300/90EE90/FFFFFF?text=3-Room+Self+Contain" alt="Cozy 3-room self-contained apartment in secure complex" class="w-full h-48 object-cover" />
+                        <div class="absolute bottom-4 left-4 bg-white/80 text-gray-800 px-3 py-1 rounded-full text-sm font-medium flex items-center">
+                            <i class="fas fa-map-marker-alt text-blue-700 mr-1"></i> Victoria Island, Lagos
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">Spacious 3-Room Apartment</h3>
+                        <p class="text-gray-600 mb-4">Luxury self-contained unit with balcony, gym access, and 24/7 security.</p>
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <span class="text-blue-700 font-bold text-xl">#10,500,000</span>
+                            </div>
+                            <div class="flex space-x-2 text-gray-500">
+                                <span class="flex items-center">
+                                    <i class="fas fa-bed mr-1 text-blue-700"></i> 3
+                                </span>
+                                <span class="flex items-center">
+                                    <i class="fas fa-bath mr-1 text-blue-700"></i> 2.5
+                                </span>
+                                <span class="flex items-center">
+                                    <i class="fas fa-ruler-combined mr-1 text-blue-700"></i> 2,800 sqft
+                                </span>
+                            </div>
+                        </div>
+                        <a href="property-detail.html?id=6" class="block mt-4 bg-blue-700 hover:bg-blue-800 text-white py-2 rounded-md text-center transition duration-300">View Details</a>
+                    </div>
+                </div>
+
+                <!-- Property 7: Luxury Duplex -->
+                <div class="bg-white rounded-lg overflow-hidden shadow-md property-card transition duration-300" data-type="duplex">
+                    <div class="relative">
+                        <img src="https://via.placeholder.com/400x300/FF69B4/FFFFFF?text=Luxury+Duplex" alt="Elegant duplex with rooftop terrace and private parking" class="w-full h-48 object-cover" />
+                        <div class="absolute top-4 right-4 bg-green-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                            For Sale
+                        </div>
+                        <div class="absolute bottom-4 left-4 bg-white/80 text-gray-800 px-3 py-1 rounded-full text-sm font-medium flex items-center">
+                            <i class="fas fa-map-marker-alt text-blue-700 mr-1"></i> Enugu, Nigeria
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">Executive Duplex</h3>
+                        <p class="text-gray-600 mb-4">4-bedroom duplex in upscale neighborhood, with home office and garden.</p>
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <span class="text-blue-700 font-bold text-xl">#22,000,000</span>
+                            </div>
+                            <div class="flex space-x-2 text-gray-500">
+                                <span class="flex items-center">
+                                    <i class="fas fa-bed mr-1 text-blue-700"></i> 4
+                                </span>
+                                <span class="flex items-center">
+                                    <i class="fas fa-bath mr-1 text-blue-700"></i> 4
+                                </span>
+                                <span class="flex items-center">
+                                    <i class="fas fa-ruler-combined mr-1 text-blue-700"></i> 4,000 sqft
+                                </span>
+                            </div>
+                        </div>
+                        <a href="property-detail.html?id=7" class="block mt-4 bg-blue-700 hover:bg-blue-800 text-white py-2 rounded-md text-center transition duration-300">View Details</a>
+                    </div>
+                </div>
+
+                <!-- Property 8: Commercial Plot -->
+                <div class="bg-white rounded-lg overflow-hidden shadow-md property-card transition duration-300" data-type="land">
+                    <div class="relative">
+                        <img src="https://via.placeholder.com/400x300/FFD700/FFFFFF?text=Commercial+Plot" alt="Strategic commercial plot near business district" class="w-full h-48 object-cover" />
+                        <div class="absolute top-4 right-4 bg-purple-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                            Investment
+                        </div>
+                        <div class="absolute bottom-4 left-4 bg-white/80 text-gray-800 px-3 py-1 rounded-full text-sm font-medium flex items-center">
+                            <i class="fas fa-map-marker-alt text-blue-700 mr-1"></i> Kano, Nigeria
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">Commercial Land Plot</h3>
+                        <p class="text-gray-600 mb-4">1,000sqm plot in commercial zone, perfect for office or retail development.</p>
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <span class="text-blue-700 font-bold text-xl">#7,200,000</span>
+                            </div>
+                            <div class="flex space-x-2 text-gray-500">
+                                <span class="flex items-center">
+                                    <i class="fas fa-ruler-combined mr-1 text-blue-700"></i> 1,000 sqm
+                                </span>
+                                <span class="flex items-center">
+                                    <i class="fas fa-building mr-1 text-blue-700"></i> Commercial
+                                </span>
+                            </div>
+                        </div>
+                        <a href="property-detail.html?id=8" class="block mt-4 bg-blue-700 hover:bg-blue-800 text-white py-2 rounded-md text-center transition duration-300">View Details</a>
+                    </div>
+                </div>
+
+                <!-- Add more properties dynamically in a real app; these are samples for variety -->
+            </div>
+            
+            <!-- Pagination -->
+            <div class="mt-12 flex justify-center items-center space-x-4">
+                <button class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50" disabled>Previous</button>
+                <span class="text-sm text-gray-700">Page 1 of 5</span>
+                <button class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50">Next</button>
+            </div>
+            
+            <div class="mt-8 text-center">
+                <a href="#contact"><button class="bg-blue-700 hover:bg-blue-800 text-white px-8 py-3 rounded-lg font-medium transition duration-300">
+                    Contact Agent for More Listings
+                </button></a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Contact Section -->
+    <section class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">Ready to Buy?</h2>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto">Our agents are experts in the local market and can help you find the perfect property. Get in touch today!</p>
+            </div>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="text-center">
+                    <i class="fas fa-phone-alt text-4xl text-blue-700 mb-4"></i>
+                    <h3 class="text-xl font-semibold mb-2">Call Us</h3>
+                    <p class="text-gray-600">+234 800 123 4567</p>
+                </div>
+                <div class="text-center">
+                    <i class="fas fa-envelope text-4xl text-blue-700 mb-4"></i>
+                    <h3 class="text-xl font-semibold mb-2">Email Us</h3>
+                    <p class="text-gray-600">sales@ibarealestate.com</p>
+                </div>
+                <div class="text-center">
+                    <i class="fas fa-clock text-4xl text-blue-700 mb-4"></i>
+                    <h3 class="text-xl font-semibold mb-2">Office Hours</h3>
+                    <p class="text-gray-600">Mon - Fri: 8AM - 6PM</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div id="contact">
+    <!-- Footer (same as original) -->
+    <footer class="bg-gray-900 text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center mb-4">
+                        <div class="h-10 w-10 rounded-full bg-blue-700 flex items-center justify-center text-white font-bold text-xl">IB</div>
+                        <span class="ml-2 text-xl font-semibold">G.O AREGBAN REAL ESTATE FIRM</span>
+                    </div>
+                    <p class="text-gray-400 mb-4">
+                        Your trusted partner in real estate. We connect people with properties that elevate their lives.
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <i class="fab fa-youtube"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Quick Links</h3>
+                    <ul class="space-y-2">
+                        <li><a href="/" class="text-gray-400 hover:text-white">Home</a></li>
+                        <li><a href="buy-page.html" class="text-gray-400 hover:text-white">Buy Properties</a></li>
+                        <li><a href="rent-page.html" class="text-gray-400 hover:text-white">Rent</a></li>
+                        <li><a href="sell-page.html" class="text-gray-400 hover:text-white">Sell</a></li>
+                        <li><a href="contact.html" class="text-gray-400 hover:text-white">Contact</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Services</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white">Residential Buying</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Commercial Properties</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Land Sales</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Property Valuation</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Consulting</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Contact Info</h3>
+                    <address class="not-italic text-gray-400">
+                        <p class="mb-2">123 Property Lane, Suite 200</p>
+                        <p class="mb-2">Lagos, Nigeria</p>
+                        <p class="mb-2">Phone: +234 800 123 4567</p>
+                        <p class="mb-2">Email: info@ibarealestate.com</p>
+                        <p class="mb-2">Hours: Mon-Fri 9am-6pm</p>
+                    </address>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 mt-12 pt-8 md:flex md:items-center md:justify-between">
+                <div class="flex space-x-6 md:order-2">
+                    <a href="#" class="text-gray-400 hover:text-white">Privacy Policy</a>
+                    <a href="#" class="text-gray-400 hover:text-white">Terms of Service</a>
+                    <a href="#" class="text-gray-400 hover:text-white">Sitemap</a>
+                </div>
+                <p class="mt-8 text-base text-gray-400 md:mt-0 md:order-1">
+                    © 2025 G.O AREGBAN REAL ESTATE FIRM. All rights reserved.
+                </p>
+            </div>
+        </div>
+      </footer>
+      </div>
+
+    <!-- JavaScript -->
+    <script>
+        // Mobile menu toggle
+        document.getElementById('mobile-menu-button').addEventListener('click', function() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                if(targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if(targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                    
+                    // Close mobile menu if open
+                    const mobileMenu = document.getElementById('mobile-menu');
+                    mobileMenu.classList.add('hidden');
+                }
+            });
+        });
+
+        // Property filter functionality
+        const filterTabs = document.querySelectorAll('.filter-tab');
+        const propertyCards = document.querySelectorAll('.property-card');
+        const propertyGrid = document.getElementById('property-grid');
+
+        filterTabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                // Remove active class from all tabs
+                filterTabs.forEach(t => t.classList.remove('active'));
+                // Add active class to clicked tab
+                this.classList.add('active');
+
+                const filterType = this.getAttribute('data-filter');
+
+                // Show/hide properties based on filter
+                propertyCards.forEach(card => {
+                    const cardType = card.getAttribute('data-type');
+                    if (filterType === 'all' || cardType === filterType) {
+                        card.style.display = 'block';
+                        card.style.opacity = '0';
+                        card.style.transform = 'translateY(20px)';
+                        
+                        // Animate in
+                        setTimeout(() => {
+                            card.style.transition = 'all 0.3s ease';
+                            card.style.opacity = '1';
+                            card.style.transform = 'translateY(0)';
+                        }, 100);
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+
+                // Update pagination or results count (placeholder)
+                updateResultsCount(filterType);
+            });
+        });
+
+        // Function to update results count (dynamic in real app)
+        function updateResultsCount(filterType) {
+            let count = 0;
+            propertyCards.forEach(card => {
+                const cardType = card.getAttribute('data-type');
+                if (filterType === 'all' || cardType === filterType) {
+                    count++;
+                }
+            });
+            console.log(`Showing ${count} properties for filter: ${filterType}`);
+            // In real app, update a UI element like: document.getElementById('results-count').textContent = `${count} properties found`;
+        }
+
+        // Search form functionality (basic client-side filter; integrate with backend for full search)
+        const searchButton = document.querySelector('button[type="submit"]');
+        if (searchButton) {
+            searchButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const location = document.getElementById('location').value.toLowerCase();
+                const propertyType = document.getElementById('property-type').value.toLowerCase();
+                const minPrice = document.getElementById('min-price').value;
+                const maxPrice = document.getElementById('max-price').value;
+
+                let visibleCount = 0;
+
+                propertyCards.forEach(card => {
+                    const cardLocation = card.querySelector('.property-address') ? card.querySelector('.property-address').textContent.toLowerCase() : '';
+                    const cardType = card.getAttribute('data-type');
+                    const cardPriceText = card.querySelector('.text-xl').textContent.replace(/[^\d,]/g, '').replace(/,/g, '');
+                    const cardPrice = parseInt(cardPriceText) || 0;
+
+                    let matches = true;
+
+                    if (location && !cardLocation.includes(location)) matches = false;
+                    if (propertyType && propertyType !== '' && !propertyType.includes(cardType)) matches = false;
+                    if (minPrice && minPrice !== '' && cardPrice < parseInt(minPrice.replace(/[^\d]/g, ''))) matches = false;
+                    if (maxPrice && maxPrice !== '' && cardPrice > parseInt(maxPrice.replace(/[^\d]/g, ''))) matches = false;
+
+                    if (matches) {
+                        card.style.display = 'block';
+                        visibleCount++;
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+
+                // Scroll to properties section
+                document.getElementById('properties').scrollIntoView({ behavior: 'smooth' });
+
+                // Show toast or alert for results
+                alert(`${visibleCount} properties match your search criteria. Scroll down to view them.`);
+                
+                // In real app, redirect to filtered results page or update URL params
+            });
+        }
+
+        // Pagination functionality (basic; integrate with backend for dynamic pages)
+        const prevBtn = document.querySelector('#property-grid ~ .flex button:first-child');
+        const nextBtn = document.querySelector('#property-grid ~ .flex button:last-child');
+        let currentPage = 1;
+        const totalPages = 5; // Placeholder
+
+        if (prevBtn && nextBtn) {
+            prevBtn.addEventListener('click', function() {
+                if (currentPage > 1) {
+                    currentPage--;
+                    loadPage(currentPage);
+                    this.disabled = currentPage === 1;
+                    nextBtn.disabled = false;
+                }
+            });
+
+            nextBtn.addEventListener('click', function() {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    loadPage(currentPage);
+                    this.disabled = currentPage === totalPages;
+                    prevBtn.disabled = false;
+                }
+            });
+        }
+
+        // Placeholder for loading page (in real app, fetch from API)
+        function loadPage(page) {
+            console.log(`Loading page ${page}`);
+            // Update page indicator
+            document.querySelector('#property-grid ~ .flex span').textContent = `Page ${page} of ${totalPages}`;
+            // Animate or reload properties for that page
+        }
+
+        // Initialize: Set initial results count
+        updateResultsCount('all');
+
+        // Lazy loading for images (enhance performance)
+        if ('IntersectionObserver' in window) {
+            const imageObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        img.src = img.dataset.src || img.src;
+                        img.classList.remove('lazy');
+                        observer.unobserve(img);
+                    }
+                });
+            });
+
+            document.querySelectorAll('img[data-src]').forEach(img => {
+                imageObserver.observe(img);
+            });
+        }
+
+        
+        // Services Dropdown Toggle Functionality
+        (function() {
+            const serviceToggle = document.getElementById('service-toggle');
+            const serviceMenu = document.getElementById('service-menu');
+            const dropdownIcon = serviceToggle.querySelector('.dropdown-icon');
+
+    if (serviceToggle && serviceMenu) {
+        // Toggle dropdown on button click
+        serviceToggle.addEventListener('click', function(e) {
+            e.stopPropagation(); // Prevent event bubbling to document click handler
+            const isExpanded = this.getAttribute('aria-expanded') === 'true';
+            
+            // Update ARIA attribute
+            this.setAttribute('aria-expanded', !isExpanded);
+            
+            // Toggle menu visibility
+            serviceMenu.classList.toggle('show');
+            
+            // Rotate icon
+            if (dropdownIcon) {
+                dropdownIcon.classList.toggle('rotated');
+            }
+        });
+
+        // Close dropdown when clicking on a menu item (optional: for better UX)
+        const menuItems = serviceMenu.querySelectorAll('[role="menuitem"]');
+        menuItems.forEach(item => {
+            item.addEventListener('click', function() {
+                serviceToggle.setAttribute('aria-expanded', 'false');
+                serviceMenu.classList.remove('show');
+                if (dropdownIcon) {
+                    dropdownIcon.classList.remove('rotated');
+                }
+            });
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!serviceToggle.contains(e.target) && !serviceMenu.contains(e.target)) {
+                serviceToggle.setAttribute('aria-expanded', 'false');
+                serviceMenu.classList.remove('show');
+                if (dropdownIcon) {
+                    dropdownIcon.classList.remove('rotated');
+                }
+            }
+        });
+
+        // Keyboard navigation support (close on Escape key)
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && serviceMenu.classList.contains('show')) {
+                serviceToggle.setAttribute('aria-expanded', 'false');
+                serviceMenu.classList.remove('show');
+                if (dropdownIcon) {
+                    dropdownIcon.classList.remove('rotated');
+                }
+                serviceToggle.focus(); // Return focus to toggle button
+            }
+        });
+
+        // Focus management: Close if focus leaves the dropdown
+        serviceMenu.addEventListener('focusout', function(e) {
+            if (!serviceToggle.contains(e.relatedTarget) && !serviceMenu.contains(e.relatedTarget)) {
+                setTimeout(() => {
+                    if (!serviceMenu.contains(document.activeElement)) {
+                        serviceToggle.setAttribute('aria-expanded', 'false');
+                        serviceMenu.classList.remove('show');
+                        if (dropdownIcon) {
+                            dropdownIcon.classList.remove('rotated');
+                        }
+                    }
+                }, 100);
+            }
+        });
+    }
+})();
+
+        
+    </script>
+</body>
+</html>

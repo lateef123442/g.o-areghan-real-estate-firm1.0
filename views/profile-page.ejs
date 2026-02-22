@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>User Profile - RealEstatePro</title>
+  <!-- Google Material Icons -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+  <style>
+    /* Reset and base */
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+        Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      background: #f5f7fa;
+      color: #222;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      scroll-behavior: smooth;
+    }
+    a {
+      color: #1761a0;
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+    a:hover,
+    a:focus {
+      color: #003d66;
+      outline: none;
+    }
+    button {
+      cursor: pointer;
+      border: none;
+      background: #1761a0;
+      color: white;
+      font-weight: 600;
+      border-radius: 6px;
+      padding: 10px 16px;
+      font-size: clamp(0.9rem, 1vw + 0.3rem, 1.1rem);
+      transition: background-color 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      user-select: none;
+    }
+    button:disabled {
+      background: #a0b8cf;
+      cursor: not-allowed;
+    }
+    button:hover:not(:disabled),
+    button:focus-visible:not(:disabled) {
+      background: #004080;
+      outline: none;
+    }
+    input {
+      font-family: inherit;
+      font-size: clamp(0.9rem, 1vw + 0.3rem, 1rem);
+      padding: 11px 14px;
+      border-radius: 6px;
+      border: 1.5px solid #cfdde8;
+      transition: border-color 0.3s ease;
+      width: 100%;
+      max-width: 400px;
+      box-sizing: border-box;
+      color: #222;
+    }
+    input:focus {
+      outline: none;
+      border-color: #1761a0;
+      box-shadow: 0 0 6px #1761a0aa;
+    }
+    label {
+      font-weight: 600;
+      margin-bottom: 4px;
+      display: inline-block;
+      font-size: clamp(0.85rem, 1vw + 0.1rem, 0.95rem);
+      color: #444;
+    }
+    /* Strip and header */
+    header {
+      height: 64px;
+      background: rgba(255 255 255 / 0.85);
+      backdrop-filter: saturate(180%) blur(12px);
+      border-bottom: 1px solid #ddd;
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgb(0 0 0 / 0.06);
+    }
+    .logo {
+      font-weight: 800;
+      font-size: 1.5rem;
+      color: #1761a0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      user-select: none;
+    }
+    .logo .material-icons {
+      color: #0d3a66;
+      font-size: 1.8rem;
+    }
+    /* Container */
+    .container {
+      max-width: 1200px;
+      margin: 36px auto 48px;
+      padding: 0 20px;
+    }
+    /* Title */
+    h1 {
+      color: #0d3a66;
+      font-weight: 900;
+      font-size: clamp(2rem, 5vw, 3rem);
+      margin-bottom: 16px;
+      user-select: none;
+    }
+    /* Profile card */
+    .profile-card {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 8px 30px rgb(0 0 0 / 0.07);
+      padding: 20px;
+      margin-bottom: 48px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+    .profile-card img {
+      width: 100px; /* Adjust size as needed */
+      height: 100px; /* Adjust size as needed */
+      border-radius: 50%; /* Circular image */
+      object-fit: cover;
+      border: 2px solid #1761a0; /* Optional border */
+    }
+    .profile-card h2 {
+      margin: 0;
+      font-size: 1.5rem;
+      color: #1761a0;
+    }
+    .profile-card p {
+      margin: 0;
+      font-size: 1rem;
+      color: #444;
+    }
+    /* Edit button */
+    .edit-button {
+      align-self: flex-start;
+      background: #1761a0;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    .edit-button:hover {
+      background: #004080;
+    }
+  </style>
+  
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <div id="app" role="application">
+    <aside class="sidebar" aria-label="Main navigation">
+       <nav aria-label="Primary navigation">
+          <a href="track-sales.html" tabindex="0" aria-label="Track Sales" >
+        <span class="material-icons" aria-hidden="true">assessment</span>DASHBOARD
+      </a>
+
+        <a href="index.html"  tabindex="0" aria-current="page" aria-label="Home">
+          <span class="material-icons" aria-hidden="true">home</span>Avialable properties
+        </a>
+        <!--<a href="buy-page.html" tabindex="0" aria-label="Buy Homes">
+          <span class="material-icons" aria-hidden="true">support_agent</span>Buy
+        </a>
+        <a href="rent-page.html" tabindex="0" aria-label="Rent Homes">
+          <span class="material-icons" aria-hidden="true">key</span>Rent
+        </a>-->
+        <a href="sell-page.html" tabindex="0" aria-label="Sell Homes" >
+          <span class="material-icons" aria-hidden="true" >sell</span>Sell
+        </a>
+       <!-- <a href="home-improvemet-page.html" tabindex="0" aria-label="Home Improvement">
+          <span class="material-icons" aria-hidden="true">home_repair_service</span>Home Improvement
+        </a>
+        <a href="message-page.html" tabindex="0" aria-label="Messages">
+          <span class="material-icons" aria-hidden="true">message</span>Messages
+          
+        </a>-->
+       
+
+          <% if (isAdmin) { %> <a href="sales-approval.html" tabindex="0" aria-label="Sales Approval">
+        <span class="material-icons" aria-hidden="true">check_circle</span>Sales Approval
+      </a>
+      <!--<a href="tour-requested.html" tabindex="0" aria-label="Tour Requested">
+        <span class="material-icons" aria-hidden="true">event_available</span>Tour Requested
+      </a>-->
+       <a href="manage-agent" tabindex="0" aria-label="View All Customers">
+       <span class="material-icons" aria-hidden="true">event_available</span>Manage Agent
+      </a>
+      <a href="view-customers.html" tabindex="0" aria-label="View All Customers">
+        <span class="material-icons" aria-hidden="true">people</span>View All Customers
+      </a>
+       
+    
+
+       <a href="sold-properties" tabindex="0" aria-label="Track Sales" >
+        <span class="material-icons" aria-hidden="true">check_circle</span>Sold property
+      </a>
+
+       <a href="setting-page.html" tabindex="0" aria-label="Settings">
+          <span class="material-icons" aria-hidden="true">settings</span>Settings
+        </a>  <% } %>
+        
+
+
+ <!-- <div class="admin-dropdown">
+    <button class="dropdown-toggle" aria-expanded="false" aria-controls="admin-menu">
+      <span class="material-icons" aria-hidden="true">admin_panel_settings</span>Admin
+      <span class="material-icons dropdown-icon">expand_more</span>
+    </button>
+    <div class="dropdown-menu" id="admin-menu">
+      <a href="sales-approval.html" tabindex="0" aria-label="Sales Approval">
+        <span class="material-icons" aria-hidden="true">check_circle</span>Sales Approval
+      </a>
+      <a href="tour-requested.html" tabindex="0" aria-label="Tour Requested">
+        <span class="material-icons" aria-hidden="true">event_available</span>Tour Requested
+      </a>
+      <a href="view-customers.html" tabindex="0" aria-label="View All Customers">
+        <span class="material-icons" aria-hidden="true">people</span>View All Customers
+      </a>
+       
+                        <a href="track-sales.html" tabindex="0" aria-label="Track Sales">
+                            <span class="material-icons" aria-hidden="true">assessment</span>Track Sales
+                        </a>
+                   
+    </div>
+  </div>-->
+  
+  
+      </nav>
+      <footer>
+        &copy; 2025 G.O AREGBAN REAL ESTATE FIRM. All rights reserved.
+      </footer>
+    </aside>
+
+    <header role="banner" aria-label="Primary header">
+      <div class="header-left">
+        <button class="sidebar-toggle-btn material-icons" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="sidebar">menu</button>
+        <a href="#" class="logo" aria-label="RealEstatePro Home">
+          <span class="material-icons" aria-hidden="true">apartment</span>G.O AREGBAN REAL ESTATE FIRM And Consultant
+        </a>
+        <nav class="primary-nav" role="navigation" aria-label="Primary site navigation">
+          <a href="buy-page.html" class="active" aria-current="page">Buy</a>
+          <!--<a href="rent-page.html">Rent</a>-->
+          <a href="sell-page.html">Sell</a>
+        </nav>
+      </div>
+      <div class="header-right">
+        <button class="icon-btn" aria-label="Notifications" aria-haspopup="true" aria-expanded="false">
+          <a href="notificatin-page.html"><span class="material-icons">notifications</span></a>
+         
+        </button>
+        <button class="icon-btn" aria-label="User  profile menu" aria-haspopup="true" aria-expanded="false">
+          <a href="profile-page.html"><span class="material-icons">person</span></a>
+        </button>
+      </div>
+    </header>
+
+    <main class="container" role="main" aria-label="User   profile">
+      <h1>User Profile</h1>
+      <div class="profile-card">
+       
+        <h2>Profile Details</h2>
+        <p><strong>First Name:<%= firstName %></strong> <span id="first-name"></span></p>
+        <p><strong>Middle Name: <%= middleName%></strong> <span id="middle-name"></span></p>
+        <p><strong>Email: <%= email %></strong> <span id="email"></span></p>
+        <p><strong>Phone: <%= phone %></strong> <span id="phone"></span></p>
+         <a href="edit-profile"><button class="edit-button">Edit Profile</button></a>
+      </div>
+    </main>
+  </div>
+
+   <script>
+    
+    (()=>{
+      document.querySelector('.dropdown-toggle').addEventListener('click', function() {
+        const expanded = this.getAttribute('aria-expanded') === 'true';
+        this.setAttribute('aria-expanded', !expanded);
+        document.getElementById('admin-menu').classList.toggle('show');
+      });
+    })();
+  </script>
+
+</body>
+</html>

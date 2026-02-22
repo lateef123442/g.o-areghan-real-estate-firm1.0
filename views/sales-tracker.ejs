@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Track Sales | G.O AREGBAN REAL ESTATE FIRM</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/styles.css">
+  <!-- Chart.js CDN for Graphs -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <style>
+    /* ============================================
+       LOADING ANIMATION STYLES
+       ============================================ */
+    #page-loader {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 99999;
+      transition: opacity 0.5s ease, visibility 0.5s ease;
+    }
+
+    #page-loader.loaded {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    .loader-content {
+      text-align: center;
+      color: white;
+    }
+
+    .loader-logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 2rem;
+      font-size: 2rem;
+      font-weight: 700;
+      gap: 0.5rem;
+    }
+
+    .loader-logo .material-icons {
+      font-size: 3rem;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    /* Spinner Animation */
+    .spinner {
+      width: 60px;
+      height: 60px;
+      margin: 0 auto 1.5rem;
+      border: 4px solid rgba(255, 255, 255, 0.3);
+      border-top: 4px solid white;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.1); opacity: 0.8; }
+    }
+
+    .loader-text {
+      font-size: 1.1rem;
+      font-weight: 500;
+      margin-top: 1rem;
+      letter-spacing: 0.5px;
+    }
+
+    .loader-subtext {
+      font-size: 0.9rem;
+      opacity: 0.8;
+      margin-top: 0.5rem;
+    }
+
+    /* Progress Bar */
+    .progress-bar-container {
+      width: 250px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 2px;
+      margin: 1.5rem auto 0;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: white;
+      width: 0%;
+      border-radius: 2px;
+      animation: progress 2s ease-in-out forwards;
+    }
+
+    @keyframes progress {
+      0% { width: 0%; }
+      50% { width: 70%; }
+      100% { width: 100%; }
+    }
+
+    /* ============================================
+       ENHANCED PROFESSIONAL STYLES
+       ============================================ */
+    body { 
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; 
+      line-height: 1.6; 
+      color: #1f2937; 
+      background: linear-gradient(to bottom, #f8fafc 0%, #e5e7eb 100%);
+      min-height: 100vh;
+    }
+    
+    .dashboard { 
+      max-width: 1200px; 
+      opacity: 0;
+      animation: fadeInUp 0.6s ease forwards;
+      animation-delay: 0.3s;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    h1 { 
+      font-size: 2.25rem; 
+      font-weight: 700; 
+      color: #111827; 
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .text-gray-600 { 
+      color: #6b7280; 
+      font-size: 1rem; 
+      margin-bottom: 2.5rem;
+      font-weight: 400;
+    }
+
+    /* Toast Styles (for errors) */
+    #toast-container { position: fixed; top: 20px; right: 20px; z-index: 10000; }
+    .toast { 
+      padding: 14px 22px; 
+      border-radius: 10px; 
+      color: white; 
+      font-weight: 500; 
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2); 
+      max-width: 350px; 
+      margin-bottom: 10px; 
+      animation: slideIn 0.3s ease-out;
+      backdrop-filter: blur(10px);
+    }
+    .toast.error { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
+    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+    /* Stats Grid */
+    .stats-grid { 
+      display: grid; 
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); 
+      gap: 1.25rem; 
+      margin-bottom: 2.5rem;
+    }
+    
+    .stat-card { 
+      background: white; 
+      padding: 1.5rem; 
+      border-radius: 16px; 
+      box-shadow: 0 4px 6px rgba(0,0,0,0.05), 0 1px 3px rgba(0,0,0,0.1); 
+      text-align: center; 
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+      border: 1px solid #f1f5f9;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, transparent, currentColor, transparent);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .stat-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px rgba(0,0,0,0.15), 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    .stat-card:hover::before {
+      opacity: 1;
+    }
+    
+    .stat-card h3 { 
+      font-size: 2rem; 
+      font-weight: 700; 
+      margin-bottom: 0.25rem; 
+      color: #111827;
+      letter-spacing: -0.5px;
+    }
+    
+    .stat-card .label { 
+      color: #6b7280; 
+      font-size: 0.85rem; 
+      text-transform: uppercase; 
+      letter-spacing: 0.05em; 
+      font-weight: 600;
+    }
+    
+    .stat-card span.material-icons { 
+      font-size: 2rem; 
+      margin-top: 0.75rem; 
+      display: block;
+      opacity: 0.8;
+    }
+    
+    .stat-card.pending { border-left: 4px solid #f59e0b; color: #f59e0b; }
+    .stat-card.sold { border-left: 4px solid #10b981; color: #10b981; }
+    .stat-card.customers { border-left: 4px solid #3b82f6; color: #3b82f6; }
+
+    /* Property Types Grid */
+    .property-types-grid { 
+      display: grid; 
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); 
+      gap: 1.25rem; 
+      margin: 2rem 0;
+    }
+    
+    .property-types-grid .stat-card { padding: 1.25rem; }
+
+    /* Charts Grid */
+    .charts-grid { 
+      display: grid; 
+      grid-template-columns: 1fr 1fr; 
+      gap: 1.25rem; 
+      margin-bottom: 2rem;
+    }
+    
+    .chart-container { 
+      background: white; 
+      padding: 1.75rem; 
+      border-radius: 16px; 
+      box-shadow: 0 4px 6px rgba(0,0,0,0.05), 0 1px 3px rgba(0,0,0,0.1); 
+      border: 1px solid #f1f5f9; 
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .chart-container:hover { 
+      box-shadow: 0 12px 24px rgba(0,0,0,0.15), 0 4px 8px rgba(0,0,0,0.1);
+      transform: translateY(-2px);
+    }
+    
+    .chart-container h3 { 
+      margin-bottom: 1.25rem; 
+      text-align: center; 
+      font-size: 1rem; 
+      font-weight: 600; 
+      color: #374151;
+      letter-spacing: -0.2px;
+    }
+    
+    .chart-wrapper { position: relative; width: 100%; }
+    
+    @media (max-width: 768px) { 
+      .charts-grid { grid-template-columns: 1fr; gap: 1rem; } 
+      .stats-grid { grid-template-columns: 1fr; gap: 1rem; }
+      .property-types-grid { grid-template-columns: 1fr; }
+      h1 { font-size: 1.75rem; }
+    }
+
+    /* Skeleton Loading for Charts */
+    .skeleton {
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 8px;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Loading Screen -->
+  <div id="page-loader">
+    <div class="loader-content">
+      <div class="loader-logo">
+        <span class="material-icons">apartment</span>
+        <span>G.O AREGBAN REAL ESTATE FIRM</span>
+      </div>
+      <div class="spinner"></div>
+      <div class="loader-text">Loading Dashboard...</div>
+      <div class="loader-subtext">Preparing your sales data</div>
+      <div class="progress-bar-container">
+        <div class="progress-bar"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="app" role="application">
+    <!-- Sidebar (Admin Links, Active on Track Sales) -->
+    <aside class="sidebar" aria-label="Main navigation">
+       <nav aria-label="Primary navigation">
+          <a href="track-sales.html" tabindex="0" aria-label="Track Sales" class="active" >
+        <span class="material-icons" aria-hidden="true">assessment</span>DASHBOARD
+      </a>
+
+        <a href="index.html"  tabindex="0" aria-current="page" aria-label="Home" >
+          <span class="material-icons" aria-hidden="true">home</span>Avialable properties
+        </a>
+        <!--<a href="buy-page.html" tabindex="0" aria-label="Buy Homes">
+          <span class="material-icons" aria-hidden="true">support_agent</span>Buy
+        </a>
+        <a href="rent-page.html" tabindex="0" aria-label="Rent Homes">
+          <span class="material-icons" aria-hidden="true">key</span>Rent
+        </a>-->
+        <a href="sell-page.html" tabindex="0" aria-label="Sell Homes" >
+          <span class="material-icons" aria-hidden="true" >sell</span>Sell
+        </a>
+       <!-- <a href="home-improvemet-page.html" tabindex="0" aria-label="Home Improvement">
+          <span class="material-icons" aria-hidden="true">home_repair_service</span>Home Improvement
+        </a>
+        <a href="message-page.html" tabindex="0" aria-label="Messages">
+          <span class="material-icons" aria-hidden="true">message</span>Messages
+          
+        </a>-->
+       
+
+          <% if (isAdmin) { %> <a href="sales-approval.html" tabindex="0" aria-label="Sales Approval">
+        <span class="material-icons" aria-hidden="true">check_circle</span>Sales Approval
+      </a>
+      <!--<a href="tour-requested.html" tabindex="0" aria-label="Tour Requested">
+        <span class="material-icons" aria-hidden="true">event_available</span>Tour Requested
+      </a>-->
+       <a href="manage-agent" tabindex="0" aria-label="View All Customers">
+       <span class="material-icons" aria-hidden="true">event_available</span>Manage Agent
+      </a>
+      <a href="view-customers.html" tabindex="0" aria-label="View All Customers">
+        <span class="material-icons" aria-hidden="true">people</span>View All Customers
+      </a>
+       
+    
+
+       <a href="sold-properties" tabindex="0" aria-label="Track Sales" >
+        <span class="material-icons" aria-hidden="true">check_circle</span>Sold property
+      </a>
+
+       <a href="setting-page.html" tabindex="0" aria-label="Settings">
+          <span class="material-icons" aria-hidden="true">settings</span>Settings
+        </a>  <% } %>
+        
+
+
+ <!-- <div class="admin-dropdown">
+    <button class="dropdown-toggle" aria-expanded="false" aria-controls="admin-menu">
+      <span class="material-icons" aria-hidden="true">admin_panel_settings</span>Admin
+      <span class="material-icons dropdown-icon">expand_more</span>
+    </button>
+    <div class="dropdown-menu" id="admin-menu">
+      <a href="sales-approval.html" tabindex="0" aria-label="Sales Approval">
+        <span class="material-icons" aria-hidden="true">check_circle</span>Sales Approval
+      </a>
+      <a href="tour-requested.html" tabindex="0" aria-label="Tour Requested">
+        <span class="material-icons" aria-hidden="true">event_available</span>Tour Requested
+      </a>
+      <a href="view-customers.html" tabindex="0" aria-label="View All Customers">
+        <span class="material-icons" aria-hidden="true">people</span>View All Customers
+      </a>
+       
+                        <a href="track-sales.html" tabindex="0" aria-label="Track Sales">
+                            <span class="material-icons" aria-hidden="true">assessment</span>Track Sales
+                        </a>
+                   
+    </div>
+  </div>-->
+  
+  
+      </nav>
+      <footer>
+        &copy; 2025 G.O AREGBAN REAL ESTATE FIRM. All rights reserved.
+      </footer>
+    </aside>
+
+    <!-- Header -->
+    <header role="banner" aria-label="Primary header">
+      <div class="header-left">
+        <button class="sidebar-toggle-btn material-icons" aria-label="Toggle navigation">menu</button>
+        <a href="#" class="logo"><span class="material-icons" aria-hidden="true">apartment</span>G.O AREGBAN REAL ESTATE FIRM</a>
+        <nav class="primary-nav">
+          <a href="/sell-page.html">Sell</a>
+          <a href="/track-sales" class="active">Track Sales</a>
+        </nav>
+      </div>
+      <div class="header-right">
+        <button class="icon-btn"><a href="notificatin-page.html"><span class="material-icons">notifications</span></a></button>
+        <button class="icon-btn"><a href="profile-page.html"><span class="material-icons">person</span></a></button>
+      </div>
+    </header>
+
+    <main role="main" aria-label="Track sales dashboard">
+      <div class="dashboard">
+        <h1 class="text-3xl font-bold mb-4">Track Sales Dashboard</h1>
+        <p class="text-gray-600 mb-6">Real-time overview of sales, properties, and customers.</p>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+          <div class="stat-card pending">
+            <h3><%= stats.pendingSales %></h3>
+            <div class="label">Pending Sales</div>
+            <span class="material-icons" style="color: #f59e0b;">pending</span>
+          </div>
+          <div class="stat-card sold">
+            <h3><%= stats.allSales %></h3>
+            <div class="label">All Sales</div>
+            <span class="material-icons" style="color: #10b981;">check_circle</span>
+          </div>
+          <div class="stat-card sold">
+            <h3><%= stats.soldProperties %></h3>
+            <div class="label">Sold Properties</div>
+            <span class="material-icons" style="color: #10b981;">home</span>
+          </div>
+          <div class="stat-card customers">
+            <h3><%= stats.customers %></h3>
+            <div class="label">All Customers</div>
+            <span class="material-icons" style="color: #3b82f6;">people</span>
+          </div>
+          <div class="stat-card sold">
+            <h3><%= stats.soldThisMonth %></h3>
+            <div class="label">Sold This Month</div>
+            <span class="material-icons" style="color: #10b981;">trending_up</span>
+          </div>
+        </div>
+
+        <!-- Property Types Counts -->
+        <div class="property-types-grid">
+          <% stats.propertyTypes.forEach(type => { %>
+            <div class="stat-card">
+              <h3><%= type.count %></h3>
+              <div class="label"><%= type.type %></div>
+            </div>
+          <% }) %>
+          <% if (stats.propertyTypes.length === 0) { %>
+            <div class="stat-card" style="grid-column: 1 / -1; text-align: center;">
+              <h3>0</h3>
+              <div class="label">No Properties Found</div>
+            </div>
+          <% } %>
+        </div>
+
+        <!-- Charts Grid -->
+        <div class="charts-grid">
+          <!-- Bar Chart: Sales Comparison -->
+          <div class="chart-container">
+            <h3>Sales Comparison</h3> 
+            <div class="chart-wrapper" style="height:400px">
+              <canvas id="salesBarChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Pie Chart: Property Types -->
+          <div class="chart-container">
+            <h3>Property Types Distribution</h3>
+            <div class="chart-wrapper" style="height:400px">
+              <canvas id="propertyPieChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Line Chart: Monthly Sold (Full Width Below) -->
+          <div class="chart-container" style="grid-column: 1 / -1;">
+            <h3>Monthly Sold Properties (Last 12 Months)</h3>
+            <div class="chart-wrapper" style="height: 300px;">
+              <canvas id="monthlyLineChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer role="contentinfo" aria-label="Website footer">
+      <div style="text-align: center; padding: 1rem; color: #6b7280; border-top: 1px solid #e5e7eb;">© 2025 G.O AREGBAN REAL ESTATE FIRM. All rights reserved.</div>
+      <div class="social-links" style="text-align: center; padding-bottom: 1rem;">
+        <a href="#" target="_blank" rel="noopener" style="margin: 0 0.5rem; color: #6b7280; text-decoration: none;"><span class="material-icons" style="font-size: 1.2rem;">facebook</span></a>
+        <a href="#" target="_blank" rel="noopener" style="margin: 0 0.5rem; color: #6b7280; text-decoration: none;"><span class="material-icons" style="font-size: 1.2rem;">twitter</span></a>
+        <a href="#" target="_blank" rel="noopener" style="margin: 0 0.5rem; color: #6b7280; text-decoration: none;"><span class="material-icons" style="font-size: 1.2rem;">camera_alt</span></a>
+        <a href="#" target="_blank" rel="noopener" style="margin: 0 0.5rem; color: #6b7280; text-decoration: none;"><span class="material-icons" style="font-size: 1.2rem;">linkedin</span></a>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container" aria-live="assertive" role="alert"></div>
+
+  <script src="/js/script.js"></script>
+
+  <!-- Loading Screen Controller -->
+  <script>
+    // Hide loader when page is fully loaded
+    window.addEventListener('load', function() {
+      const loader = document.getElementById('page-loader');
+      // Add a small delay for better UX
+      setTimeout(() => {
+        loader.classList.add('loaded');
+      }, 500);
+    });
+
+    // Fallback: Hide loader after 3 seconds even if page hasn't fully loaded
+    setTimeout(() => {
+      const loader = document.getElementById('page-loader');
+      if (loader && !loader.classList.contains('loaded')) {
+        loader.classList.add('loaded');
+      }
+    }, 3000);
+  </script>
+
+  <!-- Chart.js Initialization -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Professional Color Palette for Charts
+      const primaryBlue = 'rgba(59, 130, 246, 1)';
+      const successGreen = 'rgba(16, 185, 129, 1)';
+      const warningOrange = 'rgba(245, 158, 11, 1)';
+      const gray = 'rgba(107, 114, 128, 1)';
+      const purple = 'rgba(124, 58, 237, 1)';
+      const pink = 'rgba(236, 72, 153, 1)';
+
+      // Common chart options for professional look
+      const commonOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            labels: {
+              font: { size: 12, family: 'Inter' },
+              padding: 15,
+              usePointStyle: true
+            }
+          },
+          tooltip: {
+            backgroundColor: 'rgba(0,0,0,0.9)',
+            titleFont: { size: 13, family: 'Inter' },
+            bodyFont: { size: 12, family: 'Inter' },
+            padding: 12,
+            cornerRadius: 8,
+            displayColors: true
+          }
+        },
+        animation: {
+          duration: 1000,
+          easing: 'easeInOutQuart'
+        }
+      };
+
+      // Bar Chart: Sales Comparison
+      const salesCtx = document.getElementById('salesBarChart').getContext('2d');
+      new Chart(salesCtx, {
+        type: 'bar',
+        data: {
+          labels: ['Pending Sales', 'All Sales', 'Sold This Month'],
+          datasets: [{
+            label: 'Count',
+            data: [<%= stats.pendingSales %>, <%= stats.allSales %>, <%= stats.soldThisMonth %>],
+            backgroundColor: [
+              warningOrange.replace('1', '0.8'),
+              successGreen.replace('1', '0.8'),
+              primaryBlue.replace('1', '0.8')
+            ],
+            borderColor: [warningOrange, successGreen, primaryBlue],
+            borderWidth: 2,
+            borderRadius: 8,
+            borderSkipped: false
+          }]
+        },
+        options: {
+          ...commonOptions,
+          plugins: {
+            ...commonOptions.plugins,
+            legend: { display: false }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              grid: { color: 'rgba(0,0,0,0.05)', drawBorder: false },
+              ticks: { font: { size: 11, family: 'Inter' }, color: '#6b7280' }
+            },
+            x: {
+              grid: { display: false, drawBorder: false },
+              ticks: { font: { size: 11, family: 'Inter' }, color: '#374151' }
+            }
+          }
+        }
+      });
+
+      // Pie Chart: Property Types Distribution
+      const propertyCtx = document.getElementById('propertyPieChart').getContext('2d');
+      const propertyLabels = [];
+      const propertyData = [];
+      const propertyColors = [
+        successGreen.replace('1', '0.8'),
+        primaryBlue.replace('1', '0.8'),
+        warningOrange.replace('1', '0.8'),
+        purple.replace('1', '0.8'),
+        pink.replace('1', '0.8'),
+        gray.replace('1', '0.8')
+      ];
+
+      <% if (stats.propertyTypes && stats.propertyTypes.length > 0) { %>
+        <% stats.propertyTypes.forEach((type, index) => { %>
+          propertyLabels.push('<%= type.type %>');
+          propertyData.push(<%= type.count %>);
+        <% }) %>
+      <% } else { %>
+        propertyLabels.push('No Data');
+        propertyData.push(1);
+      <% } %>
+
+      new Chart(propertyCtx, {
+        type: 'doughnut',
+        data: {
+          labels: propertyLabels,
+          datasets: [{
+            data: propertyData,
+            backgroundColor: propertyColors.slice(0, propertyLabels.length),
+            borderColor: '#ffffff',
+            borderWidth: 3,
+            hoverOffset: 8
+          }]
+        },
+        options: {
+          ...commonOptions,
+          cutout: '60%',
+          plugins: {
+            ...commonOptions.plugins,
+            legend: {
+              position: 'bottom',
+              labels: {
+                font: { size: 11, family: 'Inter' },
+                padding: 15,
+                usePointStyle: true,
+                pointStyle: 'circle'
+              }
+            }
+          }
+        }
+      });
+
+      // Line Chart: Monthly Sold Properties
+      const monthlyCtx = document.getElementById('monthlyLineChart').getContext('2d');
+      const monthlyLabels = [];
+      const monthlyData = [];
+
+      <% if (stats.monthlySold && stats.monthlySold.length > 0) { %>
+        <% stats.monthlySold.forEach(month => { %>
+          monthlyLabels.push('<%= month.month.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) %>');
+          monthlyData.push(<%= month.count %>);
+        <% }) %>
+      <% } else { %>
+        monthlyLabels.push('No Data');
+        monthlyData.push(0);
+      <% } %>
+
+      new Chart(monthlyCtx, {
+        type: 'line',
+        data: {
+          labels: monthlyLabels,
+          datasets: [{
+            label: 'Properties Sold',
+            data: monthlyData,
+            borderColor: primaryBlue,
+            backgroundColor: primaryBlue.replace('1', '0.15'),
+            borderWidth: 3,
+            fill: true,
+            tension: 0.4,
+            pointBackgroundColor: primaryBlue,
+            pointBorderColor: '#fff',
+            pointBorderWidth: 3,
+            pointRadius: 4,
+            pointHoverRadius: 6,
+            pointHoverBackgroundColor: primaryBlue,
+            pointHoverBorderColor: '#fff',
+            pointHoverBorderWidth: 3
+          }]
+        },
+        options: {
+          ...commonOptions,
+          scales: {
+            y: {
+              beginAtZero: true,
+              grid: { color: 'rgba(0,0,0,0.05)', drawBorder: false },
+              ticks: { font: { size: 11, family: 'Inter' }, color: '#6b7280' }
+            },
+            x: {
+              grid: { display: false, drawBorder: false },
+              ticks: {
+                font: { size: 10, family: 'Inter' },
+                color: '#374151',
+                maxRotation: 45,
+                minRotation: 45
+              }
+            }
+          }
+        }
+      });
+
+      // Sidebar Toggle
+      const sidebarToggle = document.querySelector('.sidebar-toggle-btn');
+      const sidebar = document.querySelector('.sidebar');
+      if (sidebarToggle && sidebar) {
+        sidebarToggle.addEventListener('click', () => {
+          sidebar.classList.toggle('hidden');
+        });
+      }
+    });
+  </script>
+
+  <!-- Toast Handling Script -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const error = urlParams.get('error');
+      const toastContainer = document.getElementById('toast-container');
+
+      function showToast(message, type) {
+        if (!toastContainer) return;
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.textContent = message;
+        toast.setAttribute('role', 'alert');
+        toast.setAttribute('aria-live', 'assertive');
+        toastContainer.appendChild(toast);
+
+        setTimeout(() => {
+          toast.style.animation = 'slideOut 0.3s ease-in';
+          setTimeout(() => {
+            if (toast.parentNode) toast.parentNode.removeChild(toast);
+          }, 300);
+        }, 5000);
+      }
+
+      if (error) {
+        showToast(decodeURIComponent(error), 'error');
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    });
+  </script>
+</body>
+</html>

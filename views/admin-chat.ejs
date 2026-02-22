@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Agent Chat - G.O AREGBAN REAL ESTATE FIRM</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    
+    body {
+      margin: 0;
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f5f7fa;
+      color: #222;
+      min-height: 100vh;
+    }
+    
+    a { color: #1761a0; text-decoration: none; }
+    a:hover { color: #003d66; }
+    
+    button {
+      cursor: pointer;
+      border: none;
+      background: #1761a0;
+      color: white;
+      font-weight: 600;
+      border-radius: 6px;
+      padding: 10px 16px;
+      transition: background-color 0.3s ease;
+    }
+    button:hover { background: #004080; }
+    
+    input {
+      font-family: inherit;
+      padding: 11px 14px;
+      border-radius: 6px;
+      border: 1.5px solid #cfdde8;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    input:focus { outline: none; border-color: #1761a0; }
+    
+    header {
+      height: 64px;
+      background: white;
+      border-bottom: 1px solid #ddd;
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      gap: 12px;
+    }
+    
+    .logo {
+      font-weight: 800;
+      font-size: 1.2rem;
+      color: #1761a0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+    }
+    
+    .logo .material-icons { color: #0d3a66; font-size: 1.5rem; }
+    
+    .header-right { margin-left: auto; display: flex; gap: 8px; }
+    .header-right a { color: #1761a0; }
+    .header-right .material-icons { font-size: 24px; }
+    
+    .sidebar {
+      position: fixed;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 260px;
+      background: white;
+      border-right: 1px solid #e5e7eb;
+      display: flex;
+      flex-direction: column;
+      z-index: 200;
+      transition: transform 0.3s ease;
+    }
+    
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 150;
+    }
+    
+    .sidebar nav { flex: 1; padding: 20px 0; overflow-y: auto; }
+    
+    .sidebar nav a {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 24px;
+      color: #4b5563;
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+    
+    .sidebar nav a:hover, .sidebar nav a.active {
+      background: #f0f4fa;
+      color: #1761a0;
+      border-left: 3px solid #1761a0;
+    }
+    
+    .sidebar nav a .material-icons { font-size: 22px; }
+    
+    .sidebar footer {
+      padding: 20px 24px;
+      border-top: 1px solid #e5e7eb;
+      font-size: 0.85rem;
+      color: #6b7280;
+    }
+    
+    .main-content {
+      margin-left: 260px;
+      padding: 20px;
+      min-height: calc(100vh - 64px);
+    }
+    
+    h1 { color: #0d3a66; font-weight: 900; font-size: 1.75rem; margin-bottom: 16px; }
+    
+    /* Chat Styles */
+    .chat-container { display: flex; gap: 20px; height: calc(100vh - 140px); }
+    
+    .chat-list {
+      width: 320px;
+      min-width: 280px;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgb(0 0 0 / 0.08);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .chat-list-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid #e5e7eb;
+      background: #1761a0;
+      color: white;
+    }
+    .chat-list-header h2 { margin: 0; font-size: 1.1rem; }
+    
+    .chat-list-items { flex: 1; overflow-y: auto; }
+    
+    .chat-item {
+      display: flex;
+      align-items: center;
+      padding: 14px 16px;
+      border-bottom: 1px solid #f3f4f6;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+    .chat-item:hover, .chat-item.active { background: #f0f4fa; }
+    
+    .chat-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: #1761a0;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1rem;
+      margin-right: 12px;
+      flex-shrink: 0;
+    }
+    
+    .chat-item-info { flex: 1; min-width: 0; }
+    .chat-item-name { font-weight: 600; color: #1f2937; margin-bottom: 2px; font-size: 0.95rem; }
+    .chat-item-preview { font-size: 0.85rem; color: #6b7280; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    
+    .chat-window {
+      flex: 1;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgb(0 0 0 / 0.08);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      min-width: 0;
+    }
+    
+    .chat-header {
+      padding: 14px 20px;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .chat-header h3 { margin: 0; font-size: 1rem; color: #1f2937; }
+    
+    .chat-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+    
+    .message {
+      max-width: 75%;
+      padding: 10px 14px;
+      border-radius: 16px;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      word-wrap: break-word;
+    }
+    .message.sent { align-self: flex-end; background: #1761a0; color: white; border-bottom-right-radius: 4px; }
+    .message.received { align-self: flex-start; background: #f3f4f6; color: #1f2937; border-bottom-left-radius: 4px; }
+    .message-time { font-size: 0.65rem; opacity: 0.7; margin-top: 4px; }
+    
+    .chat-input-area {
+      padding: 14px 20px;
+      border-top: 1px solid #e5e7eb;
+      display: flex;
+      gap: 10px;
+    }
+    .chat-input-area input { flex: 1; border-radius: 24px; padding: 10px 16px; }
+    .chat-input-area button { border-radius: 24px; padding: 10px 20px; }
+    
+    .no-chats { padding: 30px 20px; text-align: center; color: #6b7280; }
+    .no-chat-selected { display: flex; align-items: center; justify-content: center; height: 100%; color: #9ca3af; text-align: center; padding: 20px; }
+    
+    .back-btn { display: none; }
+    
+    /* Responsive Styles */
+    @media (max-width: 900px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .sidebar-overlay.show { display: block; }
+      .main-content { margin-left: 0; }
+      .chat-container { gap: 16px; }
+      .chat-list { width: 280px; min-width: 250px; }
+    }
+    
+    @media (max-width: 768px) {
+      .chat-container { 
+        flex-direction: column; 
+        height: calc(100vh - 120px);
+      }
+      
+      .chat-list { 
+        width: 100%; 
+        height: 100%;
+        display: <%= receiverId ? 'none' : 'flex' %>;
+      }
+      
+      .chat-list.show { display: flex; }
+      
+      .chat-window { 
+        display: <%= receiverId ? 'flex' : 'none' %>;
+        width: 100%;
+      }
+      
+      .chat-window.show { display: flex; }
+      
+      .chat-messages { padding: 16px; }
+      .message { max-width: 85%; }
+      
+      .back-btn { 
+        display: flex; 
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: #f3f4f6;
+        border: none;
+        cursor: pointer;
+        margin-right: 8px;
+      }
+      .back-btn .material-icons { font-size: 20px; color: #1761a0; }
+      
+      .header-left { flex: 1; min-width: 0; }
+      .logo { font-size: 1rem; }
+      .logo span:last-child { display: none; }
+    }
+    
+    @media (max-width: 480px) {
+      .main-content { padding: 12px; }
+      h1 { font-size: 1.5rem; }
+      .chat-input-area { padding: 12px; gap: 8px; }
+      .chat-input-area input { padding: 8px 14px; font-size: 0.9rem; }
+      .chat-input-area button { padding: 8px 16px; font-size: 0.9rem; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar Overlay -->
+  <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+  
+  <aside class="sidebar" aria-label="Main navigation">
+       <nav aria-label="Primary navigation">
+          <a href="track-sales.html" tabindex="0" aria-label="Track Sales" >
+        <span class="material-icons" aria-hidden="true">assessment</span>DASHBOARD
+      </a>
+
+        <a href="index.html"  tabindex="0" aria-current="page" aria-label="Home" >
+          <span class="material-icons" aria-hidden="true">home</span>Avialable properties
+        </a>
+        <!--<a href="buy-page.html" tabindex="0" aria-label="Buy Homes">
+          <span class="material-icons" aria-hidden="true">support_agent</span>Buy
+        </a>
+        <a href="rent-page.html" tabindex="0" aria-label="Rent Homes">
+          <span class="material-icons" aria-hidden="true">key</span>Rent
+        </a>-->
+        <a href="sell-page.html" tabindex="0" aria-label="Sell Homes" >
+          <span class="material-icons" aria-hidden="true" >sell</span>Sell
+        </a>
+       <!-- <a href="home-improvemet-page.html" tabindex="0" aria-label="Home Improvement">
+          <span class="material-icons" aria-hidden="true">home_repair_service</span>Home Improvement
+        </a>
+        <a href="message-page.html" tabindex="0" aria-label="Messages">
+          <span class="material-icons" aria-hidden="true">message</span>Messages
+          
+        </a>-->
+       
+
+          <a href="sales-approval.html" tabindex="0" aria-label="Sales Approval">
+        <span class="material-icons" aria-hidden="true">check_circle</span>Sales Approval
+      </a>
+      <!--<a href="tour-requested.html" tabindex="0" aria-label="Tour Requested">
+        <span class="material-icons" aria-hidden="true">event_available</span>Tour Requested
+      </a>-->
+       <a href="manage-agent" tabindex="0" aria-label="View All Customers">
+       <span class="material-icons" aria-hidden="true">event_available</span>Manage Agent
+      </a>
+      <a href="view-customers.html" tabindex="0" aria-label="View All Customers" class="active">
+        <span class="material-icons" aria-hidden="true">people</span>View All Customers
+      </a>
+       
+    
+
+       <a href="sold-properties" tabindex="0" aria-label="Track Sales" >
+        <span class="material-icons" aria-hidden="true">check_circle</span>Sold property
+      </a>
+
+       <a href="setting-page.html" tabindex="0" aria-label="Settings">
+          <span class="material-icons" aria-hidden="true">settings</span>Settings
+        </a> 
+        
+
+
+ <!-- <div class="admin-dropdown">
+    <button class="dropdown-toggle" aria-expanded="false" aria-controls="admin-menu">
+      <span class="material-icons" aria-hidden="true">admin_panel_settings</span>Admin
+      <span class="material-icons dropdown-icon">expand_more</span>
+    </button>
+    <div class="dropdown-menu" id="admin-menu">
+      <a href="sales-approval.html" tabindex="0" aria-label="Sales Approval">
+        <span class="material-icons" aria-hidden="true">check_circle</span>Sales Approval
+      </a>
+      <a href="tour-requested.html" tabindex="0" aria-label="Tour Requested">
+        <span class="material-icons" aria-hidden="true">event_available</span>Tour Requested
+      </a>
+      <a href="view-customers.html" tabindex="0" aria-label="View All Customers">
+        <span class="material-icons" aria-hidden="true">people</span>View All Customers
+      </a>
+       
+                        <a href="track-sales.html" tabindex="0" aria-label="Track Sales">
+                            <span class="material-icons" aria-hidden="true">assessment</span>Track Sales
+                        </a>
+                   
+    </div>
+  </div>-->
+  
+  
+      </nav>
+      <footer>
+        &copy; 2025 G.O AREGBAN REAL ESTATE FIRM. All rights reserved.
+      </footer>
+    </aside>
+
+    <header role="banner" aria-label="Primary header">
+      <div class="header-left">
+        <button class="sidebar-toggle-btn material-icons" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="sidebar">menu</button>
+        <a href="#" class="logo" aria-label="RealEstatePro Home">
+          <span class="material-icons" aria-hidden="true">apartment</span>G.O AREGBAN REAL ESTATE FIRM And Consultant
+        </a>
+        <nav class="primary-nav" role="navigation" aria-label="Primary site navigation">
+          <a href="buy-page.html" class="active" aria-current="page">Buy</a>
+          <a href="sell-page.html">Sell</a>
+        </nav>
+      </div>
+      <div class="header-right">
+        <button class="icon-btn" aria-label="Notifications" aria-haspopup="true" aria-expanded="false">
+          <a href="notificatin-page.html"><span class="material-icons">notifications</span></a>
+        </button>
+        <button class="icon-btn" aria-label="User profile menu" aria-haspopup="true" aria-expanded="false">
+          <a href="profile-page.html"><span class="material-icons">person</span></a>
+        </button>
+      </div>
+    </header>
+
+  <main class="main-content">
+    <% if (receiverId) { %>
+      <!-- Chat Interface -->
+      <div class="chat-container">
+        <!-- Chat List -->
+        <div class="chat-list" id="chatList">
+          <div class="chat-list-header"><h2>Messages</h2></div>
+          <div class="chat-list-items">
+            <% if (chatList && chatList.length > 0) { %>
+              <% chatList.forEach(chat => { %>
+                <a href="/agent-chat?receiverId=<%= chat.receiverId %>" class="chat-item <%= chat.receiverId == receiverId ? 'active' : '' %>">
+                  <div class="chat-avatar"><%= chat.receiverName.charAt(0).toUpperCase() %></div>
+                  <div class="chat-item-info">
+                    <div class="chat-item-name"><%= chat.receiverName %></div>
+                    <div class="chat-item-preview"><%= chat.lastMessage || 'No messages' %></div>
+                  </div>
+                </a>
+              <% }) %>
+            <% } else { %>
+              <div class="no-chats">No chats yet</div>
+            <% } %>
+          </div>
+        </div>
+
+        <!-- Chat Window -->
+        <div class="chat-window show" id="chatWindow">
+          <div class="chat-header">
+            <div class="chat-avatar"><%= receiverName ? receiverName.charAt(0).toUpperCase() : 'C' %></div>
+            <h3>Chat with <%= receiverName || 'Client' %></h3>
+          </div>
+          <div id="chat-messages" class="chat-messages">
+            <% if (messages && messages.length > 0) { %>
+              <% messages.forEach(msg => { %>
+                <div class="message <%= msg.sender_id == userId ? 'sent' : 'received' %>">
+                  <%= msg.message %>
+                  <div class="message-time"><%= new Date(msg.timestamp).toLocaleString() %></div>
+                </div>
+              <% }) %>
+            <% } else { %>
+              <div class="no-chat-selected">No messages yet.<br>Start the conversation!</div>
+            <% } %>
+          </div>
+          <form id="chat-form" onsubmit="return false;" class="chat-input-area">
+            <input type="text" id="message-input" placeholder="Type your message..." required>
+            <button type="button" id="send-button">Send</button>
+          </form>
+        </div>
+      </div>
+    <% } else { %>
+      <!-- Chat List Only -->
+      <h1>Messages</h1>
+      <div class="chat-list" style="width: 100%; height: auto; display: flex;">
+        <div class="chat-list-header"><h2>All Conversations</h2></div>
+        <div class="chat-list-items">
+          <% if (chatList && chatList.length > 0) { %>
+            <% chatList.forEach(chat => { %>
+              <a href="/agent-chat?receiverId=<%= chat.receiverId %>" class="chat-item">
+                <div class="chat-avatar"><%= chat.receiverName.charAt(0).toUpperCase() %></div>
+                <div class="chat-item-info">
+                  <div class="chat-item-name"><%= chat.receiverName %></div>
+                  <div class="chat-item-preview"><%= chat.lastMessage || 'No messages' %></div>
+                </div>
+              </a>
+            <% }) %>
+          <% } else { %>
+            <div class="no-chats">
+              <p>No messages yet.</p>
+              <p style="font-size: 0.85rem; margin-top: 8px;">Clients will send you messages from property pages.</p>
+            </div>
+          <% } %>
+        </div>
+      </div>
+    <% } %>
+  </main>
+
+  <script>
+    // Toggle sidebar
+    function toggleSidebar() {
+      document.querySelector('.sidebar').classList.toggle('open');
+      document.querySelector('.sidebar-overlay').classList.toggle('show');
+    }
+    
+    // Go back to chat list on mobile
+    function goBackToList() {
+      document.getElementById('chatList').classList.add('show');
+      document.getElementById('chatWindow').classList.remove('show');
+      window.history.pushState({}, '', '/agent-chat');
+    }
+    
+    <% if (receiverId) { %>
+      const userId = <%= userId %>;
+      const receiverId = <%= receiverId %>;
+      
+      console.log('Agent chat loaded - userId:', userId, 'receiverId:', receiverId);
+      
+      const chatMessages = document.getElementById('chat-messages');
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+      
+      // Show chat window on mobile
+      if (window.innerWidth <= 768) {
+        document.getElementById('chatList').classList.remove('show');
+        document.getElementById('chatWindow').classList.add('show');
+      }
+      
+        // Send message
+  document.getElementById('send-button').addEventListener('click', async () => {
+    const input = document.getElementById('message-input');
+    const message = input.value.trim();
+    
+    if (message) {
+      try {
+        const response = await fetch('/agent-chat/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ senderId: userId, receiverId: receiverId, message })
+        });
+        
+        if (response.ok) {
+          const msgDiv = document.createElement('div');
+          msgDiv.className = 'message sent';
+          msgDiv.innerHTML = `${message}<div class="message-time">${new Date().toLocaleString()}</div>`;
+          chatMessages.appendChild(msgDiv);
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+          input.value = '';
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    }
+  });
+  
+  // Enter key
+  document.getElementById('message-input').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      document.getElementById('send-button').click();
+    }
+  });
+<% } %>
+
+</script>
+ </body> 
+ </html>

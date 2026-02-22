@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>invalid-email</title>
+  <style>
+    /* Full screen overlay */
+    .overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: rgba(0,0,0,0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 10000;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    /* Alert box centered */
+    .alert {
+      background-color: red; /* Green for success */
+      color: white;
+      padding: 25px 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      max-width: 350px;
+      width: 90%;
+      text-align: center;
+      font-size: 18px;
+      animation: fadeInScale 0.4s ease forwards;
+    }
+
+    /* OK button */
+    .alert button.ok-btn {
+      margin-top: 20px;
+      background-color: white;
+      border: none;
+      padding: 12px 35px;
+      border-radius: 5px;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+    .alert button.ok-btn:hover {
+      background-color: black;
+      
+    }
+    a{
+color:black;
+text-decoration: none;
+    }
+    a:hover{
+      color:white
+    }
+
+    /* Fade and scale in animation */
+    @keyframes fadeInScale {
+      from {
+        opacity: 0;
+        transform: scale(0.8);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    /* Fade and scale out animation */
+    @keyframes fadeOutScale {
+      from {
+        opacity: 1;
+        transform: scale(1);
+      }
+      to {
+        opacity: 0;
+        transform: scale(0.8);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="overlay" id="alertOverlay">
+    <div class="alert">
+      <div>Email already existed . Click OK to Go Back.</div>
+      <a href="invalid-reg-details" ><button class="ok-btn" id="okButton" aria-label="OK button">OK</button></a>
+    </div>
+  </div>
+
+  <script>
+    const alertOverlay = document.getElementById('alertOverlay');
+    const okButton = document.getElementById('okButton');
+
+    okButton.addEventListener('click', () => {
+      // Animate fade out and scale down
+      alertOverlay.firstElementChild.style.animation = 'fadeOutScale 0.4s forwards';
+      alertOverlay.style.backgroundColor = 'rgba(0,0,0,0)'; // fade out overlay background
+
+      alertOverlay.firstElementChild.addEventListener('animationend', () => {
+        alertOverlay.remove();
+        // Optionally, continue with page logic here
+      });
+    });
+  </script>
+</body>
+</html>

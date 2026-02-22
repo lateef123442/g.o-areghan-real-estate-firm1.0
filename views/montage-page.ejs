@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Create a Property Montage - RealEstatePro</title>
+  <!-- Google Material Icons -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+  <style>
+    /* Reset and base */
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+        Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      background: #f5f7fa;
+      color: #222;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      scroll-behavior: smooth;
+    }
+    a {
+      color: #1761a0;
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+    a:hover,
+    a:focus {
+      color: #003d66;
+      outline: none;
+    }
+    button {
+      cursor: pointer;
+      border: none;
+      background: #1761a0;
+      color: white;
+      font-weight: 600;
+      border-radius: 6px;
+      padding: 10px 16px;
+      font-size: clamp(0.9rem, 1vw + 0.3rem, 1.1rem);
+      transition: background-color 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      user-select: none;
+    }
+    button:disabled {
+      background: #a0b8cf;
+      cursor: not-allowed;
+    }
+    button:hover:not(:disabled),
+    button:focus-visible:not(:disabled) {
+      background: #004080;
+      outline: none;
+    }
+    input, select, textarea {
+      font-family: inherit;
+      font-size: clamp(0.9rem, 1vw + 0.3rem, 1rem);
+      padding: 11px 14px;
+      border-radius: 6px;
+      border: 1.5px solid #cfdde8;
+      transition: border-color 0.3s ease;
+      width: 100%;
+      max-width: 600px;
+      box-sizing: border-box;
+      color: #222;
+      resize: vertical;
+    }
+    input:focus,
+    select:focus,
+    textarea:focus {
+      outline: none;
+      border-color: #1761a0;
+      box-shadow: 0 0 6px #1761a0aa;
+    }
+    label {
+      font-weight: 600;
+      margin-bottom: 6px;
+      display: inline-block;
+      font-size: clamp(0.85rem, 1vw + 0.1rem, 0.95rem);
+      color: #444;
+      user-select: none;
+    }
+    header {
+      height: 64px;
+      background: rgba(255 255 255 / 0.85);
+      backdrop-filter: saturate(180%) blur(12px);
+      border-bottom: 1px solid #ddd;
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgb(0 0 0 / 0.06);
+    }
+    .logo {
+      font-weight: 800;
+      font-size: 1.5rem;
+      color: #1761a0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      user-select: none;
+    }
+    .logo .material-icons {
+      color: #0d3a66;
+      font-size: 1.8rem;
+    }
+    .container {
+      max-width: 900px;
+      margin: 40px auto 60px;
+      padding: 0 20px;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgb(0 0 0 / 0.08);
+      padding: 40px 32px;
+    }
+    h1 {
+      font-weight: 900;
+      font-size: clamp(2rem, 5vw, 3rem);
+      color: #0d3a66;
+      margin-bottom: 20px;
+      user-select: none;
+    }
+    form > div {
+      margin-bottom: 24px;
+    }
+    textarea {
+      min-height: 100px;
+    }
+    .submit-btn {
+      padding: 16px 36px;
+      font-size: 1.15rem;
+      border-radius: 14px;
+      font-weight: 700;
+      user-select: none;
+    }
+    .confirmation {
+      margin-top: 24px;
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: green;
+      user-select: none;
+    }
+    .image-preview {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .image-preview img {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+    }
+  </style>
+   <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <div id="app" role="application">
+    <aside class="sidebar" aria-label="Main navigation">
+      <nav aria-label="Primary navigation">
+        <a href="index.html" class="active" tabindex="0" aria-current="page" aria-label="Home">
+          <span class="material-icons" aria-hidden="true">home</span>Home
+        </a>
+        <a href="buy-page.html" tabindex="0" aria-label="Buy Homes">
+          <span class="material-icons" aria-hidden="true">support_agent</span>Buy
+        </a>
+        <a href="rent-page.html" tabindex="0" aria-label="Rent Homes">
+          <span class="material-icons" aria-hidden="true">key</span>Rent
+        </a>
+        <a href="sell-page.html" tabindex="0" aria-label="Sell Homes">
+          <span class="material-icons" aria-hidden="true">sell</span>Sell
+        </a>
+        <a href="home-improvemet-page.html" tabindex="0" aria-label="Home Improvement">
+          <span class="material-icons" aria-hidden="true">home_repair_service</span>Home Improvement
+        </a>
+        <a href="message-page.html" tabindex="0" aria-label="Messages">
+          <span class="material-icons" aria-hidden="true">message</span>Messages
+          
+        </a>
+        <a href="setting-page.html" tabindex="0" aria-label="Settings">
+          <span class="material-icons" aria-hidden="true">settings</span>Settings
+        </a>
+        
+        <!-- Admin Dropdown -->
+        <div class="admin-dropdown">
+          <button class="dropdown-toggle" aria-expanded="false" aria-controls="admin-menu">
+            <span class="material-icons" aria-hidden="true">admin_panel_settings</span>Admin
+            <span class="material-icons dropdown-icon">expand_more</span>
+          </button>
+          <div class="dropdown-menu" id="admin-menu">
+            <a href="sales-approval.html" tabindex="0" aria-label="Sales Approval">
+              <span class="material-icons" aria-hidden="true">check_circle</span>Sales Approval
+            
+            </a>
+            <a href="tour-requested.html" tabindex="0" aria-label="Tour Requested">
+              <span class="material-icons" aria-hidden="true">event_available</span>Tour Requested
+            </a>
+            <a href="view-customers.html" tabindex="0" aria-label="View All Customers">
+              <span class="material-icons" aria-hidden="true">people</span>View All Customers
+            </a>
+          </div>
+        </div>
+      </nav>
+      <footer>
+        &copy; 2025 RealEstatePro. All rights reserved.
+      </footer>
+    </aside>
+
+    <header role="banner" aria-label="Primary header">
+      <div class="header-left">
+        <button class="sidebar-toggle-btn material-icons" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="sidebar">menu</button>
+        <a href="#" class="logo" aria-label="RealEstatePro Home">
+          <span class="material-icons" aria-hidden="true">apartment</span>G.O AREGBAN REAL ESTATE FIRM And Consultant
+        </a>
+        <nav class="primary-nav" role="navigation" aria-label="Primary site navigation">
+          <a href="buy-page.html" class="active" aria-current="page">Buy</a>
+          <a href="rent-page.html">Rent</a>
+          <a href="sell-page.html">Sell</a>
+        </nav>
+      </div>
+      <div class="header-right">
+        <button class="icon-btn" aria-label="Notifications" aria-haspopup="true" aria-expanded="false">
+          <a href="notificatin-page.html"><span class="material-icons">notifications</span></a>
+         
+        </button>
+        <button class="icon-btn" aria-label="User  profile menu" aria-haspopup="true" aria-expanded="false">
+          <a href="profile-page.html"><span class="material-icons">person</span></a>
+        </button>
+      </div>
+    </header>
+
+  <main class="container" role="main" aria-label="Create a property montage">
+    <h1>Create a Property Montage</h1>
+    <p>Showcase your property by uploading images and providing details below.</p>
+
+    <form id="montage-form" aria-describedby="form-desc">
+      <div id="form-desc" style="margin-bottom: 20px; color:#666; user-select:none;">
+        * Required fields
+      </div>
+      <div>
+        <label for="property-title">Property Title *</label>
+        <input type="text" id="property-title" name="property-title" required />
+      </div>
+      <div>
+        <label for="property-address">Property Address *</label>
+        <input type="text" id="property-address" name="property-address" required placeholder="Street, City, State, ZIP" />
+      </div>
+      <div>
+        <label for="property-description">Property Description *</label>
+        <textarea id="property-description" name="property-description" required placeholder="Describe your property..."></textarea>
+      </div>
+      <div>
+        <label for="property-images">Upload Images *</label>
+        <input type="file" id="property-images" name="property-images" accept="image/*" multiple required />
+      </div>
+      <div class="image-preview" id="image-preview"></div>
+      <button type="submit" class="submit-btn" aria-label="Submit property montage">
+        <span class="material-icons" aria-hidden="true">upload</span> Submit
+      </button>
+    </form>
+
+    <div id="confirmation-message" class="confirmation" role="status" aria-live="polite" style="display:none;">
+      Thank you for your submission! Your property montage will be reviewed soon.
+    </div>
+  </main>
+  </div>
+
+  <script>
+    (() => {
+      const form = document.getElementById('montage-form');
+      const confirmation = document.getElementById('confirmation-message');
+      const imagePreview = document.getElementById('image-preview');
+
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        confirmation.style.display = 'block';
+        form.reset();
+        imagePreview.innerHTML = ''; // Clear image previews
+      });
+
+      document.getElementById('property-images').addEventListener('change', function() {
+        imagePreview.innerHTML = ''; // Clear previous previews
+        const files = this.files;
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            imagePreview.appendChild(img);
+          }
+          reader.readAsDataURL(file);
+        }
+      });
+    })();
+  </script>
+  <script src="/js/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Edit Sold Property | G.O AREGBAN REAL ESTATE FIRM</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/styles.css">
+  
+  <style>
+    /* Toast Styles (for any errors) */
+    #toast-container { position: fixed; top: 20px; right: 20px; z-index: 10000; }
+    .toast { padding: 12px 20px; border-radius: 8px; color: white; font-weight: 500; box-shadow: 0 4px 12px rgba(0,0,0,0.15); max-width: 350px; margin-bottom: 10px; animation: slideIn 0.3s ease-out; }
+    .toast.error { background-color: #ef4444; }
+    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    /* Form Styles */
+    .form-container { max-width: 600px; margin: 2rem auto; padding: 2rem; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+    .form-group { margin-bottom: 1rem; }
+    .form-group label { display: block; font-weight: 500; margin-bottom: 0.5rem; }
+    .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; }
+    .form-group textarea { height: 100px; resize: vertical; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .btn { padding: 0.75rem 1.5rem; border: none; border-radius: 4px; cursor: pointer; font-weight: 500; }
+    .btn-primary { background: #3b82f6; color: white; }
+    .btn-secondary { background: #6b7280; color: white; margin-right: 1rem; }
+    .btn:hover { opacity: 0.9; }
+    .image-preview { max-width: 300px; margin: 1rem 0; border-radius: 4px; }
+    .video-preview { max-width: 300px; margin: 1rem 0; border-radius: 4px; }
+    .preview-section { margin-bottom: 2rem; border: 1px solid #d1d5db; padding: 1rem; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <div id="app" role="application">
+    <!-- Full Sidebar (Copied from sold-properties.ejs for Consistency) -->
+    <aside class="sidebar" aria-label="Main navigation">
+       <nav aria-label="Primary navigation">
+          <a href="track-sales.html" tabindex="0" aria-label="Track Sales" class="active">
+        <span class="material-icons" aria-hidden="true">assessment</span>DASHBOARD
+      </a>
+
+        <a href="index.html"  tabindex="0" aria-current="page" aria-label="Home">
+          <span class="material-icons" aria-hidden="true">home</span>Avialable properties
+        </a>
+        <!--<a href="buy-page.html" tabindex="0" aria-label="Buy Homes">
+          <span class="material-icons" aria-hidden="true">support_agent</span>Buy
+        </a>
+        <a href="rent-page.html" tabindex="0" aria-label="Rent Homes">
+          <span class="material-icons" aria-hidden="true">key</span>Rent
+        </a>-->
+        <a href="sell-page.html" tabindex="0" aria-label="Sell Homes" >
+          <span class="material-icons" aria-hidden="true" >sell</span>Sell
+        </a>
+       <!-- <a href="home-improvemet-page.html" tabindex="0" aria-label="Home Improvement">
+          <span class="material-icons" aria-hidden="true">home_repair_service</span>Home Improvement
+        </a>
+        <a href="message-page.html" tabindex="0" aria-label="Messages">
+          <span class="material-icons" aria-hidden="true">message</span>Messages
+          
+        </a>-->
+       
+
+          <% if (isAdmin) { %> <a href="sales-approval.html" tabindex="0" aria-label="Sales Approval">
+        <span class="material-icons" aria-hidden="true">check_circle</span>Sales Approval
+      </a>
+      <a href="tour-requested.html" tabindex="0" aria-label="Tour Requested">
+        <span class="material-icons" aria-hidden="true">event_available</span>Tour Requested
+      </a>
+      <a href="view-customers.html" tabindex="0" aria-label="View All Customers">
+        <span class="material-icons" aria-hidden="true">people</span>View All Customers
+      </a>
+       
+    
+
+       <a href="sold-properties" tabindex="0" aria-label="Track Sales" >
+        <span class="material-icons" aria-hidden="true">check_circle</span>Sold property
+      </a>
+
+       <a href="setting-page.html" tabindex="0" aria-label="Settings">
+          <span class="material-icons" aria-hidden="true">settings</span>Settings
+        </a>  <% } %>
+        
+
+
+ <!-- <div class="admin-dropdown">
+    <button class="dropdown-toggle" aria-expanded="false" aria-controls="admin-menu">
+      <span class="material-icons" aria-hidden="true">admin_panel_settings</span>Admin
+      <span class="material-icons dropdown-icon">expand_more</span>
+    </button>
+    <div class="dropdown-menu" id="admin-menu">
+      <a href="sales-approval.html" tabindex="0" aria-label="Sales Approval">
+        <span class="material-icons" aria-hidden="true">check_circle</span>Sales Approval
+      </a>
+      <a href="tour-requested.html" tabindex="0" aria-label="Tour Requested">
+        <span class="material-icons" aria-hidden="true">event_available</span>Tour Requested
+      </a>
+      <a href="view-customers.html" tabindex="0" aria-label="View All Customers">
+        <span class="material-icons" aria-hidden="true">people</span>View All Customers
+      </a>
+       
+                        <a href="track-sales.html" tabindex="0" aria-label="Track Sales">
+                            <span class="material-icons" aria-hidden="true">assessment</span>Track Sales
+                        </a>
+                   
+    </div>
+  </div>-->
+  
+  
+      </nav>
+      <footer>&copy; 2025 G.O AREGBAN REAL ESTATE FIRM. All rights reserved.</footer>
+    </aside>
+
+    <!-- Full Header (Copied from sold-properties.ejs for Consistency) -->
+    <header role="banner" aria-label="Primary header">
+      <div class="header-left">
+        <button class="sidebar-toggle-btn material-icons" aria-label="Toggle navigation">menu</button>
+        <a href="#" class="logo"><span class="material-icons" aria-hidden="true">apartment</span>G.O AREGBAN REAL ESTATE FIRM</a>
+        <nav class="primary-nav">
+          <a href="/sell-page.html">Sell</a>
+          <a href="/sold-properties">Sold Properties</a>
+        </nav>
+      </div>
+      <div class="header-right">
+        <button class="icon-btn"><a href="notificatin-page.html"><span class="material-icons">notifications</span></a></button>
+        <button class="icon-btn"><a href="profile-page.html"><span class="material-icons">person</span></a></button>
+      </div>
+    </header>
+
+    <main role="main" aria-label="Edit sold property">
+      <div class="form-container">
+        <h1 class="text-2xl font-bold mb-4">Edit Sold Property</h1>
+        <form action="/update-sold" method="POST" novalidate>
+          <input type="hidden" name="id" value="<%= property.id %>">
+          
+          <div class="form-group">
+            <label for="title">Title</label>
+            <input type="text" id="title" name="title" value="<%= property.title || '' %>" required maxlength="100">
+          </div>
+          
+          <div class="form-group">
+            <label for="description">Description</label>
+            <textarea id="description" name="description" required><%= property.description || '' %></textarea>
+          </div>
+
+          <!-- Owner Details -->
+          <div class="form-row">
+            <div class="form-group">
+              <label for="ownerName">Owner Name</label>
+              <input type="text" id="ownerName" name="ownerName" value="<%= property.ownerName || '' %>" required>
+            </div>
+            <div class="form-group">
+              <label for="ownerEmail">Owner Email</label>
+              <input type="email" id="ownerEmail" name="ownerEmail" value="<%= property.ownerEmail || '' %>" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="ownerPhone">Owner Phone</label>
+            <input type="tel" id="ownerPhone" name="ownerPhone" value="<%= property.ownerPhone || '' %>" required pattern="[0-9+\-\s()]{10,}">
+          </div>
+
+          <!-- Property Details -->
+          <div class="form-row">
+            <div class="form-group">
+              <label for="propertyAddress">Property Address</label>
+              <input type="text" id="propertyAddress" name="propertyAddress" value="<%= property.propertyAddress || '' %>" required>
+            </div>
+            <div class="form-group">
+              <label for="amount">Amount (₦)</label>
+              <input type="number" id="amount" name="amount" value="<%= property.amount || '' %>" min="0" step="1">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="bedrooms">Bedrooms</label>
+              <input type="number" id="bedrooms" name="bedrooms" value="<%= property.bedrooms || '0' %>" min="0" max="10">
+            </div>
+            <div class="form-group">
+              <label for="bathrooms">Bathrooms</label>
+              <input type="number" id="bathrooms" name="bathrooms" value="<%= property.bathrooms || '0' %>" min="0" max="10">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="sqft">Square Feet</label>
+              <input type="number" id="sqft" name="sqft" value="<%= property.sqft || '0' %>" min="0">
+            </div>
+            <div class="form-group">
+              <label for="rentSell">Rent/Sell</label>
+              <select id="rentSell" name="rentSell">
+                <option value="" <%= !property.rentSell ? 'selected' : '' %>>Select</option>
+                <option value="Sell" <%= property.rentSell === 'Sell' ? 'selected' : '' %>>Sell</option>
+                <option value="Rent" <%= property.rentSell === 'Rent' ? 'selected' : '' %>>Rent</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="property-type">Property Type</label>
+            <select id="property-type" name="property-type" required>
+              <option value="" <%= !property['property-type'] ? 'selected' : '' %>>Select Type</option>
+              <option value="Self Contain" <%= property['property-type'] === 'Self Contain' ? 'selected' : '' %>>Self Contain</option>
+              
+              <option value="Plots of Land" <%= property['property-type'] === 'Plots of Land' ? 'selected' : '' %>>Plots of Land</option>
+              <option value="Duplex/Bangalow/Storey building" <%= property['property-type'] === 'Duplex/Bangalow/Storey building' ? 'selected' : '' %>>Duplex/Bangalow/Storey building</option>
+             
+            </select>
+          </div>
+
+          <!-- Preview Section (Read-Only Blobs) -->
+          <div class="preview-section">
+            <h3 class="text-lg font-semibold mb-2">Current Media (Not Editable Here)</h3>
+            <% if (property.image_data) { %>
+              <div>
+                <label>Image Preview:</label>
+                <img src="<%= property.image_data %>" alt="Current Property Image" class="image-preview">
+              </div>
+            <% } else { %>
+              <p>No image available.</p>
+            <% } %>
+            <% if (property.video) { %>
+              <div>
+                <label>Video Preview:</label>
+                <video src="<%= property.video %>" controls class="video-preview" width="300">
+                  Your browser does not support the video tag.
+                </video>
+              </div>
+            <% } else { %>
+              <p>No video available.</p>
+            <% } %>
+            <p class="text-sm text-gray-500 mt-2">To update media, contact admin or use advanced upload feature.</p>
+          </div>
+
+          <!-- Submit Buttons -->
+          <div class="form-group">
+            <button type="submit" class="btn btn-primary">
+              <span class="material-icons" aria-hidden="true">save</span> Update Property
+            </button>
+            <a href="/sold-properties" class="btn btn-secondary">
+              <span class="material-icons" aria-hidden="true">arrow_back</span> Cancel/Back
+            </a>
+          </div>
+        </form>
+      </div>
+    </main>
+
+    <footer role="contentinfo" aria-label="Website footer">
+      <div>© 2025 G.O AREGBAN REAL ESTATE FIRM. All rights reserved.</div>
+      <div class="social-links" aria-label="Social media links">
+        <a href="#" target="_blank" rel="noopener" aria-label="Facebook"><span class="material-icons">facebook</span></a>
+        <a href="#" target="_blank" rel="noopener" aria-label="Twitter"><span class="material-icons">twitter</span></a>
+        <a href="#" target="_blank" rel="noopener" aria-label="Instagram"><span class="material-icons">camera_alt</span></a>
+        <a href="#" target="_blank" rel="noopener" aria-label="LinkedIn"><span class="material-icons">linkedin</span></a>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Toast notifications container -->
+  <div id="toast-container" aria-live="assertive" role="alert"></div>
+
+  <script src="/js/script.js"></script>
+  <!-- Sidebar Toggle (if not in script.js) -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const sidebarToggle = document.querySelector('.sidebar-toggle-btn');
+      const sidebar = document.querySelector('.sidebar');
+      if (sidebarToggle && sidebar) {
+        sidebarToggle.addEventListener('click', () => {
+          sidebar.classList.toggle('hidden');
+        });
+      }
+
+      // Basic Form Validation Feedback (Optional)
+      const form = document.querySelector('form');
+      if (form) {
+        form.addEventListener('submit', (e) => {
+          if (!form.checkValidity()) {
+            e.preventDefault();
+            alert('Please fill in all required fields correctly.');
+          }
+        });
+      }
+    });
+  </script>
+
+  <!-- Toast Handling Script (For Errors from Redirects) -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const error = urlParams.get('error');
+
+      const toastContainer = document.getElementById('toast-container');
+
+      function showToast(message, type) {
+        if (!toastContainer) return;
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.textContent = message;
+        toast.setAttribute('role', 'alert');
+        toast.setAttribute('aria-live', 'assertive');
+        toastContainer.appendChild(toast);
+
+        setTimeout(() => {
+          toast.style.animation = 'slideOut 0.3s ease-in';  // Add @keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } } to <style> if needed
+          setTimeout(() => {
+            if (toast.parentNode) toast.parentNode.removeChild(toast);
+          }, 300);
+        }, 5000);
+      }
+
+      if (error) {
+        showToast(decodeURIComponent(error), 'error');
+        // Clear URL params
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    });
+  </script>
+</body>
+</html>

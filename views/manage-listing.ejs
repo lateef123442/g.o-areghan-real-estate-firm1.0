@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title><%= title %> - Agent Dashboard</title>
+  <!-- Google Material Icons -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/styles.css">
+  
+  <style>
+    /* Agent Dashboard Styles */
+    .dashboard-section {
+      display: block; /* Active by default for this page */
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 15px;
+      padding: 2rem;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      margin-bottom: 2rem;
+    }
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+    .form-group input, .form-group textarea, .form-group select {
+      width: 100%;
+      padding: 0.75rem;
+      border: 2px solid #e1e8ed;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+      border-color: #3498db;
+      outline: none;
+    }
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .btn-primary {
+      background: #3498db;
+      color: white;
+    }
+    .btn-primary:hover {
+      background: #2980b9;
+    }
+    .btn-secondary {
+      background: #95a5a6;
+      color: white;
+    }
+    .btn-secondary:hover {
+      background: #7f8c8d;
+    }
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    .table th, .table td {
+      padding: 0.75rem;
+      border: 1px solid #e1e8ed;
+      text-align: left;
+    }
+    .table th {
+      background: #f8f9fa;
+      font-weight: 600;
+    }
+    .tabs {
+      display: flex;
+      margin-bottom: 20px;
+    }
+    .tab-button {
+      padding: 10px 20px;
+      border: none;
+      background: #f0f0f0;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .tab-button.active {
+      background: #3498db;
+      color: white;
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    /* Toast Styles */
+    #toast-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 10000;
+    }
+    .toast {
+      padding: 12px 20px;
+      border-radius: 8px;
+      color: white;
+      font-weight: 500;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      max-width: 350px;
+      margin-bottom: 10px;
+      animation: slideIn 0.3s ease-out;
+    }
+    .toast.success {
+      background-color: #10b981;
+    }
+    .toast.error {
+      background-color: #ef4444;
+    }
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes slideOut {
+      from { transform: translateX(0); opacity: 1; }
+      to { transform: translateX(100%); opacity: 0; }
+    }
+    /* Modal Styles */
+    .modal {
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    max-height: 80vh; /* Limit height to 80% of viewport */
+    overflow-y: auto; /* Enable vertical scrolling */
+  }
+  .close {
+    float: right;
+    font-size: 28px;
+    cursor: pointer;
+  }
+  </style>
+</head>
+<body>
+  <div id="app" role="application">
+    <!-- Sidebar (Simplified for this page) -->
+   <aside class="sidebar" aria-label="Main navigation">
+      <nav aria-label="Primary navigation">
+        <a href="/submit-listing" tabindex="0" aria-label="Submit Listing" >
+          <span class="material-icons" aria-hidden="true">add_circle</span>Submit Listing
+        </a>
+        <a href="/manage-listings" tabindex="0" aria-label="Manage Listings" class="active">
+          <span class="material-icons" aria-hidden="true">edit</span>Manage Listings
+        </a>
+       <!-- <a href="/track-performance" tabindex="0" aria-label="Track Performance">
+          <span class="material-icons" aria-hidden="true">bar_chart</span>Track Performance
+        </a>--->
+        <!--<a href="#manage-leads" tabindex="0" aria-label="Manage Leads">
+          <span class="material-icons" aria-hidden="true">people</span>Manage Leads
+        </a>-->
+       
+          <a href="/agent-chat" >
+        <span class="material-icons">chat</span>Client Chat
+      </a>
+        <!--<a href="#export" tabindex="0" aria-label="Export Data">
+          <span class="material-icons" aria-hidden="true">download</span>Export Data
+        </a>-->
+        <!--<a href="#marketing" tabindex="0" aria-label="Marketing Tools">
+          <span class="material-icons" aria-hidden="true">campaign</span>Marketing Tools
+        </a>-->
+      </nav>
+      <footer>
+        &copy; 2025 G.O AREGBAN REAL ESTATE FIRM. All rights reserved.
+      </footer>
+    </aside>
+
+    <header role="banner" aria-label="Primary header">
+      <div class="header-left">
+        <button class="sidebar-toggle-btn material-icons" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="sidebar">menu</button>
+        <a href="#" class="logo" aria-label="G.O AREGBAN REAL ESTATE FIRM Home">
+          <span class="material-icons" aria-hidden="true">apartment</span>G.O AREGBAN REAL ESTATE FIRM And Consultant
+        </a>
+       
+      </div>
+    </header>
+            <main role="main" aria-label="Manage Listings">
+      <section id="manage-listings" class="dashboard-section">
+        <h1><%= title %></h1>
+        <div class="tabs">
+          <button class="tab-button active" data-tab="pending">Pending</button>
+          <button class="tab-button" data-tab="approved">Approved</button>
+          <button class="tab-button" data-tab="sold">Sold</button>
+          <button class="tab-button" data-tab="all">Active proprty</button>
+        </div>
+        <div class="tab-content active" id="pending-tab">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="pending-table">
+              <% pendingListings.forEach(listing => { %>
+                <tr>
+                  <td><%= listing.title %></td>
+                  <td><%= listing.status %></td>
+                  <td><button onclick="editListing(<%= listing.id %>)">Edit</button></td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+        <div class="tab-content" id="approved-tab">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="approved-table">
+              <% approvedListings.forEach(listing => { %>
+                <tr>
+                  <td><%= listing.title %></td>
+                  <td><%= listing.status %></td>
+                  <td><button onclick="editListing(<%= listing.id %>)">Edit</button></td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+        <div class="tab-content" id="sold-tab">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="sold-table">
+              <% soldListings.forEach(listing => { %>
+                <tr>
+                  <td><%= listing.title %></td>
+                  <td><%= listing.status %></td>
+                  <td><button onclick="editListing(<%= listing.id %>)">Edit</button></td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+        <div class="tab-content" id="all-tab">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="all-table">
+              <% allListings.forEach(listing => { %>
+                <tr>
+                  <td><%= listing.title %></td>
+                  <td><%= listing.status %></td>
+                  <td><button onclick="editListing(<%= listing.id %>)">Edit</button></td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Edit Property Modal -->
+  <div id="edit-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal()">&times;</span>
+      <h2>Edit Property</h2>
+      <form id="edit-form">
+        <input type="hidden" id="edit-id" name="id">
+        <div class="form-group">
+          <label for="edit-title">Title</label>
+          <input type="text" id="edit-title" name="title" required>
+        </div>
+        <div class="form-group">
+          <label for="edit-description">Description</label>
+          <textarea id="edit-description" name="description" required></textarea>
+        </div>
+        <div class="form-group">
+          <label for="edit-amount">Amount</label>
+          <input type="text" id="edit-amount" name="amount" required>
+        </div>
+        <div class="form-group">
+          <label for="edit-rentSell">Rent/Sell</label>
+          <select id="edit-rentSell" name="rentSell" required>
+            <option value="Rent">Rent</option>
+            <option value="Sell">Sell</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="edit-property_type">Property Type</label>
+          <select id="edit-property_type" name="property_type" required>
+            <option value="Self Contain">Self Contain</option>
+            <option value="Plots of Land">Plots of Land</option>
+            <option value="Duplex/Bungalow/Storey Building">Duplex/Bungalow/Storey Building</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="edit-status">Status</label>
+          <select id="edit-status" name="status" required>
+            <option value="pending">Pending</option>
+            <option value="approved">Approved</option>
+            <option value="sold">Sold</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Update Property</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast notifications container -->
+  <div id="toast-container" aria-live="assertive" role="alert"></div>
+
+  <script>
+    // Tab switching (keep this for client-side tab functionality)
+    document.querySelectorAll('.tab-button').forEach(button => {
+      button.addEventListener('click', (e) => {
+        document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+        e.target.classList.add('active');
+        document.getElementById(e.target.dataset.tab + '-tab').classList.add('active');
+      });
+    });
+
+    // Edit Listing - Open modal and fetch data
+    async function editListing(id) {
+      try {
+        const response = await fetch(`/edit-property/${id}`);
+        if (!response.ok) throw new Error('Failed to load property data');
+        const property = await response.json();
+
+        // Pre-fill the form
+        document.getElementById('edit-id').value = property.id;
+        document.getElementById('edit-title').value = property.title || '';
+        document.getElementById('edit-description').value = property.description || '';
+        document.getElementById('edit-amount').value = property.amount || '';
+        document.getElementById('edit-rentSell').value = property.rentSell || '';
+        document.getElementById('edit-property_type').value = property.property_type || property['property-type'] || '';
+        document.getElementById('edit-status').value = property.status || '';
+
+        // Show modal
+        document.getElementById('edit-modal').style.display = 'flex';
+      } catch (error) {
+        console.error('Error loading property for edit:', error);
+        showToast('Error loading property data', 'error');
+      }
+    }
+
+    // Close modal
+    function closeModal() {
+      document.getElementById('edit-modal').style.display = 'none';
+    }
+
+    // Handle form submission
+    document.getElementById('edit-form').addEventListener('submit', async () => {
+      
+      const formData = new FormData(e.target);
+      const id = formData.get('id');
+
+      try {
+        const response = await fetch(`/update-property/${id}`, {
+          method: 'POST',
+          body: formData
+        });
+        if (!response.ok) throw new Error('Update failed');
+        const result = await response.json();
+        showToast(result.message, 'success');
+        closeModal();
+        // Reload the page to refresh the table
+        location.reload();
+      } catch (error) {
+        console.error('Error updating property:', error);
+        showToast('Error updating property', 'error');
+      }
+    });
+
+    // Toast Function (keep for future use)
+    function showToast(message, type) {
+      const toastContainer = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.textContent = message;
+      toast.setAttribute('role', 'alert');
+      toast.setAttribute('aria-live', 'assertive');
+      toastContainer.appendChild(toast);
+      setTimeout(() => {
+        toast.style.animation = 'slideOut 0.3s ease-in';
+        setTimeout(() => toast.remove(), 300);
+      }, 5000);
+    }
+  </script>
+</body>
+</html>
