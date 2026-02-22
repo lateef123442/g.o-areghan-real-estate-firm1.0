@@ -3107,7 +3107,7 @@ newapp2.get('/property-valuation',ensureAuthenticated, (req, res) => {
 
 // Endpoint for property valuation
 
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+const groq = new Groq({ apiKey: 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 });
 newapp2.post('/valuate', async (req, res) => {
   const { prompt } = req.body;
   if (!prompt) return res.status(400).json({ error: 'Prompt is required' });
@@ -3328,5 +3328,6 @@ newapp2.listen(PORT, () => {
 // CREATE SEARCH BUTTON
 //NAVIGATION FROM ONE TWO
 //
+
 
 
