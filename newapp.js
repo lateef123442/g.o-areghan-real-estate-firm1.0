@@ -3317,7 +3317,7 @@ newapp2.get('/gallery', (req, res) => {
 });
 
 // Start the server
-newapp2.listen(10000, () => {
+newapp2.listen(process.env.PORT || 3000, () => {
     newapp2.timeout = 0;
     console.log('IBA Real Estate Server is running at port 10000');
 });
@@ -3325,3 +3325,4 @@ newapp2.listen(10000, () => {
 // CREATE SEARCH BUTTON
 //NAVIGATION FROM ONE TWO
 //
+
