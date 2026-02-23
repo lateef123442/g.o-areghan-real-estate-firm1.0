@@ -98,9 +98,11 @@ const connection = mysql.createConnection({
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     port: Number(process.env.DB_PORT),
-    multipleStatements: process.env.DB_MULTIPLE_STATEMENTS === 'true',
-    queueLimit: Number(process.env.DB_QUEUE_LIMIT),
-    ssl: false
+     waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
+  enableKeepAlive: true,
+  keepAliveInitialDelay: 0
 });
 
 // Connect to the database
@@ -3325,6 +3327,7 @@ newapp2.listen(process.env.PORT || 3000, () => {
 // CREATE SEARCH BUTTON
 //NAVIGATION FROM ONE TWO
 //
+
 
 
 
