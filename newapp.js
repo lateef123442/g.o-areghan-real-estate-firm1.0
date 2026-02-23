@@ -100,7 +100,6 @@ const connection = mysql.createConnection({
     port: Number(process.env.DB_PORT),
     multipleStatements: process.env.DB_MULTIPLE_STATEMENTS === 'true',
     queueLimit: Number(process.env.DB_QUEUE_LIMIT),
-    acquireTimeout: Number(process.env.DB_ACQUIRE_TIMEOUT),
     ssl: false
 });
 
@@ -3328,6 +3327,7 @@ newapp2.listen(PORT, () => {
 // CREATE SEARCH BUTTON
 //NAVIGATION FROM ONE TWO
 //
+
 
 
 
