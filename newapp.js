@@ -1872,7 +1872,7 @@ newapp2.get('/property-valuation', ensureAuthenticated, (req, res) => {
 });
 
 // AI Valuation endpoint
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+const groq = new Groq({ apiKey: "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" });
 newapp2.post('/valuate', ensureAuthenticated, async (req, res) => { // FIX: added ensureAuthenticated
     const { prompt } = req.body;
     if (!prompt) return res.status(400).json({ error: 'Prompt is required' });
@@ -1913,3 +1913,4 @@ newapp2.get('/gallery', async (req, res) => {
 server.listen(10000, () => {
     console.log('IBA Real Estate Server is running at port 10000');
 });
+
