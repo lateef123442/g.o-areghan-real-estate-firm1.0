@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign In / Register | G.O AREGBAN REAL ESTATE FIRM</title>
+    <title>Sign In / Register | G.O AREGHAN REAL ESTATE FIRM</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -29,7 +29,6 @@
             color: #0d1f35;
         }
 
-        /* ── Split layout ── */
         .left-panel {
             flex: 1;
             display: flex;
@@ -58,54 +57,23 @@
         }
         .left-content { position: relative; z-index: 2; }
 
-        .brand-logo-wrap {
-            display: flex; align-items: center; gap: 14px; margin-bottom: 52px;
-        }
-        .brand-logo {
-            width: 52px; height: 52px; border-radius: 50%;
-            border: 2px solid var(--gold);
-            overflow: hidden;
-        }
+        .brand-logo-wrap { display: flex; align-items: center; gap: 14px; margin-bottom: 52px; }
+        .brand-logo { width: 52px; height: 52px; border-radius: 50%; border: 2px solid var(--gold); overflow: hidden; }
         .brand-logo img { width: 100%; height: 100%; object-fit: cover; }
-        .brand-text .name {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 1.05rem; font-weight: 700; color: white; display: block;
-        }
-        .brand-text .tagline {
-            font-size: 0.6rem; color: var(--gold-light); letter-spacing: 0.1em;
-            text-transform: uppercase; font-weight: 600;
-        }
+        .brand-text .name { font-family: 'Cormorant Garamond', serif; font-size: 1.05rem; font-weight: 700; color: white; display: block; }
+        .brand-text .tagline { font-size: 0.6rem; color: var(--gold-light); letter-spacing: 0.1em; text-transform: uppercase; font-weight: 600; }
 
-        .left-headline {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: clamp(2rem, 3vw, 2.8rem);
-            font-weight: 700; color: white; line-height: 1.15; margin-bottom: 16px;
-        }
+        .left-headline { font-family: 'Cormorant Garamond', serif; font-size: clamp(2rem, 3vw, 2.8rem); font-weight: 700; color: white; line-height: 1.15; margin-bottom: 16px; }
         .left-headline em { font-style: italic; color: var(--gold-light); }
-        .left-sub {
-            font-size: 0.875rem; color: rgba(255,255,255,0.55);
-            line-height: 1.75; margin-bottom: 44px; max-width: 360px;
-        }
+        .left-sub { font-size: 0.875rem; color: rgba(255,255,255,0.55); line-height: 1.75; margin-bottom: 44px; max-width: 360px; }
 
         .trust-items { display: flex; flex-direction: column; gap: 16px; }
-        .trust-item {
-            display: flex; align-items: center; gap: 14px;
-        }
-        .trust-icon {
-            width: 38px; height: 38px; border-radius: 10px; flex-shrink: 0;
-            background: rgba(200,146,42,0.14); border: 1px solid rgba(200,146,42,0.3);
-            display: flex; align-items: center; justify-content: center;
-            color: var(--gold-light); font-size: 0.9rem;
-        }
+        .trust-item { display: flex; align-items: center; gap: 14px; }
+        .trust-icon { width: 38px; height: 38px; border-radius: 10px; flex-shrink: 0; background: rgba(200,146,42,0.14); border: 1px solid rgba(200,146,42,0.3); display: flex; align-items: center; justify-content: center; color: var(--gold-light); font-size: 0.9rem; }
         .trust-text strong { display: block; font-size: 0.82rem; font-weight: 700; color: white; }
         .trust-text span { font-size: 0.74rem; color: rgba(255,255,255,0.45); }
+        .left-footer { margin-top: 64px; font-size: 0.72rem; color: rgba(255,255,255,0.25); }
 
-        .left-footer {
-            margin-top: 64px;
-            font-size: 0.72rem; color: rgba(255,255,255,0.25);
-        }
-
-        /* ── Right form panel ── */
         .right-panel {
             width: 480px;
             flex-shrink: 0;
@@ -117,229 +85,102 @@
             overflow-y: auto;
         }
 
-        /* Tabs */
-        .auth-tabs {
-            display: flex;
-            background: var(--gray-100);
-            border-radius: 12px;
-            padding: 4px;
-            margin-bottom: 32px;
-        }
-        .auth-tab {
-            flex: 1; padding: 10px; border: none; border-radius: 9px;
-            font-family: inherit; font-size: 0.82rem; font-weight: 700;
-            cursor: pointer; transition: all 0.2s; background: transparent;
-            color: var(--gray-400);
-        }
-        .auth-tab.active {
-            background: var(--white);
-            color: var(--navy);
-            box-shadow: 0 1px 4px rgba(13,33,55,0.12);
-        }
+        .auth-tabs { display: flex; background: var(--gray-100); border-radius: 12px; padding: 4px; margin-bottom: 32px; }
+        .auth-tab { flex: 1; padding: 10px; border: none; border-radius: 9px; font-family: inherit; font-size: 0.82rem; font-weight: 700; cursor: pointer; transition: all 0.2s; background: transparent; color: var(--gray-400); }
+        .auth-tab.active { background: var(--white); color: var(--navy); box-shadow: 0 1px 4px rgba(13,33,55,0.12); }
 
-        /* Form panels */
         .form-panel { display: none; }
         .form-panel.active { display: block; }
 
-        .form-title {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 1.7rem; font-weight: 700; color: var(--navy);
-            margin-bottom: 6px;
-        }
-        .form-sub {
-            font-size: 0.8rem; color: var(--gray-400); margin-bottom: 26px;
-        }
+        .form-title { font-family: 'Cormorant Garamond', serif; font-size: 1.7rem; font-weight: 700; color: var(--navy); margin-bottom: 6px; }
+        .form-sub { font-size: 0.8rem; color: var(--gray-400); margin-bottom: 26px; }
 
-        /* Step progress for register */
-        .step-progress {
-            display: flex; gap: 6px; margin-bottom: 24px; align-items: center;
-        }
-        .step-dot {
-            height: 4px; flex: 1; border-radius: 99px;
-            background: var(--gray-200); transition: background 0.3s;
-        }
+        .step-progress { display: flex; gap: 6px; margin-bottom: 24px; align-items: center; }
+        .step-dot { height: 4px; flex: 1; border-radius: 99px; background: var(--gray-200); transition: background 0.3s; }
         .step-dot.done { background: var(--navy); }
         .step-dot.active { background: var(--gold); }
-        .step-label {
-            font-size: 0.68rem; font-weight: 700; color: var(--gray-400);
-            white-space: nowrap; margin-left: 8px;
-        }
+        .step-label { font-size: 0.68rem; font-weight: 700; color: var(--gray-400); white-space: nowrap; margin-left: 8px; }
         .step-label span { color: var(--navy); font-weight: 800; }
 
-        /* Steps */
         .reg-step { display: none; }
         .reg-step.active { display: block; }
 
-        /* Form groups */
         .fg { margin-bottom: 16px; }
-        .fg label {
-            display: block; font-size: 0.74rem; font-weight: 700;
-            color: var(--gray-600); margin-bottom: 5px; letter-spacing: 0.02em;
-        }
+        .fg label { display: block; font-size: 0.74rem; font-weight: 700; color: var(--gray-600); margin-bottom: 5px; letter-spacing: 0.02em; }
         .fg label .req { color: var(--red); margin-left: 2px; }
         .input-wrap { position: relative; }
-        .input-wrap .input-icon {
-            position: absolute; left: 13px; top: 50%; transform: translateY(-50%);
-            color: var(--gray-400); font-size: 0.8rem; pointer-events: none;
-        }
-        .input-wrap input {
-            width: 100%; padding: 11px 14px 11px 36px;
-            border: 1.5px solid var(--gray-200); border-radius: 9px;
-            font-family: inherit; font-size: 0.875rem; color: #0d1f35;
-            background: var(--white); outline: none; transition: all 0.2s;
-        }
-        .input-wrap input:focus {
-            border-color: var(--navy-light);
-            box-shadow: 0 0 0 3px rgba(30,74,120,0.09);
-        }
+        .input-wrap .input-icon { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: var(--gray-400); font-size: 0.8rem; pointer-events: none; }
+        .input-wrap input { width: 100%; padding: 11px 14px 11px 36px; border: 1.5px solid var(--gray-200); border-radius: 9px; font-family: inherit; font-size: 0.875rem; color: #0d1f35; background: var(--white); outline: none; transition: all 0.2s; }
+        .input-wrap input:focus { border-color: var(--navy-light); box-shadow: 0 0 0 3px rgba(30,74,120,0.09); }
         .input-wrap input.valid { border-color: var(--green); }
         .input-wrap input.invalid { border-color: var(--red); }
         .input-wrap input::placeholder { color: var(--gray-400); }
-
-        /* No icon version */
         .input-wrap.no-icon input { padding-left: 14px; }
 
-        /* Password toggle */
-        .pwd-toggle {
-            position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
-            cursor: pointer; color: var(--gray-400); font-size: 0.82rem;
-            background: none; border: none; padding: 2px;
-            transition: color 0.2s;
-        }
+        .pwd-toggle { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--gray-400); font-size: 0.82rem; background: none; border: none; padding: 2px; transition: color 0.2s; }
         .pwd-toggle:hover { color: var(--navy); }
         .input-wrap.pwd input { padding-right: 38px; }
 
-        /* Inline row */
         .fg-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
         .fg-row .fg { margin-bottom: 0; }
 
-        /* Error */
-        .field-error {
-            font-size: 0.7rem; color: var(--red); margin-top: 4px;
-            display: flex; align-items: center; gap: 4px;
-        }
+        .field-error { font-size: 0.7rem; color: var(--red); margin-top: 4px; display: flex; align-items: center; gap: 4px; }
         .field-error i { font-size: 0.65rem; }
 
-        /* Password strength */
         .pwd-strength { margin-top: 6px; }
-        .strength-bar {
-            height: 3px; border-radius: 99px; background: var(--gray-200);
-            overflow: hidden; margin-bottom: 4px;
-        }
-        .strength-fill {
-            height: 100%; border-radius: 99px; transition: all 0.3s;
-            width: 0%;
-        }
+        .strength-bar { height: 3px; border-radius: 99px; background: var(--gray-200); overflow: hidden; margin-bottom: 4px; }
+        .strength-fill { height: 100%; border-radius: 99px; transition: all 0.3s; width: 0%; }
         .strength-label { font-size: 0.68rem; color: var(--gray-400); }
 
-        /* Submit button */
-        .btn-auth {
-            width: 100%; padding: 13px;
-            background: linear-gradient(135deg, var(--navy), var(--navy-light));
-            color: white; border: none; border-radius: 10px;
-            font-family: inherit; font-size: 0.9rem; font-weight: 700;
-            cursor: pointer; transition: all 0.2s;
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-            margin-top: 6px;
-        }
-        .btn-auth:hover:not(:disabled) {
-            transform: translateY(-1px);
-            box-shadow: 0 6px 20px rgba(13,33,55,0.3);
-        }
+        .btn-auth { width: 100%; padding: 13px; background: linear-gradient(135deg, var(--navy), var(--navy-light)); color: white; border: none; border-radius: 10px; font-family: inherit; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 6px; }
+        .btn-auth:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(13,33,55,0.3); }
         .btn-auth:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
-        /* Nav buttons */
         .nav-btns { display: flex; gap: 10px; margin-top: 6px; }
-        .btn-back {
-            flex: 1; padding: 13px;
-            background: var(--gray-100); color: var(--gray-600);
-            border: none; border-radius: 10px; font-family: inherit;
-            font-size: 0.875rem; font-weight: 700; cursor: pointer; transition: all 0.2s;
-        }
+        .btn-back { flex: 1; padding: 13px; background: var(--gray-100); color: var(--gray-600); border: none; border-radius: 10px; font-family: inherit; font-size: 0.875rem; font-weight: 700; cursor: pointer; transition: all 0.2s; }
         .btn-back:hover { background: var(--gray-200); color: var(--navy); }
-        .btn-next {
-            flex: 2; padding: 13px;
-            background: linear-gradient(135deg, var(--navy), var(--navy-light));
-            color: white; border: none; border-radius: 10px;
-            font-family: inherit; font-size: 0.875rem; font-weight: 700;
-            cursor: pointer; transition: all 0.2s;
-            display: flex; align-items: center; justify-content: center; gap: 7px;
-        }
+        .btn-next { flex: 2; padding: 13px; background: linear-gradient(135deg, var(--navy), var(--navy-light)); color: white; border: none; border-radius: 10px; font-family: inherit; font-size: 0.875rem; font-weight: 700; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 7px; }
         .btn-next:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(13,33,55,0.25); }
 
-        /* Divider */
-        .or-divider {
-            display: flex; align-items: center; gap: 12px;
-            font-size: 0.74rem; color: var(--gray-400); margin: 18px 0;
-        }
-        .or-divider::before, .or-divider::after {
-            content: ''; flex: 1; height: 1px; background: var(--gray-200);
-        }
+        .or-divider { display: flex; align-items: center; gap: 12px; font-size: 0.74rem; color: var(--gray-400); margin: 18px 0; }
+        .or-divider::before, .or-divider::after { content: ''; flex: 1; height: 1px; background: var(--gray-200); }
 
-        /* Alert */
-        .form-alert {
-            padding: 12px 14px; border-radius: 9px; font-size: 0.8rem;
-            font-weight: 600; margin-bottom: 18px;
-            display: none; align-items: center; gap: 8px;
-        }
-        .form-alert.success {
-            background: #f0fdf4; border: 1px solid #bbf7d0; color: var(--green); display: flex;
-        }
-        .form-alert.error {
-            background: #fef2f2; border: 1px solid #fecaca; color: var(--red); display: flex;
-        }
+        .form-alert { padding: 12px 14px; border-radius: 9px; font-size: 0.8rem; font-weight: 600; margin-bottom: 18px; display: none; align-items: center; gap: 8px; }
+        .form-alert.success { background: #f0fdf4; border: 1px solid #bbf7d0; color: var(--green); display: flex; }
+        .form-alert.error { background: #fef2f2; border: 1px solid #fecaca; color: var(--red); display: flex; }
 
-        /* Checkbox */
-        .check-row {
-            display: flex; align-items: flex-start; gap: 10px;
-            font-size: 0.78rem; color: var(--gray-600); margin: 4px 0 18px;
-            cursor: pointer; user-select: none; line-height: 1.5;
-        }
-        .check-row input[type="checkbox"] {
-            width: 16px; height: 16px; accent-color: var(--navy); flex-shrink: 0; margin-top: 2px;
-        }
+        /* Server-side error banner */
+        .server-error-banner { padding: 12px 14px; border-radius: 9px; font-size: 0.82rem; font-weight: 600; margin-bottom: 18px; background: #fef2f2; border: 1px solid #fecaca; color: var(--red); display: flex; align-items: center; gap: 8px; }
+
+        .check-row { display: flex; align-items: flex-start; gap: 10px; font-size: 0.78rem; color: var(--gray-600); margin: 4px 0 18px; cursor: pointer; user-select: none; line-height: 1.5; }
+        .check-row input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--navy); flex-shrink: 0; margin-top: 2px; }
         .check-row a { color: var(--navy-light); text-decoration: none; font-weight: 600; }
 
-        /* Step icon */
-        .step-hero {
-            text-align: center; margin-bottom: 22px;
-        }
-        .step-hero-icon {
-            width: 54px; height: 54px; border-radius: 14px;
-            background: linear-gradient(135deg, var(--navy), var(--navy-light));
-            display: flex; align-items: center; justify-content: center;
-            margin: 0 auto 10px; color: var(--gold-light); font-size: 1.3rem;
-            box-shadow: 0 6px 20px rgba(13,33,55,0.22);
-        }
-        .step-hero h3 {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 1.2rem; font-weight: 700; color: var(--navy); margin-bottom: 4px;
-        }
+        .step-hero { text-align: center; margin-bottom: 22px; }
+        .step-hero-icon { width: 54px; height: 54px; border-radius: 14px; background: linear-gradient(135deg, var(--navy), var(--navy-light)); display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; color: var(--gold-light); font-size: 1.3rem; box-shadow: 0 6px 20px rgba(13,33,55,0.22); }
+        .step-hero h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 700; color: var(--navy); margin-bottom: 4px; }
         .step-hero p { font-size: 0.77rem; color: var(--gray-400); }
 
-        /* Switch link */
-        .switch-link {
-            text-align: center; font-size: 0.8rem; color: var(--gray-400); margin-top: 22px;
-        }
+        .switch-link { text-align: center; font-size: 0.8rem; color: var(--gray-400); margin-top: 22px; }
         .switch-link a { color: var(--navy-light); font-weight: 700; text-decoration: none; }
         .switch-link a:hover { color: var(--navy); }
 
-        /* ── SUCCESS POPUP STYLES ── */
+        /* ── SUCCESS POPUP ── */
         @keyframes confettiFall {
-            0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
+            0%   { transform: translateY(-10px) rotate(0deg); opacity: 1; }
             100% { transform: translateY(520px) rotate(720deg); opacity: 0; }
         }
         @keyframes pulseRing {
-            0% { transform: scale(1); opacity: 0.6; }
+            0%   { transform: scale(1); opacity: 0.6; }
             100% { transform: scale(1.8); opacity: 0; }
         }
         @keyframes shimmer {
-            0% { background-position: -200% center; }
-            100% { background-position: 200% center; }
+            0%   { background-position: -200% center; }
+            100% { background-position:  200% center; }
         }
         @keyframes fadeInUp {
             from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            to   { opacity: 1; transform: translateY(0); }
         }
 
         #success-overlay {
@@ -347,167 +188,80 @@
             background: rgba(13,33,55,0.75);
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
+            /* FIX: was display:none AND display:flex at the same time — use visibility/opacity instead */
             display: flex; align-items: center; justify-content: center;
             opacity: 0; visibility: hidden;
             transition: opacity 0.4s ease, visibility 0.4s ease;
+            pointer-events: none;
         }
         #success-overlay.show {
             opacity: 1; visibility: visible;
+            pointer-events: all;
         }
         #success-card {
-            background: var(--cream);
-            border-radius: 26px;
-            padding: 50px 42px 40px;
-            max-width: 430px; width: 92%;
-            text-align: center;
+            background: var(--cream); border-radius: 26px; padding: 50px 42px 40px;
+            max-width: 430px; width: 92%; text-align: center;
             transform: translateY(50px) scale(0.92);
             transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
             box-shadow: 0 40px 100px rgba(13,33,55,0.45);
             position: relative; overflow: hidden;
         }
-        #success-overlay.show #success-card {
-            transform: translateY(0) scale(1);
-        }
-        .popup-gold-bar {
-            position: absolute; top: 0; left: 0; right: 0; height: 5px;
-            background: linear-gradient(90deg, var(--gold), var(--gold-light), var(--gold), var(--gold-light));
-            background-size: 200% auto;
-            animation: shimmer 2.5s linear infinite;
-        }
-        .popup-confetti-wrap {
-            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            pointer-events: none; overflow: hidden;
-        }
-        .popup-check-wrap {
-            position: relative; width: 88px; height: 88px;
-            margin: 0 auto 22px;
-        }
-        .popup-check-ring {
-            position: absolute; inset: 0; border-radius: 50%;
-            background: rgba(200,146,42,0.2);
-            animation: pulseRing 1.8s ease-out infinite;
-        }
-        .popup-check-circle {
-            position: relative; z-index: 1;
-            width: 88px; height: 88px; border-radius: 50%;
-            background: linear-gradient(135deg, var(--navy), var(--navy-light));
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 10px 32px rgba(13,33,55,0.35);
-            transform: scale(0);
-            transition: transform 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s;
-        }
-        #success-overlay.show .popup-check-circle {
-            transform: scale(1);
-        }
-        .popup-check-circle i {
-            color: var(--gold-light); font-size: 2.1rem;
-        }
-        .popup-headline {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 2rem; font-weight: 700; color: var(--navy);
-            margin-bottom: 10px; line-height: 1.2;
-            animation: fadeInUp 0.5s ease 0.35s both;
-        }
-        .popup-message {
-            font-size: 0.875rem; color: var(--gray-600);
-            line-height: 1.75; margin-bottom: 6px;
-            animation: fadeInUp 0.5s ease 0.45s both;
-        }
+        #success-overlay.show #success-card { transform: translateY(0) scale(1); }
+        .popup-gold-bar { position: absolute; top: 0; left: 0; right: 0; height: 5px; background: linear-gradient(90deg, var(--gold), var(--gold-light), var(--gold), var(--gold-light)); background-size: 200% auto; animation: shimmer 2.5s linear infinite; }
+        .popup-confetti-wrap { position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; overflow: hidden; }
+        .popup-check-wrap { position: relative; width: 88px; height: 88px; margin: 0 auto 22px; }
+        .popup-check-ring { position: absolute; inset: 0; border-radius: 50%; background: rgba(200,146,42,0.2); animation: pulseRing 1.8s ease-out infinite; }
+        .popup-check-circle { position: relative; z-index: 1; width: 88px; height: 88px; border-radius: 50%; background: linear-gradient(135deg, var(--navy), var(--navy-light)); display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 32px rgba(13,33,55,0.35); transform: scale(0); transition: transform 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s; }
+        #success-overlay.show .popup-check-circle { transform: scale(1); }
+        .popup-check-circle i { color: var(--gold-light); font-size: 2.1rem; }
+        .popup-headline { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 700; color: var(--navy); margin-bottom: 10px; line-height: 1.2; animation: fadeInUp 0.5s ease 0.35s both; }
+        .popup-message { font-size: 0.875rem; color: var(--gray-600); line-height: 1.75; margin-bottom: 6px; animation: fadeInUp 0.5s ease 0.45s both; }
         .popup-message strong { color: var(--navy); font-weight: 700; }
-        .popup-sub {
-            font-size: 0.78rem; color: var(--gray-400);
-            margin-bottom: 26px; line-height: 1.6;
-            animation: fadeInUp 0.5s ease 0.5s both;
-        }
-        .popup-countdown-wrap {
-            margin-bottom: 20px;
-            animation: fadeInUp 0.5s ease 0.55s both;
-        }
-        .popup-countdown-track {
-            height: 5px; background: var(--gray-200);
-            border-radius: 99px; overflow: hidden; margin-bottom: 7px;
-        }
-        .popup-countdown-fill {
-            height: 100%; width: 100%;
-            background: linear-gradient(90deg, var(--gold), var(--gold-light));
-            border-radius: 99px;
-            transition: width linear;
-        }
-        .popup-countdown-text {
-            font-size: 0.7rem; color: var(--gray-400); font-weight: 600;
-        }
+        .popup-sub { font-size: 0.78rem; color: var(--gray-400); margin-bottom: 26px; line-height: 1.6; animation: fadeInUp 0.5s ease 0.5s both; }
+        .popup-countdown-wrap { margin-bottom: 20px; animation: fadeInUp 0.5s ease 0.55s both; }
+        .popup-countdown-track { height: 5px; background: var(--gray-200); border-radius: 99px; overflow: hidden; margin-bottom: 7px; }
+        .popup-countdown-fill { height: 100%; width: 100%; background: linear-gradient(90deg, var(--gold), var(--gold-light)); border-radius: 99px; transition: width linear; }
+        .popup-countdown-text { font-size: 0.7rem; color: var(--gray-400); font-weight: 600; }
         .popup-countdown-text span { color: var(--navy); font-weight: 800; }
-        .popup-btn {
-            width: 100%; padding: 14px;
-            background: linear-gradient(135deg, var(--navy), var(--navy-light));
-            color: white; border: none; border-radius: 11px;
-            font-family: inherit; font-size: 0.9rem; font-weight: 700;
-            cursor: pointer;
-            display: flex; align-items: center; justify-content: center; gap: 9px;
-            transition: all 0.22s;
-            box-shadow: 0 4px 18px rgba(13,33,55,0.2);
-            animation: fadeInUp 0.5s ease 0.6s both;
-        }
-        .popup-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(13,33,55,0.32);
-        }
-        .popup-divider {
-            height: 1px; background: var(--gray-200);
-            margin: 0 -42px 22px;
-            animation: fadeInUp 0.5s ease 0.52s both;
-        }
+        .popup-btn { width: 100%; padding: 14px; background: linear-gradient(135deg, var(--navy), var(--navy-light)); color: white; border: none; border-radius: 11px; font-family: inherit; font-size: 0.9rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 9px; transition: all 0.22s; box-shadow: 0 4px 18px rgba(13,33,55,0.2); animation: fadeInUp 0.5s ease 0.6s both; }
+        .popup-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(13,33,55,0.32); }
+        .popup-divider { height: 1px; background: var(--gray-200); margin: 0 -42px 22px; animation: fadeInUp 0.5s ease 0.52s both; }
 
-        /* Responsive */
         @media(max-width:900px){ .left-panel{display:none;} .right-panel{width:100%;max-width:480px;margin:0 auto;} body{justify-content:center;padding:24px 16px;} }
         @media(max-width:480px){ .right-panel{padding:32px 20px;} .fg-row{grid-template-columns:1fr;} #success-card{padding:40px 24px 30px;} .popup-divider{margin:0 -24px 22px;} }
     </style>
 </head>
 <body>
 
-    <!-- ══════════════ SUCCESS POPUP OVERLAY ══════════════ -->
+    <!-- ══════════ SUCCESS POPUP ══════════ -->
     <div id="success-overlay">
         <div id="success-card">
-            <!-- Animated gold shimmer bar -->
             <div class="popup-gold-bar"></div>
-            <!-- Confetti container -->
             <div class="popup-confetti-wrap" id="confetti-wrap"></div>
-
-            <!-- Animated check icon -->
             <div class="popup-check-wrap">
                 <div class="popup-check-ring"></div>
-                <div class="popup-check-circle">
-                    <i class="fas fa-check"></i>
-                </div>
+                <div class="popup-check-circle"><i class="fas fa-check"></i></div>
             </div>
-
             <h2 class="popup-headline">Welcome Aboard! 🎉</h2>
-
             <p class="popup-message">
                 Thank you, <strong id="popup-name">Friend</strong>, for joining<br>
-                <strong>G.O Aregban Real Estate Firm</strong>.
+                <strong>G.O AREGHAN Real Estate Firm</strong>.
             </p>
             <p class="popup-sub">Your account has been created successfully.<br>Please sign in to access your dashboard and listings.</p>
-
             <div class="popup-divider"></div>
-
-            <!-- Countdown bar -->
             <div class="popup-countdown-wrap">
                 <div class="popup-countdown-track">
                     <div class="popup-countdown-fill" id="countdown-fill"></div>
                 </div>
-                <p class="popup-countdown-text">
-                    Auto-redirecting to login in <span id="countdown-sec">5</span> seconds
-                </p>
+                <p class="popup-countdown-text">Auto-redirecting to login in <span id="countdown-sec">5</span> seconds</p>
             </div>
-
             <button class="popup-btn" onclick="closePopupAndLogin()">
                 <i class="fas fa-sign-in-alt"></i> Sign In to Continue
             </button>
         </div>
     </div>
 
-    <!-- LEFT PANEL -->
+    <!-- ══════════ LEFT PANEL ══════════ -->
     <div class="left-panel">
         <div class="left-content">
             <div class="brand-logo-wrap">
@@ -515,14 +269,12 @@
                     <img src="/img/OGA AYO COM CARDXS.jpg.jpg" alt="Logo">
                 </div>
                 <div class="brand-text">
-                    <span class="name">G.O AREGBAN</span>
+                    <span class="name">G.O AREGHAN</span>
                     <span class="tagline">Real Estate Firm & Consultant</span>
                 </div>
             </div>
-
             <h2 class="left-headline">Your trusted home<br>in <em>Nigerian</em> real estate</h2>
             <p class="left-sub">Join thousands of buyers, renters, and investors who trust us to find their perfect property across Nigeria.</p>
-
             <div class="trust-items">
                 <div class="trust-item">
                     <div class="trust-icon"><i class="fas fa-shield-alt"></i></div>
@@ -547,13 +299,12 @@
                 </div>
             </div>
         </div>
-        <p class="left-footer">© 2025 G.O AREGBAN REAL ESTATE FIRM. All rights reserved.</p>
+        <p class="left-footer">© 2025 G.O AREGHAN REAL ESTATE FIRM. All rights reserved.</p>
     </div>
 
-    <!-- RIGHT PANEL -->
+    <!-- ══════════ RIGHT PANEL ══════════ -->
     <div class="right-panel">
 
-        <!-- Tabs -->
         <div class="auth-tabs">
             <button class="auth-tab active" id="tab-login" onclick="switchTab('login')">
                 <i class="fas fa-sign-in-alt" style="margin-right:6px;"></i> Sign In
@@ -568,6 +319,13 @@
             <h2 class="form-title">Welcome back</h2>
             <p class="form-sub">Sign in to access your account and saved properties.</p>
 
+            <%# Show server-side error if login failed (EJS variable) %>
+            <% if (typeof error !== 'undefined' && error) { %>
+                <div class="server-error-banner">
+                    <i class="fas fa-exclamation-circle"></i> <%= error %>
+                </div>
+            <% } %>
+
             <div class="form-alert" id="login-alert"></div>
 
             <form id="login-form" method="POST" action="/dashboard">
@@ -579,7 +337,6 @@
                     </div>
                     <div class="field-error" id="login-email-err"></div>
                 </div>
-
                 <div class="fg">
                     <label>Password <span class="req">*</span></label>
                     <div class="input-wrap pwd">
@@ -589,7 +346,6 @@
                     </div>
                     <div class="field-error" id="login-pwd-err"></div>
                 </div>
-
                 <button type="submit" class="btn-auth" id="login-btn">
                     <i class="fas fa-sign-in-alt"></i> Sign In
                 </button>
@@ -605,12 +361,11 @@
             <h2 class="form-title">Create Account</h2>
             <p class="form-sub">Quick 3-step setup — takes under a minute.</p>
 
-            <!-- Progress -->
             <div class="step-progress">
                 <div class="step-dot active" id="dot-1"></div>
                 <div class="step-dot" id="dot-2"></div>
                 <div class="step-dot" id="dot-3"></div>
-                <span class="step-label" id="step-label"><span id="step-num">1</span>/3</span>
+                <span class="step-label"><span id="step-num">1</span>/3</span>
             </div>
 
             <div class="form-alert" id="reg-alert"></div>
@@ -659,7 +414,7 @@
                     </button>
                 </div>
 
-                <!-- STEP 2: Account -->
+                <!-- STEP 2: Email -->
                 <div class="reg-step" id="reg-step-2">
                     <div class="step-hero">
                         <div class="step-hero-icon"><i class="fas fa-envelope"></i></div>
@@ -728,10 +483,10 @@
             </div>
         </div>
 
-    </div>
+    </div><!-- end right-panel -->
 
 <script>
-    /* ──────────── Tab switching ──────────── */
+    /* ── Tab switching ── */
     function switchTab(tab) {
         document.getElementById('panel-login').classList.toggle('active', tab === 'login');
         document.getElementById('panel-register').classList.toggle('active', tab === 'register');
@@ -739,14 +494,13 @@
         document.getElementById('tab-register').classList.toggle('active', tab === 'register');
     }
 
-    /* ──────────── Step navigation ──────────── */
+    /* ── Step navigation ── */
     let currentRegStep = 1;
-
     function showRegStep(n) {
         document.querySelectorAll('.reg-step').forEach(s => s.classList.remove('active'));
-        document.getElementById(`reg-step-${n}`).classList.add('active');
+        document.getElementById('reg-step-' + n).classList.add('active');
         [1,2,3].forEach(i => {
-            const d = document.getElementById(`dot-${i}`);
+            const d = document.getElementById('dot-' + i);
             d.className = 'step-dot';
             if (i < n) d.classList.add('done');
             else if (i === n) d.classList.add('active');
@@ -754,20 +508,15 @@
         document.getElementById('step-num').textContent = n;
         currentRegStep = n;
     }
-
-    function nextStep(from) {
-        if (!validateStep(from)) return;
-        showRegStep(from + 1);
-    }
+    function nextStep(from) { if (!validateStep(from)) return; showRegStep(from + 1); }
     function prevStep(from) { showRegStep(from - 1); }
 
-    /* ──────────── Validation ──────────── */
+    /* ── Validation ── */
     function setErr(id, msg) {
         const el = document.getElementById(id);
         if (!el) return;
-        el.innerHTML = msg ? `<i class="fas fa-exclamation-circle"></i> ${msg}` : '';
+        el.innerHTML = msg ? '<i class="fas fa-exclamation-circle"></i> ' + msg : '';
     }
-
     function validateStep(step) {
         let ok = true;
         if (step === 1) {
@@ -790,31 +539,22 @@
         }
         return ok;
     }
-
     function submitReg(e) {
         e.preventDefault();
-        const pwd = document.getElementById('password').value.trim();
+        const pwd  = document.getElementById('password').value.trim();
         const cpwd = document.getElementById('confirmPassword').value.trim();
         const terms = document.getElementById('terms-check').checked;
         let ok = true;
-
-        if (!pwd || pwd.length < 6) {
-            setErr('err-password', 'Password must be at least 6 characters.'); ok = false;
-        } else { setErr('err-password', ''); }
-
-        if (cpwd !== pwd) {
-            setErr('err-confirm', 'Passwords do not match.'); ok = false;
-        } else { setErr('err-confirm', ''); }
-
-        if (!terms) {
-            showAlert('reg-alert', 'Please agree to the Terms of Service to continue.', 'error'); ok = false;
-        }
-
+        if (!pwd || pwd.length < 6) { setErr('err-password', 'Password must be at least 6 characters.'); ok = false; }
+        else { setErr('err-password', ''); }
+        if (cpwd !== pwd) { setErr('err-confirm', 'Passwords do not match.'); ok = false; }
+        else { setErr('err-confirm', ''); }
+        if (!terms) { showAlert('reg-alert', 'Please agree to the Terms of Service to continue.', 'error'); ok = false; }
         if (ok) document.getElementById('reg-form').submit();
         return false;
     }
 
-    /* ──────────── Password strength ──────────── */
+    /* ── Password strength ── */
     function checkStrength(val) {
         const fill = document.getElementById('strength-fill');
         const label = document.getElementById('strength-label');
@@ -824,13 +564,12 @@
         if (/[A-Z]/.test(val)) score++;
         if (/[0-9]/.test(val)) score++;
         if (/[^A-Za-z0-9]/.test(val)) score++;
-
         const levels = [
-            { pct: '0%', color: 'var(--gray-200)', text: 'Enter a password' },
-            { pct: '25%', color: '#ef4444', text: 'Weak' },
-            { pct: '50%', color: '#f97316', text: 'Fair' },
-            { pct: '75%', color: '#eab308', text: 'Good' },
-            { pct: '100%', color: 'var(--green)', text: 'Strong 🔒' },
+            { pct:'0%',   color:'var(--gray-200)', text:'Enter a password' },
+            { pct:'25%',  color:'#ef4444',          text:'Weak' },
+            { pct:'50%',  color:'#f97316',           text:'Fair' },
+            { pct:'75%',  color:'#eab308',           text:'Good' },
+            { pct:'100%', color:'var(--green)',       text:'Strong 🔒' }
         ];
         const l = levels[Math.min(score, 4)];
         fill.style.width = l.pct;
@@ -839,7 +578,7 @@
         label.style.color = l.color === 'var(--gray-200)' ? 'var(--gray-400)' : l.color;
     }
 
-    /* ──────────── Password toggle ──────────── */
+    /* ── Password toggle ── */
     function togglePwd(id, btn) {
         const input = document.getElementById(id);
         const isText = input.type === 'text';
@@ -847,20 +586,20 @@
         btn.innerHTML = isText ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
     }
 
-    /* ──────────── Alert ──────────── */
+    /* ── Alert ── */
     function showAlert(id, msg, type) {
         const el = document.getElementById(id);
         el.textContent = msg;
-        el.className = `form-alert ${type}`;
+        el.className = 'form-alert ' + type;
         setTimeout(() => { el.style.display = 'none'; el.className = 'form-alert'; }, 5000);
     }
 
-    /* ──────────── Login form ──────────── */
+    /* ── Login form client-side validation ── */
     document.getElementById('login-form').addEventListener('submit', function(e) {
         const em = document.getElementById('login-email').value.trim();
         const pw = document.getElementById('login-password').value.trim();
         let ok = true;
-        setErr('login-email-err', em && /^\S+@\S+\.\S+$/.test(em) ? '' : 'Enter a valid email address.');
+        setErr('login-email-err', (em && /^\S+@\S+\.\S+$/.test(em)) ? '' : 'Enter a valid email address.');
         setErr('login-pwd-err', pw ? '' : 'Password is required.');
         if (!em || !/^\S+@\S+\.\S+$/.test(em) || !pw) { e.preventDefault(); ok = false; }
         if (ok) {
@@ -870,99 +609,67 @@
         }
     });
 
-    /* ──────────── SUCCESS POPUP LOGIC ──────────── */
+    /* ── SUCCESS POPUP ── */
     let _countdownTimer = null;
 
     function launchConfetti() {
         const wrap = document.getElementById('confetti-wrap');
         wrap.innerHTML = '';
-        const colors = [
-            'var(--gold)', 'var(--gold-light)', 'var(--navy-light)',
-            '#fef3c7', '#bfdbfe', '#d1fae5', '#fce7f3'
-        ];
-        const shapes = ['50%', '3px', '0'];
+        const colors = ['var(--gold)','var(--gold-light)','var(--navy-light)','#fef3c7','#bfdbfe','#d1fae5'];
+        const shapes = ['50%','3px','0'];
         for (let i = 0; i < 38; i++) {
             const dot = document.createElement('div');
             const size = Math.random() * 9 + 4;
             const delay = Math.random() * 0.9;
-            const duration = 1.6 + Math.random() * 2;
-            const shape = shapes[Math.floor(Math.random() * shapes.length)];
-            dot.style.cssText = `
-                position:absolute;
-                width:${size}px; height:${size}px;
-                border-radius:${shape};
-                background:${colors[Math.floor(Math.random() * colors.length)]};
-                left:${Math.random() * 100}%;
-                top:-12px;
-                opacity:1;
-                animation: confettiFall ${duration}s ease-in ${delay}s forwards;
-                transform-origin: center;
-            `;
+            const dur   = 1.6 + Math.random() * 2;
+            dot.style.cssText =
+                'position:absolute;width:' + size + 'px;height:' + size + 'px;' +
+                'border-radius:' + shapes[Math.floor(Math.random()*shapes.length)] + ';' +
+                'background:' + colors[Math.floor(Math.random()*colors.length)] + ';' +
+                'left:' + (Math.random()*100) + '%;top:-12px;' +
+                'animation:confettiFall ' + dur + 's ease-in ' + delay + 's forwards;';
             wrap.appendChild(dot);
         }
     }
 
     function showSuccessPopup(firstName) {
-        // Set name
         document.getElementById('popup-name').textContent = firstName || 'Friend';
-
         const overlay = document.getElementById('success-overlay');
         overlay.classList.add('show');
-
-        // Trigger confetti after slight delay
         setTimeout(launchConfetti, 250);
 
-        // Countdown — 5 seconds
+        // Countdown bar
         let secs = 5;
         const fillEl = document.getElementById('countdown-fill');
         const secEl  = document.getElementById('countdown-sec');
-
-        // Start the CSS width transition
         fillEl.style.transitionDuration = '0s';
         fillEl.style.width = '100%';
-        requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-                fillEl.style.transitionDuration = secs + 's';
-                fillEl.style.width = '0%';
-            });
-        });
-
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+            fillEl.style.transitionDuration = secs + 's';
+            fillEl.style.width = '0%';
+        }));
         _countdownTimer = setInterval(() => {
             secs--;
             secEl.textContent = secs;
-            if (secs <= 0) {
-                clearInterval(_countdownTimer);
-                _countdownTimer = null;
-                closePopupAndLogin();
-            }
+            if (secs <= 0) { clearInterval(_countdownTimer); _countdownTimer = null; closePopupAndLogin(); }
         }, 1000);
     }
 
     function closePopupAndLogin() {
-        if (_countdownTimer) {
-            clearInterval(_countdownTimer);
-            _countdownTimer = null;
-        }
-        const overlay = document.getElementById('success-overlay');
-        overlay.classList.remove('show');
-
+        if (_countdownTimer) { clearInterval(_countdownTimer); _countdownTimer = null; }
+        document.getElementById('success-overlay').classList.remove('show');
         setTimeout(() => {
-            // Switch to login tab
             switchTab('login');
-            // Clean the URL so popup won't reshow on refresh
-            const cleanUrl = window.location.pathname;
-            window.history.replaceState({}, document.title, cleanUrl);
+            window.history.replaceState({}, document.title, window.location.pathname);
         }, 420);
     }
 
-    /* ──────────── Auto-trigger popup from query params ──────────── */
-    (function checkRegisteredParam() {
+    /* ── Auto-trigger popup from ?registered=true ── */
+    (function() {
         const params = new URLSearchParams(window.location.search);
         if (params.get('registered') === 'true') {
             const name = params.get('name') ? decodeURIComponent(params.get('name')) : '';
-            // Ensure login tab is showing behind the popup
             switchTab('login');
-            // Short delay so page is fully rendered
             setTimeout(() => showSuccessPopup(name), 400);
         }
     })();
