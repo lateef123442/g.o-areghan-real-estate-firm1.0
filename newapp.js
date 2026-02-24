@@ -214,8 +214,8 @@ newapp2.get('/website', async (req, res) => {
     }
 });
 
-// Login page
-newapp2.get('/login', (req, res) => res.render('login'));
+// Login page — always pass error:null so EJS never crashes on undefined variable
+newapp2.get('/login', (req, res) => res.render('login', { error: null }));
 
 // Forgot password page
 newapp2.get('/forgot-password.html', (req, res) => res.render('forgotten-password'));
@@ -225,10 +225,10 @@ newapp2.get('/register.html', (req, res) => res.render('signin-page'));
 
 // Misc redirect routes
 newapp2.get('/invalid-reg-details', (req, res) => res.render('signin-page'));
-newapp2.get('/valid-reg-details', (req, res) => res.render('login'));
-newapp2.get('/already-have-acct', (req, res) => res.render('login'));
-newapp2.get('/invalid-login', (req, res) => res.render('login'));
-newapp2.get('/property-detail.html', (req, res) => res.render('login'));
+newapp2.get('/valid-reg-details',   (req, res) => res.render('login', { error: null }));
+newapp2.get('/already-have-acct',   (req, res) => res.render('login', { error: 'You already have an account. Please sign in.' }));
+newapp2.get('/invalid-login',       (req, res) => res.render('login', { error: 'Invalid email or password. Please try again.' }));
+newapp2.get('/property-detail.html',(req, res) => res.render('login', { error: null }));
 
 // ==================== REGISTER (POST /submit) ====================
 newapp2.post('/submit', async (req, res) => {
@@ -328,7 +328,7 @@ newapp2.post('/dashboard', async (req, res) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
-        return res.render('invalid-login');
+        return res.render('login', { error: 'Please enter your email and password.' });
     }
 
     try {
@@ -336,7 +336,7 @@ newapp2.post('/dashboard', async (req, res) => {
 
         if (results.length === 0 || !bcrypt.compareSync(password, results[0].confirmPassword)) {
             console.log('Invalid login attempt for:', email);
-            return res.render('invalid-login');
+            return res.render('login', { error: 'Invalid email or password. Please try again.' });
         }
 
         const user = results[0];
