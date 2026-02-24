@@ -1910,7 +1910,8 @@ newapp2.get('/gallery', async (req, res) => {
 
 // ==================== START SERVER ====================
 // FIX: was calling newapp2.listen() instead of server.listen() — this broke Socket.IO entirely!
-server.listen(10000, () => {
+server.listen(3000, () => {
     console.log('IBA Real Estate Server is running at port 10000');
 });
+
 
