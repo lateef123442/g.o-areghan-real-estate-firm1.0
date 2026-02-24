@@ -324,12 +324,188 @@
         .switch-link a { color: var(--navy-light); font-weight: 700; text-decoration: none; }
         .switch-link a:hover { color: var(--navy); }
 
+        /* ── SUCCESS POPUP STYLES ── */
+        @keyframes confettiFall {
+            0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(520px) rotate(720deg); opacity: 0; }
+        }
+        @keyframes pulseRing {
+            0% { transform: scale(1); opacity: 0.6; }
+            100% { transform: scale(1.8); opacity: 0; }
+        }
+        @keyframes shimmer {
+            0% { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        #success-overlay {
+            position: fixed; inset: 0; z-index: 9999;
+            background: rgba(13,33,55,0.75);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; visibility: hidden;
+            transition: opacity 0.4s ease, visibility 0.4s ease;
+        }
+        #success-overlay.show {
+            opacity: 1; visibility: visible;
+        }
+        #success-card {
+            background: var(--cream);
+            border-radius: 26px;
+            padding: 50px 42px 40px;
+            max-width: 430px; width: 92%;
+            text-align: center;
+            transform: translateY(50px) scale(0.92);
+            transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 40px 100px rgba(13,33,55,0.45);
+            position: relative; overflow: hidden;
+        }
+        #success-overlay.show #success-card {
+            transform: translateY(0) scale(1);
+        }
+        .popup-gold-bar {
+            position: absolute; top: 0; left: 0; right: 0; height: 5px;
+            background: linear-gradient(90deg, var(--gold), var(--gold-light), var(--gold), var(--gold-light));
+            background-size: 200% auto;
+            animation: shimmer 2.5s linear infinite;
+        }
+        .popup-confetti-wrap {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            pointer-events: none; overflow: hidden;
+        }
+        .popup-check-wrap {
+            position: relative; width: 88px; height: 88px;
+            margin: 0 auto 22px;
+        }
+        .popup-check-ring {
+            position: absolute; inset: 0; border-radius: 50%;
+            background: rgba(200,146,42,0.2);
+            animation: pulseRing 1.8s ease-out infinite;
+        }
+        .popup-check-circle {
+            position: relative; z-index: 1;
+            width: 88px; height: 88px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--navy), var(--navy-light));
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 10px 32px rgba(13,33,55,0.35);
+            transform: scale(0);
+            transition: transform 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s;
+        }
+        #success-overlay.show .popup-check-circle {
+            transform: scale(1);
+        }
+        .popup-check-circle i {
+            color: var(--gold-light); font-size: 2.1rem;
+        }
+        .popup-headline {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2rem; font-weight: 700; color: var(--navy);
+            margin-bottom: 10px; line-height: 1.2;
+            animation: fadeInUp 0.5s ease 0.35s both;
+        }
+        .popup-message {
+            font-size: 0.875rem; color: var(--gray-600);
+            line-height: 1.75; margin-bottom: 6px;
+            animation: fadeInUp 0.5s ease 0.45s both;
+        }
+        .popup-message strong { color: var(--navy); font-weight: 700; }
+        .popup-sub {
+            font-size: 0.78rem; color: var(--gray-400);
+            margin-bottom: 26px; line-height: 1.6;
+            animation: fadeInUp 0.5s ease 0.5s both;
+        }
+        .popup-countdown-wrap {
+            margin-bottom: 20px;
+            animation: fadeInUp 0.5s ease 0.55s both;
+        }
+        .popup-countdown-track {
+            height: 5px; background: var(--gray-200);
+            border-radius: 99px; overflow: hidden; margin-bottom: 7px;
+        }
+        .popup-countdown-fill {
+            height: 100%; width: 100%;
+            background: linear-gradient(90deg, var(--gold), var(--gold-light));
+            border-radius: 99px;
+            transition: width linear;
+        }
+        .popup-countdown-text {
+            font-size: 0.7rem; color: var(--gray-400); font-weight: 600;
+        }
+        .popup-countdown-text span { color: var(--navy); font-weight: 800; }
+        .popup-btn {
+            width: 100%; padding: 14px;
+            background: linear-gradient(135deg, var(--navy), var(--navy-light));
+            color: white; border: none; border-radius: 11px;
+            font-family: inherit; font-size: 0.9rem; font-weight: 700;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 9px;
+            transition: all 0.22s;
+            box-shadow: 0 4px 18px rgba(13,33,55,0.2);
+            animation: fadeInUp 0.5s ease 0.6s both;
+        }
+        .popup-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(13,33,55,0.32);
+        }
+        .popup-divider {
+            height: 1px; background: var(--gray-200);
+            margin: 0 -42px 22px;
+            animation: fadeInUp 0.5s ease 0.52s both;
+        }
+
         /* Responsive */
         @media(max-width:900px){ .left-panel{display:none;} .right-panel{width:100%;max-width:480px;margin:0 auto;} body{justify-content:center;padding:24px 16px;} }
-        @media(max-width:480px){ .right-panel{padding:32px 20px;} .fg-row{grid-template-columns:1fr;} }
+        @media(max-width:480px){ .right-panel{padding:32px 20px;} .fg-row{grid-template-columns:1fr;} #success-card{padding:40px 24px 30px;} .popup-divider{margin:0 -24px 22px;} }
     </style>
 </head>
 <body>
+
+    <!-- ══════════════ SUCCESS POPUP OVERLAY ══════════════ -->
+    <div id="success-overlay">
+        <div id="success-card">
+            <!-- Animated gold shimmer bar -->
+            <div class="popup-gold-bar"></div>
+            <!-- Confetti container -->
+            <div class="popup-confetti-wrap" id="confetti-wrap"></div>
+
+            <!-- Animated check icon -->
+            <div class="popup-check-wrap">
+                <div class="popup-check-ring"></div>
+                <div class="popup-check-circle">
+                    <i class="fas fa-check"></i>
+                </div>
+            </div>
+
+            <h2 class="popup-headline">Welcome Aboard! 🎉</h2>
+
+            <p class="popup-message">
+                Thank you, <strong id="popup-name">Friend</strong>, for joining<br>
+                <strong>G.O Aregban Real Estate Firm</strong>.
+            </p>
+            <p class="popup-sub">Your account has been created successfully.<br>Please sign in to access your dashboard and listings.</p>
+
+            <div class="popup-divider"></div>
+
+            <!-- Countdown bar -->
+            <div class="popup-countdown-wrap">
+                <div class="popup-countdown-track">
+                    <div class="popup-countdown-fill" id="countdown-fill"></div>
+                </div>
+                <p class="popup-countdown-text">
+                    Auto-redirecting to login in <span id="countdown-sec">5</span> seconds
+                </p>
+            </div>
+
+            <button class="popup-btn" onclick="closePopupAndLogin()">
+                <i class="fas fa-sign-in-alt"></i> Sign In to Continue
+            </button>
+        </div>
+    </div>
 
     <!-- LEFT PANEL -->
     <div class="left-panel">
@@ -569,7 +745,6 @@
     function showRegStep(n) {
         document.querySelectorAll('.reg-step').forEach(s => s.classList.remove('active'));
         document.getElementById(`reg-step-${n}`).classList.add('active');
-        // Progress dots
         [1,2,3].forEach(i => {
             const d = document.getElementById(`dot-${i}`);
             d.className = 'step-dot';
@@ -694,6 +869,103 @@
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
         }
     });
+
+    /* ──────────── SUCCESS POPUP LOGIC ──────────── */
+    let _countdownTimer = null;
+
+    function launchConfetti() {
+        const wrap = document.getElementById('confetti-wrap');
+        wrap.innerHTML = '';
+        const colors = [
+            'var(--gold)', 'var(--gold-light)', 'var(--navy-light)',
+            '#fef3c7', '#bfdbfe', '#d1fae5', '#fce7f3'
+        ];
+        const shapes = ['50%', '3px', '0'];
+        for (let i = 0; i < 38; i++) {
+            const dot = document.createElement('div');
+            const size = Math.random() * 9 + 4;
+            const delay = Math.random() * 0.9;
+            const duration = 1.6 + Math.random() * 2;
+            const shape = shapes[Math.floor(Math.random() * shapes.length)];
+            dot.style.cssText = `
+                position:absolute;
+                width:${size}px; height:${size}px;
+                border-radius:${shape};
+                background:${colors[Math.floor(Math.random() * colors.length)]};
+                left:${Math.random() * 100}%;
+                top:-12px;
+                opacity:1;
+                animation: confettiFall ${duration}s ease-in ${delay}s forwards;
+                transform-origin: center;
+            `;
+            wrap.appendChild(dot);
+        }
+    }
+
+    function showSuccessPopup(firstName) {
+        // Set name
+        document.getElementById('popup-name').textContent = firstName || 'Friend';
+
+        const overlay = document.getElementById('success-overlay');
+        overlay.classList.add('show');
+
+        // Trigger confetti after slight delay
+        setTimeout(launchConfetti, 250);
+
+        // Countdown — 5 seconds
+        let secs = 5;
+        const fillEl = document.getElementById('countdown-fill');
+        const secEl  = document.getElementById('countdown-sec');
+
+        // Start the CSS width transition
+        fillEl.style.transitionDuration = '0s';
+        fillEl.style.width = '100%';
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                fillEl.style.transitionDuration = secs + 's';
+                fillEl.style.width = '0%';
+            });
+        });
+
+        _countdownTimer = setInterval(() => {
+            secs--;
+            secEl.textContent = secs;
+            if (secs <= 0) {
+                clearInterval(_countdownTimer);
+                _countdownTimer = null;
+                closePopupAndLogin();
+            }
+        }, 1000);
+    }
+
+    function closePopupAndLogin() {
+        if (_countdownTimer) {
+            clearInterval(_countdownTimer);
+            _countdownTimer = null;
+        }
+        const overlay = document.getElementById('success-overlay');
+        overlay.classList.remove('show');
+
+        setTimeout(() => {
+            // Switch to login tab
+            switchTab('login');
+            // Clean the URL so popup won't reshow on refresh
+            const cleanUrl = window.location.pathname;
+            window.history.replaceState({}, document.title, cleanUrl);
+        }, 420);
+    }
+
+    /* ──────────── Auto-trigger popup from query params ──────────── */
+    (function checkRegisteredParam() {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('registered') === 'true') {
+            const name = params.get('name') ? decodeURIComponent(params.get('name')) : '';
+            // Ensure login tab is showing behind the popup
+            switchTab('login');
+            // Short delay so page is fully rendered
+            setTimeout(() => showSuccessPopup(name), 400);
+        }
+    })();
 
     /* Init */
     showRegStep(1);
