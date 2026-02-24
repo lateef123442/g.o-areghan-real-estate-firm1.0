@@ -152,7 +152,7 @@ function requireAdmin(req, res, next) {
 }
 
 // ==================== GROQ AI ====================
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+const groq = new Groq({ apiKey: "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" });
 
 // ==================== SOCKET.IO ====================
 io.on('connection', (socket) => {
@@ -1952,3 +1952,4 @@ newapp2.use((err, req, res, next) => {
 server.listen(10000, () => {
     console.log('🏠 G.O Aregban Real Estate server running on port 10000');
 });
+
