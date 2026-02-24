@@ -203,11 +203,15 @@ newapp2.get('/forgot-password.html', (req, res) => {
     res.render('forgotten-password');
 });
 
-// ==================== REGISTRATION ====================
-// FIX: entire /submit route was using callback-style with promise-based pool — rewrote as async/await
+// ─────────────────────────────────────────────────────────────
+//  BACKEND ROUTE — POST /submit  (drop-in replacement)
+//  Place this in your Express app file (e.g. app.js / routes/auth.js)
+// ─────────────────────────────────────────────────────────────
+
 newapp2.post('/submit', async (req, res) => {
     const { firstName, middleName, lastName, email, phone, confirmPassword } = req.body;
 
+    // ── 1. Validate email format ──────────────────────────────
     if (!validator.isEmail(email)) {
         return res.status(400).render('invalid-email', {
             error: 'Please provide a valid email address'
@@ -215,40 +219,92 @@ newapp2.post('/submit', async (req, res) => {
     }
 
     try {
-        const [existing] = await db.query('SELECT COUNT(*) AS count FROM signin WHERE email = ?', [email]);
+        // ── 2. Check for duplicate email ──────────────────────
+        const [existing] = await db.query(
+            'SELECT COUNT(*) AS count FROM signin WHERE email = ?',
+            [email]
+        );
         if (existing[0].count > 0) {
             return res.render('invalid-email', { error: 'This email is already registered' });
         }
 
+        // ── 3. Hash password & insert user ───────────────────
         const hashedPassword = bcrypt.hashSync(confirmPassword, 10);
         await db.query(
             'INSERT INTO signin (firstName, middleName, lastName, email, phone, confirmPassword, role) VALUES (?, ?, ?, ?, ?, ?, ?)',
             [firstName, middleName, lastName, email, phone, hashedPassword, 'user']
         );
 
-        // Send welcome email (non-blocking — don't await)
+        // ── 4. Send welcome email (non-blocking) ─────────────
         const mailOptions = {
             from: process.env.EMAIL_USER || 'ibarealestate2023@gmail.com',
             to: email,
-            subject: 'Welcome to Iba Real Estate',
+            subject: 'Welcome to G.O Aregban Real Estate Firm',
             html: `
-                <h1>Welcome to Iba Real Estate!</h1>
-                <p>Dear ${firstName} ${lastName},</p>
-                <p>Thank you for creating an account with Iba Real Estate. We're excited to help you find your dream property!</p>
-                <p>If you have any questions, don't hesitate to contact our support team.</p>
-                <p>Best regards,<br>The Iba Real Estate Team</p>
+                <!DOCTYPE html>
+                <html>
+                <body style="font-family:'DM Sans',Arial,sans-serif;background:#faf7f2;margin:0;padding:32px 16px;">
+                    <div style="max-width:520px;margin:0 auto;background:#ffffff;border-radius:18px;overflow:hidden;box-shadow:0 8px 32px rgba(13,33,55,0.12);">
+                        <div style="background:linear-gradient(135deg,#0d2137,#1e4a78);padding:36px 32px;text-align:center;">
+                            <h1 style="font-family:Georgia,serif;color:#e0aa45;font-size:1.8rem;margin:0 0 8px;">
+                                Welcome Aboard! 🎉
+                            </h1>
+                            <p style="color:rgba(255,255,255,0.7);font-size:0.85rem;margin:0;">
+                                G.O Aregban Real Estate Firm & Consultant
+                            </p>
+                        </div>
+                        <div style="padding:36px 32px;">
+                            <p style="color:#0d2137;font-size:1rem;font-weight:600;margin:0 0 14px;">
+                                Dear ${firstName} ${lastName},
+                            </p>
+                            <p style="color:#475569;font-size:0.875rem;line-height:1.8;margin:0 0 16px;">
+                                Thank you for creating an account with <strong style="color:#0d2137;">G.O Aregban Real Estate Firm</strong>.
+                                We're thrilled to have you join thousands of buyers, renters, and investors who trust us
+                                to find their perfect property across Nigeria.
+                            </p>
+                            <p style="color:#475569;font-size:0.875rem;line-height:1.8;margin:0 0 28px;">
+                                You can now sign in to explore exclusive property listings, save favourites, and get in touch with our team of licensed estate surveyors.
+                            </p>
+                            <div style="text-align:center;margin-bottom:28px;">
+                                <a href="${process.env.SITE_URL || 'http://localhost:3000'}/"
+                                   style="display:inline-block;padding:14px 36px;background:linear-gradient(135deg,#0d2137,#1e4a78);color:#fff;text-decoration:none;border-radius:10px;font-weight:700;font-size:0.9rem;">
+                                    Sign In to Continue →
+                                </a>
+                            </div>
+                            <p style="color:#94a3b8;font-size:0.78rem;text-align:center;margin:0;">
+                                If you did not create this account, please ignore this email.
+                            </p>
+                        </div>
+                        <div style="background:#f1f5f9;padding:18px 32px;text-align:center;">
+                            <p style="color:#94a3b8;font-size:0.72rem;margin:0;">
+                                © 2025 G.O AREGBAN REAL ESTATE FIRM. All rights reserved.<br>
+                                NIESV Member Firm · ESVARBON Licensed
+                            </p>
+                        </div>
+                    </div>
+                </body>
+                </html>
             `
         };
+
+        // Send email without blocking the response
         transporter.sendMail(mailOptions, (error, info) => {
             if (error) console.error('Error sending welcome email:', error);
             else console.log('Welcome email sent:', info.response);
         });
 
-        console.log('User registered successfully');
-        return res.render('valid-email');
+        console.log(`User registered successfully: ${email}`);
+
+        // ── 5. Redirect back to login page with success popup params ──
+        //       ?registered=true  → triggers the animated popup
+        //       &name=FirstName   → personalises the popup greeting
+        return res.redirect(
+            `/?registered=true&name=${encodeURIComponent(firstName)}`
+        );
+
     } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server error');
+        console.error('Registration error:', err.message);
+        return res.status(500).send('Server error');
     }
 });
 
@@ -1872,7 +1928,7 @@ newapp2.get('/property-valuation', ensureAuthenticated, (req, res) => {
 });
 
 // AI Valuation endpoint
-const groq = new Groq({ apiKey: "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" });
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 newapp2.post('/valuate', ensureAuthenticated, async (req, res) => { // FIX: added ensureAuthenticated
     const { prompt } = req.body;
     if (!prompt) return res.status(400).json({ error: 'Prompt is required' });
@@ -1913,4 +1969,3 @@ newapp2.get('/gallery', async (req, res) => {
 server.listen(10000, () => {
     console.log('IBA Real Estate Server is running at port 10000');
 });
-
