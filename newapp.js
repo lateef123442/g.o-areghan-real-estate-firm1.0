@@ -228,7 +228,7 @@ newapp2.post('/submit', async (req, res) => {
 
         // Send welcome email (non-blocking — don't await)
         const mailOptions = {
-            from: process.env.EMAIL_USER || 'ibarealestate2023@gmail.com',
+            from: process.env.EMAIL_USER || 'ibarealestate2023@gmail.com' || 'esvgoddey@gmail.com',
             to: email,
             subject: 'Welcome to Iba Real Estate',
             html: `
@@ -1914,6 +1914,7 @@ const PORT = 3000 || process.env.PORT;
 newapp2.listen(PORT, () => {
     console.log(`IBA Real Estate Server is running at port ${PORT}`);
 });
+
 
 
 
