@@ -292,7 +292,7 @@ newapp2.post('/dashboard', async (req, res) => {
             }
 
             // Admin login
-            if (email === 'ibarealestate2023@gmail.com') {
+            if (email === 'esvgoddey@gmail.com') {
                 req.session.isAdmin = true;
                 req.session.isAgent = false;
                 return res.render('valid-login', {
@@ -1918,3 +1918,4 @@ connectWithRetry().then(() => {
         console.log(`Server started (DB may be unavailable)`);
     });
 });
+
