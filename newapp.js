@@ -1907,14 +1907,14 @@ newapp2.get('/gallery', async (req, res) => {
 // FIX 3: Wait for DB connection before accepting traffic to prevent 503 on cold start
 const PORT = process.env.PORT || 3000;
 
+// Passenger on Hostinger manages the port itself.
+// We must always call server.listen() for Passenger to detect the app.
 connectWithRetry().then(() => {
-    server.listen(PORT, () => {
-        console.log(`✅ IBA Real Estate Server is running on port ${PORT}`);
+    server.listen(PORT, '0.0.0.0', () => {
+        console.log(`Server running on port ${PORT}`);
     });
-}).catch(err => {
-    // Even if DB fails after retries, still start the server
-    console.error('Starting server despite DB issues:', err.message);
-    server.listen(PORT, () => {
-        console.log(`⚠️  IBA Real Estate Server started on port ${PORT} (DB may be unavailable)`);
+}).catch(() => {
+    server.listen(PORT, '0.0.0.0', () => {
+        console.log(`Server started (DB may be unavailable)`);
     });
 });
