@@ -46,9 +46,9 @@ const upload = multer({ storage: storage });
 
 // Set up session middleware
 newapp2.use(session({
-    secret: process.env.SESSION_SECRET || 'lateef.2008', // FIX: use env variable
+    secret: process.env.SESSION_SECRET || 'lateef.2008',
     resave: false,
-    saveUninitialized: false // FIX: changed to false (best practice, avoids storing empty sessions)
+    saveUninitialized: false
 }));
 
 // Authentication middleware
@@ -79,7 +79,6 @@ passport.serializeUser((user, done) => {
 });
 
 // Deserialize user from the session
-// FIX: was using callback-style db.query but db is now promise-based (mysql2/promise)
 passport.deserializeUser(async (id, done) => {
     try {
         const [results] = await db.query('SELECT * FROM signin WHERE id = ?', [id]);
@@ -93,8 +92,8 @@ passport.deserializeUser(async (id, done) => {
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user:'ibarealestate2023@gmail.com', // FIX: use env variable
-        pass: 'gwps gwod slos pjsl'          // FIX: use env variable
+        user: 'ibarealestate2023@gmail.com',
+        pass: 'gwps gwod slos pjsl'
     }
 });
 
@@ -112,7 +111,6 @@ const db = mysql.createPool({
     keepAliveInitialDelay: 0
 });
 
-// FIX: removed duplicate db connection test - only keep one
 db.query('SELECT 1')
     .then(() => console.log("Database Connected!"))
     .catch(err => console.error("DB Error:", err.message));
@@ -133,10 +131,9 @@ newapp2.set('view engine', 'ejs');
 // Body parser middleware
 newapp2.use(bodyParser.json({ limit: '50mb' }));
 newapp2.use(bodyParser.urlencoded({ limit: '50mb', extended: true, parameterLimit: 1000000 }));
-newapp2.use(cookieParser()); // FIX: cookieParser was imported but never used
+newapp2.use(cookieParser());
 
 // ==================== SOCKET.IO ====================
-// FIX: db.query is now promise-based; socket.io callbacks must be async
 io.on('connection', (socket) => {
 
     socket.on('joinChat', (userId) => {
@@ -183,7 +180,6 @@ newapp2.get('/', async (req, res) => {
 });
 
 newapp2.get('/website', async (req, res) => {
-    // FIX: was rendering without card data which all_properties needs
     try {
         const [card] = await db.query("SELECT * FROM all_properties LIMIT 3");
         res.render('website', { card });
@@ -204,7 +200,6 @@ newapp2.get('/forgot-password.html', (req, res) => {
 });
 
 // ==================== REGISTRATION ====================
-// FIX: entire /submit route was using callback-style with promise-based pool — rewrote as async/await
 newapp2.post('/submit', async (req, res) => {
     const { firstName, middleName, lastName, email, phone, confirmPassword } = req.body;
 
@@ -226,7 +221,6 @@ newapp2.post('/submit', async (req, res) => {
             [firstName, middleName, lastName, email, phone, hashedPassword, 'user']
         );
 
-        // Send welcome email (non-blocking — don't await)
         const mailOptions = {
             from: process.env.EMAIL_USER || 'ibarealestate2023@gmail.com',
             to: email,
@@ -257,7 +251,6 @@ newapp2.get('/valid-reg-details', (req, res) => res.render('login'));
 newapp2.get('/already-have-acct', (req, res) => res.render('login'));
 
 // ==================== LOGIN ====================
-// FIX: entire /dashboard POST was mixing promise pool with callback-style — rewrote as async/await
 newapp2.post('/dashboard', async (req, res) => {
     const { email, password } = req.body;
 
@@ -277,19 +270,62 @@ newapp2.post('/dashboard', async (req, res) => {
                 return res.status(500).send('Login error');
             }
 
-            // Admin login
-            if (email === 'esvgoddey@gmail.com' || 'ibarealestate2023@gmail.com') {
+            // ==================== ADMIN LOGIN (FIXED) ====================
+            if (email === 'esvgoddey@gmail.com' || email === 'ibarealestate2023@gmail.com') {
                 req.session.isAdmin = true;
                 req.session.isAgent = false;
-                return res.render('valid-login', {
-                    username: user.firstName,
-                    surname: user.lastName,
+                req.session.userId = user.id;
+                req.session.role = 'admin';
+
+                const stats = {};
+                try {
+                    const [
+                        [pendingSalesRows],
+                        [allPropsRows],
+                        [soldPropsRows],
+                        [customersRows],
+                        [soldMonthRows],
+                        propertyTypeRows,
+                        monthlySoldRows
+                    ] = await Promise.all([
+                        db.query("SELECT COUNT(*) as count FROM sales_approval"),
+                        db.query("SELECT COUNT(*) as count FROM all_properties"),
+                        db.query("SELECT COUNT(*) as count FROM sold_properties"),
+                        db.query("SELECT COUNT(DISTINCT email) as count FROM signin"),
+                        db.query("SELECT COUNT(*) as count FROM sold_properties WHERE MONTH(created_at) = MONTH(CURDATE()) AND YEAR(created_at) = YEAR(CURDATE())"),
+                        db.query("SELECT `property-type` as type, COUNT(*) as count FROM all_properties WHERE `property-type` IN ('Plots of Land', 'Duplex/Bangalow/Storey building', 'Self Contain') GROUP BY `property-type`"),
+                        db.query(
+                            "SELECT DATE_FORMAT(created_at, '%b %Y') as month, COUNT(*) as count " +
+                            "FROM sold_properties " +
+                            "WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH) " +
+                            "GROUP BY DATE_FORMAT(created_at, '%Y-%m') " +
+                            "ORDER BY DATE_FORMAT(created_at, '%Y-%m') ASC"
+                        )
+                    ]);
+
+                    stats.pendingSales   = pendingSalesRows[0].count || 0;
+                    stats.allSales       = allPropsRows[0].count || 0;
+                    stats.soldProperties = soldPropsRows[0].count || 0;
+                    stats.customers      = customersRows[0].count || 0;
+                    stats.soldThisMonth  = soldMonthRows[0].count || 0;
+                    stats.propertyTypes  = propertyTypeRows[0];
+                    stats.monthlySold    = monthlySoldRows[0].map(row => ({
+                        month: row.month,
+                        count: parseInt(row.count) || 0
+                    }));
+                } catch (statsErr) {
+                    console.error('Admin stats fetch error:', statsErr);
+                }
+
+                return res.render('sales-tracker', {
+                    stats,
                     isAdmin: true,
-                    isAgent: false
+                    username: user.firstName,
+                    surname: user.lastName
                 });
             }
 
-            // Agent login
+            // ==================== AGENT LOGIN ====================
             if (user.role === 'agent') {
                 req.session.isAgent = true;
                 req.session.isAdmin = false;
@@ -353,7 +389,7 @@ newapp2.post('/dashboard', async (req, res) => {
                 }
             }
 
-            // Regular user login
+            // ==================== REGULAR USER LOGIN ====================
             req.session.isAdmin = false;
             req.session.isAgent = false;
             try {
@@ -371,11 +407,8 @@ newapp2.post('/dashboard', async (req, res) => {
 });
 
 // ==================== NAVIGATION ROUTES ====================
-// FIX: All routes below were using callback-style db.query with a promise pool — converted to async/await
-
 newapp2.get('/valid-login', ensureAuthenticated, async (req, res) => {
     if (!req.user) return res.status(401).send('Unauthorized: Please log in first.');
-    // FIX: was redirecting to 'track-sales.html' incorrectly after fetching data — simplified
     res.redirect('/track-sales.html');
 });
 
@@ -517,9 +550,6 @@ newapp2.get('/track-sales.html', ensureAuthenticated, (req, res) => {
         }
     }
 
-    // FIX: All queries below still use callback style intentionally to keep the counter logic working.
-    // They were previously broken because pool.query with promise-mode doesn't accept callbacks properly.
-    // Converted to .then/.catch on each query.
     db.query("SELECT COUNT(*) as count FROM sales_approval")
         .then(([r]) => { stats.pendingSales = r[0].count || 0; checkDone(); })
         .catch(() => { stats.pendingSales = 0; checkDone(); });
@@ -562,7 +592,6 @@ newapp2.get('/track-sales.html', ensureAuthenticated, (req, res) => {
 newapp2.get('/register.html', (req, res) => res.render('signin-page'));
 
 // ==================== PROPERTY UPLOAD ====================
-// FIX: was using callback-style db.query with promise pool — converted to async/await
 newapp2.post('/upload', upload.fields([
     { name: 'image', maxCount: 10 },
     { name: 'video', maxCount: 5 }
@@ -610,7 +639,6 @@ newapp2.get('/sales-completed', async (req, res) => {
     }
 });
 
-// FIX: /sales-approved and /sales-declined were fetching unnecessary data before redirecting
 newapp2.get('/sales-approved', ensureAuthenticated, (req, res) => {
     res.redirect('/sales-approval.html');
 });
@@ -620,7 +648,6 @@ newapp2.get('/sales-declined', ensureAuthenticated, (req, res) => {
 });
 
 // ==================== REQUEST TOUR ====================
-// FIX: was using callback-style db.query — converted to async/await
 newapp2.get('/request-tour', ensureAuthenticated, async (req, res) => {
     const propertyId = req.query.id;
     if (!propertyId) return res.status(400).send('Property ID is required.');
@@ -641,7 +668,6 @@ newapp2.get('/request-tour', ensureAuthenticated, async (req, res) => {
     }
 });
 
-// FIX: /view was using callback-style db.query — converted to async/await
 newapp2.get('/view', ensureAuthenticated, async (req, res) => {
     if (!req.user) return res.status(401).send('Unauthorized: Please log in first.');
     const propertyId = req.query.id;
@@ -826,7 +852,7 @@ newapp2.get('/approve-tour', ensureAuthenticated, async (req, res) => {
 
         const tour = results[0];
         const mailOptions = {
-            from: process.env.EMAIL_USER || 'ibarealestate2023@gmail.com', // FIX: was hardcoded 'your-email@gmail.com'
+            from: process.env.EMAIL_USER || 'ibarealestate2023@gmail.com',
             to: tour.email,
             subject: 'Tour Request Approved',
             text: `Dear ${tour.name},\n\nYour tour request has been approved.\n\nBest regards,\nIba Real Estate`
@@ -859,7 +885,7 @@ newapp2.get('/decline-tour', ensureAuthenticated, async (req, res) => {
 
         const tour = results[0];
         const mailOptions = {
-            from: process.env.EMAIL_USER || 'ibarealestate2023@gmail.com', // FIX: was hardcoded 'your-email@gmail.com'
+            from: process.env.EMAIL_USER || 'ibarealestate2023@gmail.com',
             to: tour.email,
             subject: 'Tour Request Declined',
             text: `Dear ${tour.name},\n\nYour tour request has been declined.\n\nBest regards,\nIba Real Estate`
@@ -933,7 +959,6 @@ newapp2.get('/search', ensureAuthenticated, async (req, res) => {
 });
 
 // Buy Search
-// FIX: was referencing undefined `minPrice` variable — corrected to `min_price`
 newapp2.get('/buy-search-form', ensureAuthenticated, async (req, res) => {
     if (!req.user) return res.status(401).send('Unauthorized: Please log in first.');
     const isAdmin = req.user.email === 'ibarealestate2023@gmail.com';
@@ -943,7 +968,7 @@ newapp2.get('/buy-search-form', ensureAuthenticated, async (req, res) => {
     let queryParams = [];
 
     if (location && location.trim() !== '') { query += " AND propertyAddress LIKE ?"; queryParams.push(`%${location}%`); }
-    if (min_price && !isNaN(min_price)) { query += " AND amount >= ?"; queryParams.push(parseInt(min_price)); } // FIX: was parseInt(minPrice)
+    if (min_price && !isNaN(min_price)) { query += " AND amount >= ?"; queryParams.push(parseInt(min_price)); }
     if (max_price && !isNaN(max_price)) { query += " AND amount <= ?"; queryParams.push(parseInt(max_price)); }
     if (min_beds && !isNaN(min_beds)) { query += " AND bedrooms >= ?"; queryParams.push(parseInt(min_beds)); }
     if (min_baths && !isNaN(min_baths)) { query += " AND bathrooms >= ?"; queryParams.push(parseInt(min_baths)); }
@@ -974,7 +999,6 @@ newapp2.get('/customer-buy-page.html', async (req, res) => {
     }
 });
 
-// FIX: was querying rentSell = 'Rent' but listed as sell route — kept as-is, just converted to async
 newapp2.get('/costumer-sell-page.html', async (req, res) => {
     let query = "SELECT * FROM all_properties WHERE rentSell = 'Rent'";
     let params = [];
@@ -1017,7 +1041,6 @@ newapp2.get('/property-detail', ensureAuthenticated, async (req, res) => {
         if (userResults.length === 0) return res.status(404).send('User not found.');
         const isAdmin = userResults[0].role === 'admin';
 
-        // Try all_properties first, then sold_properties
         let [propResults] = await db.query("SELECT * FROM all_properties WHERE id = ?", [propertyId]);
         if (propResults.length === 0) {
             [propResults] = await db.query("SELECT * FROM sold_properties WHERE id = ?", [propertyId]);
@@ -1052,7 +1075,7 @@ newapp2.post('/contact', ensureAuthenticated, (req, res) => {
     }
     const mailOptions = {
         from: `"IBA Real Estate" <${process.env.EMAIL_USER || 'ibarealestate2023@gmail.com'}>`,
-        to: process.env.ADMIN_EMAIL || 'ibarealestate2023@gmail.com', // FIX: was 'admin@ibarealestate.com' (wrong address)
+        to: process.env.ADMIN_EMAIL || 'ibarealestate2023@gmail.com',
         subject: `Contact Form: ${subject || 'New Inquiry'}`,
         html: `
             <h2>New Contact Message from IBA REAL ESTATE Website</h2>
@@ -1151,7 +1174,7 @@ newapp2.post('/detail-contact', ensureAuthenticated, async (req, res) => {
 
 // ==================== LOGOUT ====================
 newapp2.get('/logout', (req, res) => {
-    req.logout((err) => { // FIX: req.logout now requires a callback in Passport.js v0.6+
+    req.logout((err) => {
         if (err) console.error('Logout error:', err);
         req.session.destroy((err2) => {
             if (err2) console.error('Session destroy error:', err2);
@@ -1162,7 +1185,7 @@ newapp2.get('/logout', (req, res) => {
 });
 
 newapp2.post('/logout', (req, res) => {
-    req.logout((err) => { // FIX: same as above
+    req.logout((err) => {
         if (err) console.error('Logout error:', err);
         req.session.destroy(() => {
             res.json({ success: true, message: 'Logged out successfully' });
@@ -1341,7 +1364,7 @@ newapp2.post('/manage/agent', ensureAuthenticated, async (req, res) => {
         );
 
         const mailOptions = {
-            from: process.env.EMAIL_USER || 'ibarealestate2023@gmail.com', // FIX: was 'your-email@gmail.com'
+            from: process.env.EMAIL_USER || 'ibarealestate2023@gmail.com',
             to: email,
             subject: 'Welcome to Iba Real Estate - Agent Account Created',
             html: `
@@ -1436,7 +1459,6 @@ newapp2.post('/properties/sell/:id', ensureAuthenticated, async (req, res) => {
 
 // ==================== AGENT DASHBOARD & LISTINGS ====================
 newapp2.get('/submit-listing', ensureAuthenticated, async (req, res) => {
-    // FIX: was using req.session.id (the session cookie ID, NOT the user ID). Changed to req.user.id
     const agentId = req.user ? req.user.id : req.session.userId;
     if (!agentId) return res.status(400).send('Invalid session');
 
@@ -1511,7 +1533,6 @@ newapp2.get('/manage-listings', ensureAuthenticated, async (req, res) => {
     }
 });
 
-// FIX: These listing sub-routes were using req.session.id (cookie ID) — changed to req.user.id
 newapp2.get('/agent/listings/all', ensureAuthenticated, async (req, res) => {
     const agentId = req.user.id;
     try {
@@ -1582,7 +1603,6 @@ newapp2.post('/update-property/:id', requireAgent, async (req, res) => {
     const { title, description, amount, rentSell, property_type, status, bedrooms, bathrooms } = req.body;
 
     try {
-        // Find which table the property is in
         const [findResults] = await db.query(`
             SELECT 'pending' AS tableName FROM sales_approval WHERE id = ? AND agentId = ?
             UNION
@@ -1612,7 +1632,7 @@ newapp2.post('/update-property/:id', requireAgent, async (req, res) => {
 
 // ==================== TRACK PERFORMANCE ====================
 newapp2.get('/track-performance', ensureAuthenticated, async (req, res) => {
-    const agentId = req.user.id; // FIX: was using req.session.userId which might not be set for all users
+    const agentId = req.user.id;
     const chartData = {
         labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
         views: [1200, 1500, 1800, 2200, 2500, 2800],
@@ -1701,7 +1721,6 @@ newapp2.get('/chat', ensureAuthenticated, async (req, res) => {
     }
 });
 
-// FIX: /customer-chat was referencing a 'chats' table that doesn't exist in your schema — simplified to use chat_messages
 newapp2.get('/customer-chat', ensureAuthenticated, async (req, res) => {
     if (!req.user) return res.redirect('/login');
     const clientId = req.user.id;
@@ -1873,7 +1892,7 @@ newapp2.get('/property-valuation', ensureAuthenticated, (req, res) => {
 
 // AI Valuation endpoint
 const groq = new Groq({ apiKey: "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" });
-newapp2.post('/valuate', ensureAuthenticated, async (req, res) => { // FIX: added ensureAuthenticated
+newapp2.post('/valuate', ensureAuthenticated, async (req, res) => {
     const { prompt } = req.body;
     if (!prompt) return res.status(400).json({ error: 'Prompt is required' });
 
@@ -1909,12 +1928,7 @@ newapp2.get('/gallery', async (req, res) => {
 });
 
 // ==================== START SERVER ====================
-// FIX: was calling newapp2.listen() instead of server.listen() — this broke Socket.IO entirely!
-const PORT = 3000 || process.env.PORT;
-newapp2.listen(PORT, () => {
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
     console.log(`IBA Real Estate Server is running at port ${PORT}`);
 });
-
-
-
-
