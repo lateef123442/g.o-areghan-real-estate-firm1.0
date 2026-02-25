@@ -278,7 +278,7 @@ newapp2.post('/dashboard', async (req, res) => {
             }
 
             // Admin login
-            if (email === 'ibarealestate2023@gmail.com') {
+            if (email === 'esvgoddey@gmail.com') {
                 req.session.isAdmin = true;
                 req.session.isAgent = false;
                 return res.render('valid-login', {
@@ -1914,5 +1914,6 @@ const PORT = 3000 || process.env.PORT;
 newapp2.listen(PORT, () => {
     console.log(`IBA Real Estate Server is running at port ${PORT}`);
 });
+
 
 
