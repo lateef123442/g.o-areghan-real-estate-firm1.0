@@ -1,0 +1,7 @@
+PassengerAppRoot /home/u166499615/domains/goareghanrealestatefirm.com/nodejs
+PassengerAppType node
+PassengerNodejs /opt/alt/alt-nodejs22/root/bin/node
+PassengerStartupFile newapp.js
+PassengerBaseURI /
+PassengerRestartDir /home/u166499615/domains/goareghanrealestatefirm.com/nodejs/tmp
+RewriteRule ^\.builds - [F,L]
