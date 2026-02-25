@@ -93,8 +93,8 @@ passport.deserializeUser(async (id, done) => {
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: process.env.EMAIL_USER || 'ibarealestate2023@gmail.com', // FIX: use env variable
-        pass: process.env.EMAIL_PASS || 'gwps gwod slos pjsl'          // FIX: use env variable
+        user:'ibarealestate2023@gmail.com', // FIX: use env variable
+        pass: 'gwps gwod slos pjsl'          // FIX: use env variable
     }
 });
 
@@ -1914,4 +1914,5 @@ const PORT = 3000 || process.env.PORT;
 newapp2.listen(PORT, () => {
     console.log(`IBA Real Estate Server is running at port ${PORT}`);
 });
+
 
