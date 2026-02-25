@@ -111,9 +111,7 @@ const db = mysql.createPool({
     queueLimit: 0,
     enableKeepAlive: true,
     keepAliveInitialDelay: 10000,
-    connectTimeout: 60000,      // FIX: 60s timeout for initial connection (prevents 503)
-    acquireTimeout: 60000,      // FIX: 60s to acquire a connection from the pool
-    idleTimeout: 600000,        // FIX: keep idle connections alive for 10 min
+    connectTimeout: 60000,      // FIX: 60s timeout for initial connection (prevents 503)       // FIX: keep idle connections alive for 10 min
 });
 
 // FIX: Wrap DB test in a retry loop so the server doesn't crash on slow cold-start DB connections
@@ -1918,4 +1916,5 @@ connectWithRetry().then(() => {
         console.log(`Server started (DB may be unavailable)`);
     });
 });
+
 
