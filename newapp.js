@@ -101,10 +101,10 @@ const transporter = nodemailer.createTransport({
 // ==================== DATABASE POOL ====================
 // FIX: Added connectTimeout, acquireTimeout, and retry logic to prevent 503 on cold start
 const db = mysql.createPool({
-    host: process.env.DB_HOST,
-    database: process.env.DB_DATABASE,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
+    host: 127.0.0.1,
+    database: u166499615_realestate,
+    user:u166499615_ahmed,
+    password: Lateef.2008,
     port: Number(process.env.DB_PORT) || 3306,
     waitForConnections: true,
     connectionLimit: 10,
@@ -1916,5 +1916,6 @@ connectWithRetry().then(() => {
         console.log(`Server started (DB may be unavailable)`);
     });
 });
+
 
 
