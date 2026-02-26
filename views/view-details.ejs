@@ -76,8 +76,6 @@
         .detail-grid{display:grid;grid-template-columns:1fr 420px;gap:32px;align-items:start;}
 
         /* ===== LEFT COLUMN ===== */
-
-        /* Media section */
         .media-section{margin-bottom:24px;}
         .main-image-wrap{border-radius:var(--radius);overflow:hidden;border:1px solid var(--gray-200);box-shadow:var(--shadow-md);margin-bottom:12px;position:relative;}
         .main-image-wrap img{width:100%;height:480px;object-fit:cover;display:block;transition:transform 0.5s ease;}
@@ -85,14 +83,12 @@
         .img-overlay-badge{position:absolute;top:16px;left:16px;display:inline-flex;align-items:center;gap:6px;background:var(--navy);color:white;padding:6px 14px;border-radius:8px;font-size:0.75rem;font-weight:700;letter-spacing:0.04em;}
         .img-overlay-badge.for-rent{background:linear-gradient(135deg,#0e7490,#0891b2);}
 
-        /* Video */
         .video-section{margin-top:20px;}
         .video-label{display:flex;align-items:center;gap:8px;font-size:0.7rem;font-weight:700;color:var(--gray-400);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px;}
         .video-label i{color:var(--gold);}
         .video-wrap{border-radius:var(--radius-sm);overflow:hidden;border:1px solid var(--gray-200);box-shadow:var(--shadow-sm);background:var(--navy);}
         .video-wrap video{width:100%;display:block;max-height:320px;}
 
-        /* Property info card */
         .info-card{background:var(--white);border-radius:var(--radius);border:1px solid var(--gray-200);box-shadow:var(--shadow-md);overflow:hidden;margin-bottom:20px;}
         .info-card-header{background:linear-gradient(135deg,var(--navy),var(--navy-light));padding:24px 28px;}
         .property-type-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(200,146,42,0.18);border:1px solid rgba(200,146,42,0.35);color:var(--gold-light);padding:4px 12px;border-radius:20px;font-size:0.68rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:12px;}
@@ -109,20 +105,41 @@
         .status-pill.for-rent{background:#e0f2fe;color:#0284c7;}
         .status-pill i{font-size:0.7rem;}
 
-        .specs-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:20px;background:var(--cream);border-radius:var(--radius-sm);margin-bottom:20px;border:1px solid var(--gray-200);}
+        /* Primary specs — 4 cols */
+        .specs-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:20px;background:var(--cream);border-radius:var(--radius-sm);margin-bottom:14px;border:1px solid var(--gray-200);}
         .spec-item{text-align:center;}
         .spec-icon{width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,var(--navy),var(--navy-light));display:flex;align-items:center;justify-content:center;margin:0 auto 6px;font-size:0.8rem;color:var(--gold-light);}
         .spec-val{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:700;color:var(--navy);}
         .spec-lbl{font-size:0.65rem;color:var(--gray-400);text-transform:uppercase;letter-spacing:0.06em;margin-top:2px;}
 
+        /* Secondary specs — 3 cols (land, building, type) */
+        .specs-grid-secondary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:18px 20px;background:#f8f9fb;border-radius:var(--radius-sm);margin-bottom:20px;border:1px solid var(--gray-200);}
+        .spec-item-secondary{text-align:center;}
+        .spec-icon-secondary{width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,var(--gold),var(--gold-light));display:flex;align-items:center;justify-content:center;margin:0 auto 6px;font-size:0.8rem;color:var(--navy);}
+        .spec-val-secondary{font-family:'Cormorant Garamond',serif;font-size:1rem;font-weight:700;color:var(--navy);word-break:break-word;}
+        .spec-lbl-secondary{font-size:0.65rem;color:var(--gray-400);text-transform:uppercase;letter-spacing:0.06em;margin-top:2px;}
+
+        .section-divider{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+        .section-divider-line{flex:1;height:1px;background:var(--gray-200);}
+        .section-divider-label{font-size:0.65rem;font-weight:800;color:var(--gray-400);letter-spacing:0.12em;text-transform:uppercase;white-space:nowrap;}
+
         .desc-section h3{font-family:'Cormorant Garamond',serif;font-size:1.25rem;font-weight:700;color:var(--navy);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
         .desc-section h3 i{color:var(--gold);font-size:1rem;}
         .desc-section p{font-size:0.875rem;line-height:1.8;color:var(--gray-600);white-space:pre-line;}
 
+        /* Documents section */
+        .docs-section{margin-top:20px;}
+        .docs-list{display:flex;flex-direction:column;gap:8px;margin-top:10px;}
+        .doc-item{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--gray-100);border:1px solid var(--gray-200);border-radius:9px;text-decoration:none;color:var(--text);transition:all 0.2s;font-size:0.82rem;}
+        .doc-item:hover{border-color:var(--navy-light);background:#e8eef8;color:var(--navy);}
+        .doc-icon{width:32px;height:32px;border-radius:7px;background:linear-gradient(135deg,var(--navy),var(--navy-light));display:flex;align-items:center;justify-content:center;color:var(--gold-light);font-size:0.75rem;flex-shrink:0;}
+        .doc-name{flex:1;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+        .doc-download{color:var(--gray-400);font-size:0.75rem;}
+        .doc-item:hover .doc-download{color:var(--navy-light);}
+
         /* ===== RIGHT COLUMN ===== */
         .right-col{display:flex;flex-direction:column;gap:20px;position:sticky;top:90px;}
 
-        /* Agent card */
         .agent-card{background:var(--white);border-radius:var(--radius);border:1px solid var(--gray-200);box-shadow:var(--shadow-md);overflow:hidden;}
         .agent-card-header{background:linear-gradient(135deg,var(--navy),var(--navy-light));padding:20px 24px;display:flex;align-items:center;gap:14px;}
         .agent-avatar{width:52px;height:52px;border-radius:50%;background:rgba(200,146,42,0.18);border:2px solid rgba(200,146,42,0.4);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:700;color:var(--gold-light);flex-shrink:0;}
@@ -135,7 +152,6 @@
         .agent-contact-item a{color:var(--navy-light);text-decoration:none;font-weight:600;}
         .agent-contact-item a:hover{color:var(--navy);}
 
-        /* Contact form card */
         .contact-form-card{background:var(--white);border-radius:var(--radius);border:1px solid var(--gray-200);box-shadow:var(--shadow-md);overflow:hidden;}
         .contact-form-header{background:linear-gradient(135deg,var(--navy),var(--navy-light));padding:18px 24px;display:flex;align-items:center;gap:10px;}
         .contact-form-header i{color:var(--gold-light);font-size:1.1rem;}
@@ -153,12 +169,10 @@
         .btn-submit:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 6px 20px rgba(13,33,55,0.3);}
         .btn-submit:disabled{opacity:0.6;cursor:not-allowed;}
 
-        /* Form message */
         .form-msg{padding:12px 16px;border-radius:8px;font-size:0.82rem;font-weight:600;margin-bottom:14px;display:none;align-items:center;gap:8px;}
         .form-msg.success{background:#f0fdf4;border:1px solid #bbf7d0;color:#16a34a;display:flex;}
         .form-msg.error{background:#fef2f2;border:1px solid #fecaca;color:#dc2626;display:flex;}
 
-        /* Quick actions card */
         .quick-card{background:var(--white);border-radius:var(--radius);border:1px solid var(--gray-200);box-shadow:var(--shadow-sm);padding:20px 24px;}
         .quick-card-title{font-size:0.68rem;font-weight:800;color:var(--gray-400);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:14px;}
         .quick-action{display:flex;align-items:center;gap:12px;padding:12px;border-radius:10px;border:1.5px solid var(--gray-200);text-decoration:none;color:var(--text);transition:all 0.2s;margin-bottom:8px;}
@@ -198,8 +212,8 @@
 
         /* RESPONSIVE */
         @media(max-width:1100px){.footer-grid{grid-template-columns:1fr 1fr;}.detail-grid{grid-template-columns:1fr;}.right-col{position:static;}}
-        @media(max-width:900px){.nav-links{display:none;}.mobile-menu-btn{display:block;}.specs-grid{grid-template-columns:repeat(2,1fr);}}
-        @media(max-width:640px){.nav-inner{padding:0 16px;}.page-container{padding:20px 16px 60px;}.breadcrumb-inner{padding:0 16px;}.footer-inner{padding:0 20px;}.footer-grid{grid-template-columns:1fr;}.footer-bottom{flex-direction:column;text-align:center;}.main-image-wrap img{height:280px;}.specs-grid{grid-template-columns:1fr 1fr;}}
+        @media(max-width:900px){.nav-links{display:none;}.mobile-menu-btn{display:block;}.specs-grid{grid-template-columns:repeat(2,1fr);}.specs-grid-secondary{grid-template-columns:repeat(2,1fr);}}
+        @media(max-width:640px){.nav-inner{padding:0 16px;}.page-container{padding:20px 16px 60px;}.breadcrumb-inner{padding:0 16px;}.footer-inner{padding:0 20px;}.footer-grid{grid-template-columns:1fr;}.footer-bottom{flex-direction:column;text-align:center;}.main-image-wrap img{height:280px;}.specs-grid{grid-template-columns:1fr 1fr;}.specs-grid-secondary{grid-template-columns:1fr 1fr;}}
     </style>
 </head>
 <body>
@@ -214,7 +228,6 @@
         <div class="nav-links">
             <a href="/" class="nav-link"><i class="fas fa-home"></i> Home</a>
             <a href="/customer-buy-page.html" class="nav-link"><i class="fas fa-building"></i> Properties</a>
-           
             <a href="/chat" class="nav-link"><i class="fas fa-comments"></i> Messages</a>
             <a href="/gallery" class="nav-link"><i class="fas fa-briefcase"></i> Portfolio</a>
             <div class="dropdown">
@@ -299,17 +312,23 @@
             <!-- Info card -->
             <div class="info-card" style="margin-top:24px;">
                 <div class="info-card-header">
-                    <div class="property-type-badge"><i class="fas fa-building" style="font-size:0.6rem;"></i> <%= property['property-type'] || 'Property' %></div>
+                    <div class="property-type-badge">
+                        <i class="fas fa-building" style="font-size:0.6rem;"></i>
+                        <%= property['property-type'] || 'Property' %>
+                    </div>
                     <h1 class="property-title"><%= property.title %></h1>
-                    <div class="property-address"><i class="fas fa-map-marker-alt"></i> <%= property.propertyAddress %></div>
+                    <div class="property-address">
+                        <i class="fas fa-map-marker-alt"></i> <%= property.propertyAddress %>
+                    </div>
                 </div>
 
                 <div class="info-card-body">
+
                     <!-- Price + status -->
                     <div class="price-row">
                         <div class="price-block">
                             <div class="price-label"><%= (property.rentSell || '').toLowerCase().includes('rent') ? 'Annual Rent' : 'Asking Price' %></div>
-                            <div class="price-value">₦<%= property.amount ? property.amount.toLocaleString() : '—' %></div>
+                            <div class="price-value">₦<%= property.amount ? Number(property.amount).toLocaleString() : '—' %></div>
                         </div>
                         <div class="status-pill <%= (property.rentSell || '').toLowerCase().includes('rent') ? 'for-rent' : 'for-sale' %>">
                             <i class="fas fa-circle" style="font-size:0.5rem;"></i>
@@ -317,7 +336,13 @@
                         </div>
                     </div>
 
-                    <!-- Specs -->
+                    <!-- ── Primary specs: Bedrooms · Bathrooms · Floor Area · No. of Flats ── -->
+                    <div class="section-divider">
+                        <div class="section-divider-line"></div>
+                        <div class="section-divider-label">Property Specs</div>
+                        <div class="section-divider-line"></div>
+                    </div>
+
                     <div class="specs-grid">
                         <div class="spec-item">
                             <div class="spec-icon"><i class="fas fa-bed"></i></div>
@@ -332,24 +357,87 @@
                         <div class="spec-item">
                             <div class="spec-icon"><i class="fas fa-ruler-combined"></i></div>
                             <div class="spec-val"><%= property.sqft || '—' %></div>
-                            <div class="spec-lbl">Sq Ft</div>
+                            <div class="spec-lbl">Floor Area (sqm)</div>
                         </div>
                         <div class="spec-item">
-                            <div class="spec-icon"><i class="fas fa-home"></i></div>
-                            <div class="spec-val" style="font-size:0.85rem;"><%= (property['property-type'] || 'N/A').split('/')[0] %></div>
-                            <div class="spec-lbl">Type</div>
+                            <div class="spec-icon"><i class="fas fa-layer-group"></i></div>
+                            <div class="spec-val"><%= property.num_flats || '—' %></div>
+                            <div class="spec-lbl">No. of Flats</div>
                         </div>
                     </div>
 
-                    <!-- Description -->
+                    <!-- ── Secondary specs: Land Size · Building Size · Property Type ── -->
+                    <div class="specs-grid-secondary">
+                        <div class="spec-item-secondary">
+                            <div class="spec-icon-secondary"><i class="fas fa-map"></i></div>
+                            <div class="spec-val-secondary"><%= property.land_size || '—' %></div>
+                            <div class="spec-lbl-secondary">Land Size</div>
+                        </div>
+                        <div class="spec-item-secondary">
+                            <div class="spec-icon-secondary"><i class="fas fa-vector-square"></i></div>
+                            <div class="spec-val-secondary"><%= property.building_size || '—' %></div>
+                            <div class="spec-lbl-secondary">Building Size</div>
+                        </div>
+                        <div class="spec-item-secondary">
+                            <div class="spec-icon-secondary"><i class="fas fa-home"></i></div>
+                            <div class="spec-val-secondary"><%= property['property-type'] || '—' %></div>
+                            <div class="spec-lbl-secondary">Property Type</div>
+                        </div>
+                    </div>
+
+                    <!-- ── Description ── -->
+                    <div class="section-divider" style="margin-top:4px;">
+                        <div class="section-divider-line"></div>
+                        <div class="section-divider-label">Description</div>
+                        <div class="section-divider-line"></div>
+                    </div>
+
                     <div class="desc-section">
-                        <h3><i class="fas fa-align-left"></i> About this Property</h3>
                         <p><%= property.description %></p>
                     </div>
+
+                    <!-- ── Documents ── -->
+                    <% if (property.documents && property.documents.trim() !== '') { %>
+                    <%
+                        const docPaths = property.documents.split(',').map(d => d.trim()).filter(d => d.length > 0);
+                    %>
+                    <% if (docPaths.length > 0) { %>
+                    <div class="docs-section">
+                        <div class="section-divider" style="margin-top:20px;">
+                            <div class="section-divider-line"></div>
+                            <div class="section-divider-label">Documents &amp; Attachments</div>
+                            <div class="section-divider-line"></div>
+                        </div>
+                        <div class="docs-list">
+                            <% docPaths.forEach(function(docPath) {
+                                const fileName = docPath.split('/').pop().replace(/^\d+_/, '');
+                                const ext = fileName.split('.').pop().toLowerCase();
+                                const iconMap = {
+                                    'pdf': 'fa-file-pdf',
+                                    'doc': 'fa-file-word', 'docx': 'fa-file-word',
+                                    'xls': 'fa-file-excel', 'xlsx': 'fa-file-excel',
+                                    'ppt': 'fa-file-powerpoint', 'pptx': 'fa-file-powerpoint',
+                                    'txt': 'fa-file-alt',
+                                    'jpg': 'fa-file-image', 'jpeg': 'fa-file-image',
+                                    'png': 'fa-file-image', 'gif': 'fa-file-image', 'webp': 'fa-file-image'
+                                };
+                                const icon = iconMap[ext] || 'fa-file';
+                            %>
+                            <a href="/<%= docPath %>" target="_blank" rel="noopener" class="doc-item">
+                                <div class="doc-icon"><i class="fas <%= icon %>"></i></div>
+                                <span class="doc-name"><%= fileName %></span>
+                                <i class="fas fa-download doc-download"></i>
+                            </a>
+                            <% }); %>
+                        </div>
+                    </div>
+                    <% } %>
+                    <% } %>
+
                 </div>
             </div>
 
-        </div>
+        </div><!-- end left col -->
 
         <!-- ===== RIGHT COLUMN ===== -->
         <div class="right-col">
@@ -398,30 +486,24 @@
                 </div>
                 <div class="contact-form-body">
                     <div id="agent-form-message" class="form-msg"></div>
-
                     <form id="contact-agent-form" method="post" action="detail-contact">
                         <input type="hidden" name="propertyId" value="<%= property.id %>">
-
                         <div class="form-group">
                             <label>Your Name</label>
                             <input type="text" name="name" placeholder="Enter your full name" required>
                         </div>
-
                         <div class="form-group">
                             <label>Email Address</label>
                             <input type="email" name="email" placeholder="your@email.com" required>
                         </div>
-
                         <div class="form-group">
                             <label>Phone Number</label>
                             <input type="tel" name="phone" placeholder="+234 800 000 0000" required>
                         </div>
-
                         <div class="form-group">
                             <label>Message</label>
                             <textarea name="message" rows="4" required>I am interested in <%= property.title %>. Please contact me.</textarea>
                         </div>
-
                         <button type="submit" class="btn-submit" id="agent-submit-btn">
                             <i class="fas fa-paper-plane"></i> Send Enquiry
                         </button>
@@ -449,7 +531,7 @@
                 </a>
             </div>
 
-        </div>
+        </div><!-- end right col -->
     </div>
 </div>
 
@@ -490,9 +572,9 @@
                         <li><a href="/chat">Chat with Agent</a></li>
                     </ul>
                 </div>
-              <div>
+                <div>
                     <div class="footer-col-title">Contact Info</div>
-                    <div class="footer-contact-item"><i class="fas fa-map-marker-alt"></i><span>226,M.M Way , imaro House,Left Wing</span></div>
+                    <div class="footer-contact-item"><i class="fas fa-map-marker-alt"></i><span>226, M.M Way, Imaro House, Left Wing</span></div>
                     <div class="footer-contact-item"><i class="fas fa-phone-alt"></i><span>+234060604122</span></div>
                     <div class="footer-contact-item"><i class="fas fa-envelope"></i><span>esvgoddey@gmail.com</span></div>
                     <div class="footer-contact-item"><i class="fas fa-clock"></i><span>Mon–Fri: 9am–6pm</span></div>
@@ -556,24 +638,13 @@ document.addEventListener('DOMContentLoaded', () => {
     if (agentForm) {
         agentForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-
             const formData = new FormData(agentForm);
             const data = Object.fromEntries(formData.entries());
-
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(data.email)) {
-                showMsg('Please enter a valid email address.', 'error');
-                return;
-            }
-
-            if (agentSubmitBtn) {
-                agentSubmitBtn.disabled = true;
-                agentSubmitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
-            }
-
+            if (!emailRegex.test(data.email)) { showMsg('Please enter a valid email address.', 'error'); return; }
+            if (agentSubmitBtn) { agentSubmitBtn.disabled = true; agentSubmitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...'; }
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 10000);
-
             try {
                 const response = await fetch('/detail-contact', {
                     method: 'POST',
@@ -582,34 +653,19 @@ document.addEventListener('DOMContentLoaded', () => {
                     credentials: 'include',
                     signal: controller.signal
                 });
-
                 clearTimeout(timeoutId);
                 const result = await response.json();
-
-                if (!response.ok) {
-                    showMsg(result.message || 'An error occurred.', 'error');
-                    return;
-                }
-
+                if (!response.ok) { showMsg(result.message || 'An error occurred.', 'error'); return; }
                 if (result.success) {
                     showMsg(result.message || 'Enquiry sent to agent!', 'success');
                     agentForm.reset();
-                    // Redirect to chat if server says so
-                    if (result.redirect) {
-                        setTimeout(() => window.location.href = result.redirect, 2000);
-                    }
-                } else {
-                    showMsg(result.message || 'Failed to send enquiry.', 'error');
-                }
+                    if (result.redirect) setTimeout(() => window.location.href = result.redirect, 2000);
+                } else { showMsg(result.message || 'Failed to send enquiry.', 'error'); }
             } catch (err) {
                 clearTimeout(timeoutId);
-                const msg = err.name === 'AbortError' ? 'Request timed out.' : 'Network error.';
-                showMsg(msg + ' Please try again.', 'error');
+                showMsg((err.name === 'AbortError' ? 'Request timed out.' : 'Network error.') + ' Please try again.', 'error');
             } finally {
-                if (agentSubmitBtn) {
-                    agentSubmitBtn.disabled = false;
-                    agentSubmitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Enquiry';
-                }
+                if (agentSubmitBtn) { agentSubmitBtn.disabled = false; agentSubmitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Enquiry'; }
             }
         });
     }
@@ -632,6 +688,3 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
-
-
-
