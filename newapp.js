@@ -29,7 +29,6 @@ newapp2.use(express.json());
 newapp2.use(express.urlencoded({ extended: true }));
 
 // ==================== ADMIN EMAILS ====================
-// Both emails are treated as admin
 const ADMIN_EMAILS = ['esvgoddey@gmail.com', 'ibarealestate2023@gmail.com'];
 
 function isAdminEmail(email) {
@@ -37,15 +36,12 @@ function isAdminEmail(email) {
 }
 
 // ==================== MULTER CONFIG ====================
-// Updated: organises uploads into sub-folders, validates MIME types,
-// sanitises filenames, enforces 20 MB per file limit, supports documents field.
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         let dir = 'uploads/';
         if (file.fieldname === 'image')          dir = 'uploads/images/';
         else if (file.fieldname === 'video')     dir = 'uploads/videos/';
         else if (file.fieldname === 'documents') dir = 'uploads/documents/';
-
         if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
         cb(null, dir);
     },
@@ -57,11 +53,8 @@ const storage = multer.diskStorage({
 
 const fileFilter = (req, file, cb) => {
     const allowedMimeTypes = [
-        // Images
         'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/bmp',
-        // Videos
         'video/mp4', 'video/mpeg', 'video/quicktime', 'video/x-msvideo', 'video/webm',
-        // Documents
         'application/pdf',
         'application/msword',
         'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
@@ -71,17 +64,14 @@ const fileFilter = (req, file, cb) => {
         'application/vnd.openxmlformats-officedocument.presentationml.presentation',
         'text/plain',
     ];
-    if (allowedMimeTypes.includes(file.mimetype)) {
-        cb(null, true);
-    } else {
-        cb(new Error(`File type not allowed: ${file.mimetype}`), false);
-    }
+    if (allowedMimeTypes.includes(file.mimetype)) cb(null, true);
+    else cb(new Error(`File type not allowed: ${file.mimetype}`), false);
 };
 
 const upload = multer({
     storage,
     fileFilter,
-    limits: { fileSize: 20 * 1024 * 1024 } // 20 MB per file
+    limits: { fileSize: 20 * 1024 * 1024 }
 });
 
 // ==================== SESSION ====================
@@ -110,9 +100,7 @@ function requireAgent(req, res, next) {
 newapp2.use(passport.initialize());
 newapp2.use(passport.session());
 
-passport.serializeUser((user, done) => {
-    done(null, user.id);
-});
+passport.serializeUser((user, done) => done(null, user.id));
 
 passport.deserializeUser(async (id, done) => {
     try {
@@ -200,13 +188,9 @@ io.on('connection', (socket) => {
 });
 
 // ==================== API ROUTES ====================
-
 newapp2.get('/api/check-login', (req, res) => {
-    if (req.user) {
-        res.json({ loggedIn: true, username: req.user.firstName });
-    } else {
-        res.json({ loggedIn: false });
-    }
+    if (req.user) res.json({ loggedIn: true, username: req.user.firstName });
+    else res.json({ loggedIn: false });
 });
 
 // ==================== PUBLIC PAGES ====================
@@ -230,29 +214,20 @@ newapp2.get('/website', async (req, res) => {
     }
 });
 
-newapp2.get('/login', (req, res) => {
-    res.render('login');
-});
-
-newapp2.get('/forgot-password.html', (req, res) => {
-    res.render('forgotten-password');
-});
+newapp2.get('/login', (req, res) => res.render('login'));
+newapp2.get('/forgot-password.html', (req, res) => res.render('forgotten-password'));
 
 // ==================== REGISTRATION ====================
 newapp2.post('/submit', async (req, res) => {
     const { firstName, middleName, lastName, email, phone, confirmPassword } = req.body;
 
     if (!validator.isEmail(email)) {
-        return res.status(400).render('invalid-email', {
-            error: 'Please provide a valid email address'
-        });
+        return res.status(400).render('invalid-email', { error: 'Please provide a valid email address' });
     }
 
     try {
         const [existing] = await db.query('SELECT COUNT(*) AS count FROM signin WHERE email = ?', [email]);
-        if (existing[0].count > 0) {
-            return res.render('invalid-email', { error: 'This email is already registered' });
-        }
+        if (existing[0].count > 0) return res.render('invalid-email', { error: 'This email is already registered' });
 
         const hashedPassword = bcrypt.hashSync(confirmPassword, 10);
         await db.query(
@@ -268,7 +243,6 @@ newapp2.post('/submit', async (req, res) => {
                 <h1>Welcome to G.O AREGBAN Real Estate!</h1>
                 <p>Dear ${firstName} ${lastName},</p>
                 <p>Thank you for creating an account with G.O AREGBAN Real Estate. We're excited to help you find your dream property!</p>
-                <p>If you have any questions, don't hesitate to contact our support team.</p>
                 <p>Best regards,<br>The G.O AREGBAN Real Estate Team</p>
             `
         };
@@ -277,7 +251,6 @@ newapp2.post('/submit', async (req, res) => {
             else console.log('Welcome email sent:', info.response);
         });
 
-        console.log('User registered successfully');
         return res.render('valid-email');
     } catch (err) {
         console.error(err.message);
@@ -297,19 +270,14 @@ newapp2.post('/dashboard', async (req, res) => {
         const [results] = await db.query('SELECT * FROM signin WHERE email = ?', [email]);
 
         if (results.length === 0 || !bcrypt.compareSync(password, results[0].confirmPassword)) {
-            console.log("Invalid login");
             return res.render('invalid-login');
         }
 
         const user = results[0];
 
         req.login(user, async (err) => {
-            if (err) {
-                console.error(err);
-                return res.status(500).send('Login error');
-            }
+            if (err) { console.error(err); return res.status(500).send('Login error'); }
 
-            // Admin login — both admin emails get admin access
             if (isAdminEmail(email)) {
                 req.session.isAdmin = true;
                 req.session.isAgent = false;
@@ -322,7 +290,6 @@ newapp2.post('/dashboard', async (req, res) => {
                 });
             }
 
-            // Agent login
             if (user.role === 'agent') {
                 req.session.isAgent = true;
                 req.session.isAdmin = false;
@@ -347,10 +314,8 @@ newapp2.post('/dashboard', async (req, res) => {
                     ] = await Promise.all([
                         db.query(`SELECT COUNT(*) AS totalProperties FROM (
                             SELECT id FROM all_properties WHERE agentId = ?
-                            UNION
-                            SELECT id FROM sold_properties WHERE agentId = ?
-                            UNION
-                            SELECT id FROM sales_approval WHERE agentId = ?
+                            UNION SELECT id FROM sold_properties WHERE agentId = ?
+                            UNION SELECT id FROM sales_approval WHERE agentId = ?
                         ) AS combined`, [agentId, agentId, agentId]),
                         db.query(`SELECT COUNT(*) AS totalAgents FROM signin WHERE role = 'agent'`),
                         db.query(`SELECT COUNT(*) AS pendingApprovals FROM sales_approval WHERE agentId = ? AND status = 'pending'`, [agentId]),
@@ -368,11 +333,7 @@ newapp2.post('/dashboard', async (req, res) => {
                         totalAgents: totalAgentsRows[0].totalAgents,
                         pendingApprovals: pendingRows[0].pendingApprovals,
                         soldProperties: soldRows[0].soldProperties,
-                        activities,
-                        agents,
-                        approvals,
-                        customers,
-                        soldProps,
+                        activities, agents, approvals, customers, soldProps,
                         siteTitle: settings[0].siteTitle,
                         adminEmail: settings[0].adminEmail,
                         username: user.firstName,
@@ -386,7 +347,6 @@ newapp2.post('/dashboard', async (req, res) => {
                 }
             }
 
-            // Regular user login
             req.session.isAdmin = false;
             req.session.isAgent = false;
             try {
@@ -412,100 +372,78 @@ newapp2.get('/valid-login', ensureAuthenticated, async (req, res) => {
 newapp2.get('/invalid-login', (req, res) => res.render('login'));
 
 newapp2.get('/index.html', ensureAuthenticated, async (req, res) => {
-    if (!req.user) return res.status(401).send('Unauthorized: Please log in first.');
+    if (!req.user) return res.status(401).send('Unauthorized');
     const isAdmin = isAdminEmail(req.user.email);
     try {
         const [card] = await db.query("SELECT * FROM all_properties");
         res.render('index', { card, isAdmin });
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server error');
-    }
+    } catch (err) { console.error(err.message); res.status(500).send('Server error'); }
 });
 
 newapp2.get('/buy-page.html', ensureAuthenticated, async (req, res) => {
-    if (!req.user) return res.status(401).send('Unauthorized: Please log in first.');
+    if (!req.user) return res.status(401).send('Unauthorized');
     const isAdmin = isAdminEmail(req.user.email);
     try {
         const [card] = await db.query("SELECT * FROM all_properties WHERE rentSell = 'sell'");
         res.render('buy-page', { card, isAdmin });
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server error');
-    }
+    } catch (err) { console.error(err.message); res.status(500).send('Server error'); }
 });
 
 newapp2.get('/home-improvemet-page.html', ensureAuthenticated, (req, res) => {
-    if (!req.user) return res.status(401).send('Unauthorized: Please log in first.');
-    const isAdmin = isAdminEmail(req.user.email);
-    res.render('home-improvemet-page', { isAdmin });
+    if (!req.user) return res.status(401).send('Unauthorized');
+    res.render('home-improvemet-page', { isAdmin: isAdminEmail(req.user.email) });
 });
 
 newapp2.get('/sell-page.html', ensureAuthenticated, async (req, res) => {
-    if (!req.user) return res.status(401).send('Unauthorized: Please log in first.');
+    if (!req.user) return res.status(401).send('Unauthorized');
     const isAdmin = isAdminEmail(req.user.email);
     try {
         const [card] = await db.query("SELECT * FROM all_properties");
         res.render('sell-page', { card, isAdmin });
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server error');
-    }
+    } catch (err) { console.error(err.message); res.status(500).send('Server error'); }
 });
 
 newapp2.get('/rent-page.html', ensureAuthenticated, async (req, res) => {
-    if (!req.user) return res.status(401).send('Unauthorized: Please log in first.');
+    if (!req.user) return res.status(401).send('Unauthorized');
     const isAdmin = isAdminEmail(req.user.email);
     try {
         const [card] = await db.query("SELECT * FROM all_properties WHERE rentSell = 'rent'");
         res.render('rent-page', { card, isAdmin });
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server error');
-    }
+    } catch (err) { console.error(err.message); res.status(500).send('Server error'); }
 });
 
 newapp2.get('/message-page.html', ensureAuthenticated, (req, res) => {
-    if (!req.user) return res.status(401).send('Unauthorized: Please log in first.');
-    const isAdmin = isAdminEmail(req.user.email);
-    res.render('message-page', { isAdmin });
+    if (!req.user) return res.status(401).send('Unauthorized');
+    res.render('message-page', { isAdmin: isAdminEmail(req.user.email) });
 });
 
 newapp2.get('/setting-page.html', ensureAuthenticated, (req, res) => {
-    if (!req.user) return res.status(401).send('Unauthorized: Please log in first.');
-    const isAdmin = isAdminEmail(req.user.email);
-    res.render('setting-page', { isAdmin });
+    if (!req.user) return res.status(401).send('Unauthorized');
+    res.render('setting-page', { isAdmin: isAdminEmail(req.user.email) });
 });
 
 newapp2.get('/sales-approval.html', ensureAuthenticated, async (req, res) => {
-    if (!req.user) return res.status(401).send('Unauthorized: Please log in first.');
+    if (!req.user) return res.status(401).send('Unauthorized');
     const isAdmin = isAdminEmail(req.user.email);
     try {
         const [card] = await db.query("SELECT * FROM sales_approval");
         res.render('sales-approval', { card, isAdmin });
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server error');
-    }
+    } catch (err) { console.error(err.message); res.status(500).send('Server error'); }
 });
 
 newapp2.get('/notificatin-page.html', ensureAuthenticated, (req, res) => {
-    if (!req.user) return res.status(401).send('Unauthorized: Please log in first.');
-    const isAdmin = isAdminEmail(req.user.email);
-    res.render('notification-page', { isAdmin });
+    if (!req.user) return res.status(401).send('Unauthorized');
+    res.render('notification-page', { isAdmin: isAdminEmail(req.user.email) });
 });
 
 newapp2.get('/tour-requested.html', ensureAuthenticated, async (req, res) => {
-    if (!req.user) return res.status(401).send('Unauthorized: Please log in first.');
+    if (!req.user) return res.status(401).send('Unauthorized');
     const isAdmin = isAdminEmail(req.user.email);
     try {
         const [results] = await db.query('SELECT *, (SELECT COUNT(*) FROM request_tour) AS count FROM request_tour');
         const rowCount = results.length > 0 ? results[0].count : 0;
         res.render('requested-tour', { card: results, rowCount, isAdmin });
-    } catch (err) {
-        console.error('Error fetching tour requests:', err.message);
-        res.status(500).send('Database query error.');
-    }
+    } catch (err) { console.error(err.message); res.status(500).send('Database query error.'); }
 });
 
 newapp2.get('/profile-page.html', ensureAuthenticated, async (req, res) => {
@@ -518,19 +456,8 @@ newapp2.get('/profile-page.html', ensureAuthenticated, async (req, res) => {
         );
         if (results.length === 0) return res.status(404).send('User not found');
         const u = results[0];
-        res.render('profile-page', {
-            id: u.id,
-            firstName: u.firstName,
-            middleName: u.middleName,
-            lastName: u.lastName,
-            email: u.email,
-            phone: u.phone,
-            isAdmin
-        });
-    } catch (err) {
-        console.error(err);
-        res.status(500).send('Internal Server Error');
-    }
+        res.render('profile-page', { id: u.id, firstName: u.firstName, middleName: u.middleName, lastName: u.lastName, email: u.email, phone: u.phone, isAdmin });
+    } catch (err) { console.error(err); res.status(500).send('Internal Server Error'); }
 });
 
 // ==================== TRACK SALES ====================
@@ -550,13 +477,11 @@ newapp2.get('/track-sales.html', ensureAuthenticated, async (req, res) => {
             db.query("SELECT COUNT(*) as count FROM sold_properties"),
             db.query("SELECT COUNT(DISTINCT email) as count FROM signin"),
             db.query("SELECT COUNT(*) as count FROM sold_properties WHERE MONTH(created_at) = MONTH(CURDATE()) AND YEAR(created_at) = YEAR(CURDATE())"),
-            db.query("SELECT `property-type` as type, COUNT(*) as count FROM all_properties WHERE `property-type` IN ('Plots of Land', 'Duplex/Bangalow/Storey building', 'Self Contain') GROUP BY `property-type`"),
+            db.query("SELECT `property-type` as type, COUNT(*) as count FROM all_properties WHERE `property-type` IN ('Plots of Land', 'Duplex', 'Bungalow', 'Storey Building', 'Self Contain', 'Flat', 'Apartment') GROUP BY `property-type`"),
             db.query(
                 "SELECT DATE_FORMAT(created_at, '%b %Y') as month, COUNT(*) as count " +
-                "FROM sold_properties " +
-                "WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH) " +
-                "GROUP BY DATE_FORMAT(created_at, '%Y-%m') " +
-                "ORDER BY DATE_FORMAT(created_at, '%Y-%m') ASC"
+                "FROM sold_properties WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH) " +
+                "GROUP BY DATE_FORMAT(created_at, '%Y-%m') ORDER BY DATE_FORMAT(created_at, '%Y-%m') ASC"
             )
         ]);
 
@@ -570,7 +495,6 @@ newapp2.get('/track-sales.html', ensureAuthenticated, async (req, res) => {
             monthlySold: monthlySoldRows.map(row => ({ month: row.month, count: parseInt(row.count) || 0 }))
         };
 
-        console.log('Track Sales Stats:', stats);
         res.render('sales-tracker', { stats, isAdmin: true });
     } catch (err) {
         console.error('Track sales error:', err);
@@ -582,28 +506,18 @@ newapp2.get('/track-sales.html', ensureAuthenticated, async (req, res) => {
 newapp2.get('/register.html', (req, res) => res.render('signin-page'));
 
 // ==================== PROPERTY UPLOAD ====================
-// All file fields (image, video, documents) are OPTIONAL.
-// SQL required: ALTER TABLE sales_approval ADD COLUMN IF NOT EXISTS documents TEXT NULL AFTER video;
-//               ALTER TABLE all_properties  ADD COLUMN IF NOT EXISTS documents TEXT NULL AFTER video;
-//               ALTER TABLE sold_properties ADD COLUMN IF NOT EXISTS documents TEXT NULL AFTER video;
-//               Also ensure image_data and video columns are NULL-able:
-//               ALTER TABLE sales_approval  MODIFY COLUMN image_data TEXT NULL;
-//               ALTER TABLE sales_approval  MODIFY COLUMN video      TEXT NULL;
-//               ALTER TABLE all_properties  MODIFY COLUMN image_data TEXT NULL;
-//               ALTER TABLE all_properties  MODIFY COLUMN video      TEXT NULL;
-//               ALTER TABLE sold_properties MODIFY COLUMN image_data TEXT NULL;
-//               ALTER TABLE sold_properties MODIFY COLUMN video      TEXT NULL;
+// NEW fields: land_size, building_size, num_flats — all optional
+// SQL required (run alter_tables.sql):
+//   ALTER TABLE sales_approval ADD COLUMN IF NOT EXISTS land_size VARCHAR(100) NULL ...
+//   ALTER TABLE all_properties  ADD COLUMN IF NOT EXISTS land_size VARCHAR(100) NULL ...
+//   ALTER TABLE sold_properties ADD COLUMN IF NOT EXISTS land_size VARCHAR(100) NULL ...
 newapp2.post('/upload', (req, res, next) => {
-    // Wrap multer so we can return a clean JSON error instead of crashing
     upload.fields([
         { name: 'image',     maxCount: 10 },
         { name: 'video',     maxCount: 5  },
         { name: 'documents', maxCount: 10 }
     ])(req, res, (err) => {
-        if (err) {
-            console.error('Multer error:', err.message);
-            return res.status(400).json({ success: false, message: err.message });
-        }
+        if (err) { console.error('Multer error:', err.message); return res.status(400).json({ success: false, message: err.message }); }
         next();
     });
 }, async (req, res) => {
@@ -614,8 +528,7 @@ newapp2.post('/upload', (req, res, next) => {
         const [results] = await db.query('SELECT role FROM signin WHERE id = ?', [userId]);
         if (results.length === 0) return res.status(404).json({ success: false, message: 'User not found' });
 
-        // All three file fields are fully optional — default to empty string if not provided
-        const files        = req.files || {};
+        const files         = req.files || {};
         const imagePaths    = files.image     ? files.image.map(f => f.path).join(',')     : '';
         const videoPaths    = files.video     ? files.video.map(f => f.path).join(',')     : '';
         const documentPaths = files.documents ? files.documents.map(f => f.path).join(',') : '';
@@ -623,20 +536,38 @@ newapp2.post('/upload', (req, res, next) => {
         const {
             ownerName, ownerEmail, ownerPhone, propertyAddress,
             bedrooms, bathrooms, sqft, description, title,
-            rentSell, amount, property_type
+            rentSell, amount, property_type,
+            // NEW fields
+            land_size, building_size, num_flats
         } = req.body;
 
         await db.query(
-            `INSERT INTO sales_approval 
+            `INSERT INTO sales_approval
             (ownerName, ownerEmail, ownerPhone, propertyAddress, bedrooms, bathrooms, sqft,
-             image_data, video, documents, description, title, rentSell, amount, property_type, agentId) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [ownerName, ownerEmail, ownerPhone, propertyAddress, bedrooms, bathrooms, sqft,
-             imagePaths, videoPaths, documentPaths,
-             description, title, rentSell, amount, property_type, userId]
+             land_size, building_size, num_flats,
+             image_data, video, documents, description, title, rentSell, amount, property_type, agentId)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [
+                ownerName    || null,
+                ownerEmail   || null,
+                ownerPhone   || null,
+                propertyAddress || null,
+                bedrooms     || null,
+                bathrooms    || null,
+                sqft         || null,
+                land_size    || null,
+                building_size || null,
+                num_flats    ? parseInt(num_flats) : null,
+                imagePaths, videoPaths, documentPaths,
+                description  || null,
+                title        || null,
+                rentSell     || null,
+                amount       || null,
+                property_type || null,
+                userId
+            ]
         );
 
-        // Notify both admins
         const notifyAdmins = ADMIN_EMAILS.map(adminEmail => {
             const mailOptions = {
                 from: process.env.EMAIL_USER || 'ibarealestate2023@gmail.com',
@@ -644,11 +575,14 @@ newapp2.post('/upload', (req, res, next) => {
                 subject: 'New Property Listing Submitted for Approval',
                 html: `
                     <h2>New Property Listing Submitted</h2>
-                    <p><strong>Title:</strong> ${title}</p>
+                    <p><strong>Title:</strong> ${title || 'N/A'}</p>
                     <p><strong>Agent ID:</strong> ${userId}</p>
-                    <p><strong>Address:</strong> ${propertyAddress}</p>
-                    <p><strong>Amount:</strong> ₦${amount}</p>
-                    <p><strong>Type:</strong> ${property_type}</p>
+                    <p><strong>Address:</strong> ${propertyAddress || 'N/A'}</p>
+                    <p><strong>Amount:</strong> ₦${amount || 'N/A'}</p>
+                    <p><strong>Type:</strong> ${property_type || 'N/A'}</p>
+                    <p><strong>Land Size:</strong> ${land_size || 'N/A'}</p>
+                    <p><strong>Building Size:</strong> ${building_size || 'N/A'}</p>
+                    <p><strong>No. of Flats:</strong> ${num_flats || 'N/A'}</p>
                     <p>Please log in to review and approve/decline this listing.</p>
                 `
             };
@@ -670,69 +604,41 @@ newapp2.get('/sales-completed', async (req, res) => {
     try {
         const [card] = await db.query("SELECT * FROM all_properties");
         res.render('sell-page', { card, isAdmin });
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server error');
-    }
+    } catch (err) { console.error(err.message); res.status(500).send('Server error'); }
 });
 
-newapp2.get('/sales-approved', ensureAuthenticated, (req, res) => {
-    res.redirect('/sales-approval.html');
-});
-
-newapp2.get('/sales-declined', ensureAuthenticated, (req, res) => {
-    res.redirect('/sales-approval.html');
-});
+newapp2.get('/sales-approved', ensureAuthenticated, (req, res) => res.redirect('/sales-approval.html'));
+newapp2.get('/sales-declined', ensureAuthenticated, (req, res) => res.redirect('/sales-approval.html'));
 
 // ==================== REQUEST TOUR ====================
 newapp2.get('/request-tour', ensureAuthenticated, async (req, res) => {
     const propertyId = req.query.id;
     if (!propertyId) return res.status(400).send('Property ID is required.');
-
     const isAdmin = isAdminEmail(req.user.email);
     try {
         const [card] = await db.query("SELECT * FROM all_properties WHERE id = ?", [propertyId]);
         if (card.length === 0) return res.status(404).send('No property found with that ID.');
-        res.render('request-tour', {
-            property: card[0],
-            isAdmin,
-            userId: req.user.id,
-            userEmail: req.user.email
-        });
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server error');
-    }
+        res.render('request-tour', { property: card[0], isAdmin, userId: req.user.id, userEmail: req.user.email });
+    } catch (err) { console.error(err.message); res.status(500).send('Server error'); }
 });
 
 newapp2.get('/view', ensureAuthenticated, async (req, res) => {
-    if (!req.user) return res.status(401).send('Unauthorized: Please log in first.');
+    if (!req.user) return res.status(401).send('Unauthorized');
     const propertyId = req.query.id;
     const isAdmin = isAdminEmail(req.user.email);
     try {
         const [card] = await db.query("SELECT * FROM sales_approval WHERE id = ?", [propertyId]);
         if (card.length === 0) return res.status(404).send('No property found with that ID.');
-        res.render('request-tour', {
-            property: card[0],
-            isAdmin,
-            userId: req.user.id,
-            userEmail: req.user.email
-        });
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server error');
-    }
+        res.render('request-tour', { property: card[0], isAdmin, userId: req.user.id, userEmail: req.user.email });
+    } catch (err) { console.error(err.message); res.status(500).send('Server error'); }
 });
 
 newapp2.post('/submit-tour', async (req, res) => {
     const { name, email, phone, date, time } = req.body;
     try {
-        await db.query('INSERT INTO request_tour (name, email, phone, date, time) VALUES (?, ?, ?, ?, ?)',
-            [name, email, phone, date, time]);
+        await db.query('INSERT INTO request_tour (name, email, phone, date, time) VALUES (?, ?, ?, ?, ?)', [name, email, phone, date, time]);
         res.render('tour-submitted');
-    } catch (err) {
-        res.status(500).send('Error inserting data: ' + err);
-    }
+    } catch (err) { res.status(500).send('Error inserting data: ' + err); }
 });
 
 newapp2.get('/tour-submitted', ensureAuthenticated, async (req, res) => {
@@ -740,27 +646,20 @@ newapp2.get('/tour-submitted', ensureAuthenticated, async (req, res) => {
     try {
         const [card] = await db.query("SELECT * FROM all_properties");
         res.render('index', { card, isAdmin, userId: req.user.id, userEmail: req.user.email });
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server error');
-    }
+    } catch (err) { console.error(err.message); res.status(500).send('Server error'); }
 });
 
 newapp2.post('/improvement-request-form', async (req, res) => {
     const { name, email, phone, message } = req.body;
     try {
-        await db.query('INSERT INTO homeImprovement (name, email, phone, message) VALUES (?, ?, ?, ?)',
-            [name, email, phone, message]);
+        await db.query('INSERT INTO homeImprovement (name, email, phone, message) VALUES (?, ?, ?, ?)', [name, email, phone, message]);
         res.render('tour-submitted');
-    } catch (err) {
-        res.status(500).send('Error inserting data: ' + err);
-    }
+    } catch (err) { res.status(500).send('Error inserting data: ' + err); }
 });
 
 // ==================== PROFILE ====================
 newapp2.get('/edit-profile', ensureAuthenticated, async (req, res) => {
-    const isAdmin = isAdminEmail(req.user.email);
-    res.render('setting-page', { isAdmin });
+    res.render('setting-page', { isAdmin: isAdminEmail(req.user.email) });
 });
 
 newapp2.post('/update-profile', ensureAuthenticated, async (req, res) => {
@@ -769,56 +668,39 @@ newapp2.post('/update-profile', ensureAuthenticated, async (req, res) => {
     try {
         const [results] = await db.query('SELECT confirmPassword FROM signin WHERE id = ?', [userId]);
         if (results.length === 0) return res.status(404).send('User not found');
-
-        if (!bcrypt.compareSync(currentPassword, results[0].confirmPassword)) {
-            return res.status(401).send('Current password is incorrect');
-        }
-
+        if (!bcrypt.compareSync(currentPassword, results[0].confirmPassword)) return res.status(401).send('Current password is incorrect');
         await db.query(
             'UPDATE signin SET firstName = ?, middleName = ?, lastName = ?, email = ?, phone = ? WHERE id = ?',
             [firstName, middleName, lastName, email, phone, userId]
         );
         res.redirect('/profile-page.html');
-    } catch (err) {
-        console.error(err);
-        res.status(500).send('Error updating profile');
-    }
+    } catch (err) { console.error(err); res.status(500).send('Error updating profile'); }
 });
 
 // ==================== MESSAGING ====================
 newapp2.post('/message', ensureAuthenticated, async (req, res) => {
     const message = req.body.message;
-    if (!message || typeof message !== 'string') {
-        return res.status(400).json({ error: 'Invalid message format' });
-    }
+    if (!message || typeof message !== 'string') return res.status(400).json({ error: 'Invalid message format' });
     const userId = req.user.id;
     try {
         const [results] = await db.query('SELECT firstName, email FROM signin WHERE id = ?', [userId]);
         if (results.length === 0) return res.status(404).json({ error: 'User not found' });
-
         const user = results[0];
         const mailOptions = {
             from: user.email,
-            to: ADMIN_EMAILS.join(','), // send to both admins
+            to: ADMIN_EMAILS.join(','),
             subject: `New Message from ${user.firstName}`,
             text: message,
-            html: `<p><strong>From:</strong> ${user.firstName} (${user.email})</p><p><strong>Message:</strong></p><p>${message}</p>`
+            html: `<p><strong>From:</strong> ${user.firstName} (${user.email})</p><p>${message}</p>`
         };
         transporter.sendMail(mailOptions, (err) => {
-            if (err) {
-                console.error('Error sending email:', err);
-                return res.status(500).json({ error: 'Failed to send message' });
-            }
+            if (err) { console.error('Error sending email:', err); return res.status(500).json({ error: 'Failed to send message' }); }
             res.status(200).json({ success: true, message: 'Message sent successfully' });
         });
-    } catch (err) {
-        console.error('Database query error:', err);
-        res.status(500).json({ error: 'Internal server error' });
-    }
+    } catch (err) { console.error(err); res.status(500).json({ error: 'Internal server error' }); }
 });
 
 // ==================== SALES APPROVAL / DECLINE ====================
-// Updated: now carries 'documents' column when approving property
 newapp2.get('/approve', ensureAuthenticated, async (req, res) => {
     const propertyId = req.query.id;
     if (!propertyId) return res.status(400).send('Property ID is required.');
@@ -827,58 +709,46 @@ newapp2.get('/approve', ensureAuthenticated, async (req, res) => {
         const [results] = await db.query("SELECT * FROM sales_approval WHERE id = ?", [propertyId]);
         if (results.length === 0) return res.status(404).send('No property found with that ID.');
 
-        const property = results[0];
+        const p = results[0];
         await db.query(
-            `INSERT INTO all_properties 
+            `INSERT INTO all_properties
             (ownerName, ownerEmail, ownerPhone, propertyAddress, bedrooms, bathrooms, sqft,
-             image_data, video, documents, description, title, rentSell, agentId, amount, \`property-type\`, status) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'approved')`,
-            [property.ownerName, property.ownerEmail, property.ownerPhone, property.propertyAddress,
-             property.bedrooms, property.bathrooms, property.sqft, property.image_data,
-             property.video, property.documents || '',
-             property.description, property.title, property.rentSell,
-             property.agentId, property.amount, property.property_type]
+             land_size, building_size, num_flats,
+             image_data, video, documents, description, title, rentSell, agentId, amount, \`property-type\`, status)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'approved')`,
+            [
+                p.ownerName, p.ownerEmail, p.ownerPhone, p.propertyAddress,
+                p.bedrooms, p.bathrooms, p.sqft,
+                p.land_size || null, p.building_size || null, p.num_flats || null,
+                p.image_data, p.video, p.documents || '',
+                p.description, p.title, p.rentSell, p.agentId, p.amount, p.property_type
+            ]
         );
-        await db.query('INSERT INTO total_amount (amount) VALUES (?)', [property.amount]);
+        await db.query('INSERT INTO total_amount (amount) VALUES (?)', [p.amount]);
         await db.query('DELETE FROM sales_approval WHERE id = ?', [propertyId]);
         res.render('sales-approved-successfully');
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Error processing approval: ' + err.message);
-    }
+    } catch (err) { console.error(err.message); res.status(500).send('Error processing approval: ' + err.message); }
 });
 
 newapp2.get('/decline', ensureAuthenticated, async (req, res) => {
     const propertyId = req.query.id;
     if (!propertyId) return res.status(400).send('Property ID is required.');
-
     try {
         const [results] = await db.query("SELECT * FROM sales_approval WHERE id = ?", [propertyId]);
         if (results.length === 0) return res.status(404).send('No property found with that ID.');
         await db.query('DELETE FROM sales_approval WHERE id = ?', [propertyId]);
         res.render('sales-declined-successfully');
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Error processing decline: ' + err.message);
-    }
+    } catch (err) { console.error(err.message); res.status(500).send('Error processing decline: ' + err.message); }
 });
 
 // ==================== CUSTOMERS ====================
 newapp2.get('/view-customers.html', ensureAuthenticated, async (req, res) => {
     const isAdmin = isAdminEmail(req.user.email);
     try {
-        const [results] = await db.query(
-            'SELECT id, firstName, middleName, email, phone, (SELECT COUNT(*) FROM signin) AS count FROM signin'
-        );
+        const [results] = await db.query('SELECT id, firstName, middleName, email, phone, (SELECT COUNT(*) FROM signin) AS count FROM signin');
         const rowCount = results.length > 0 ? results[0].count : 0;
-        res.render('customers', {
-            customers: results, rowCount, isAdmin,
-            userId: req.user.id, userEmail: req.user.email
-        });
-    } catch (err) {
-        console.error('Error fetching customers:', err);
-        res.status(500).send('Database query error.');
-    }
+        res.render('customers', { customers: results, rowCount, isAdmin, userId: req.user.id, userEmail: req.user.email });
+    } catch (err) { console.error(err); res.status(500).send('Database query error.'); }
 });
 
 // ==================== TOUR APPROVAL ====================
@@ -887,32 +757,18 @@ newapp2.get('/approve-tour', ensureAuthenticated, async (req, res) => {
     try {
         const [results] = await db.query('SELECT * FROM request_tour WHERE id = ?', [tourId]);
         if (results.length === 0) return res.status(404).send('Tour not found.');
-
         const tour = results[0];
-        const mailOptions = {
+        transporter.sendMail({
             from: process.env.EMAIL_USER || 'ibarealestate2023@gmail.com',
             to: tour.email,
             subject: 'Tour Request Approved',
             text: `Dear ${tour.name},\n\nYour tour request has been approved.\n\nBest regards,\nG.O AREGBAN Real Estate`
-        };
-
-        transporter.sendMail(mailOptions, async (error) => {
-            if (error) {
-                console.error('Error sending email:', error);
-                return res.status(500).send('Error sending email.');
-            }
-            try {
-                await db.query('DELETE FROM request_tour WHERE id = ?', [tourId]);
-                res.render('tour-approved-successfully');
-            } catch (err) {
-                console.error('Error deleting tour request:', err);
-                res.status(500).send('Database query error.');
-            }
+        }, async (error) => {
+            if (error) { console.error(error); return res.status(500).send('Error sending email.'); }
+            await db.query('DELETE FROM request_tour WHERE id = ?', [tourId]);
+            res.render('tour-approved-successfully');
         });
-    } catch (err) {
-        console.error('Error fetching tour details:', err);
-        res.status(500).send('Database query error.');
-    }
+    } catch (err) { console.error(err); res.status(500).send('Database query error.'); }
 });
 
 newapp2.get('/decline-tour', ensureAuthenticated, async (req, res) => {
@@ -920,32 +776,18 @@ newapp2.get('/decline-tour', ensureAuthenticated, async (req, res) => {
     try {
         const [results] = await db.query('SELECT * FROM request_tour WHERE id = ?', [tourId]);
         if (results.length === 0) return res.status(404).send('Tour not found.');
-
         const tour = results[0];
-        const mailOptions = {
+        transporter.sendMail({
             from: process.env.EMAIL_USER || 'ibarealestate2023@gmail.com',
             to: tour.email,
             subject: 'Tour Request Declined',
             text: `Dear ${tour.name},\n\nYour tour request has been declined.\n\nBest regards,\nG.O AREGBAN Real Estate`
-        };
-
-        transporter.sendMail(mailOptions, async (error) => {
-            if (error) {
-                console.error('Error sending email:', error);
-                return res.status(500).send('Error sending email.');
-            }
-            try {
-                await db.query('DELETE FROM request_tour WHERE id = ?', [tourId]);
-                res.render('tour-declined-successfully');
-            } catch (err) {
-                console.error('Error deleting tour request:', err);
-                res.status(500).send('Database query error.');
-            }
+        }, async (error) => {
+            if (error) { console.error(error); return res.status(500).send('Error sending email.'); }
+            await db.query('DELETE FROM request_tour WHERE id = ?', [tourId]);
+            res.render('tour-declined-successfully');
         });
-    } catch (err) {
-        console.error('Error fetching tour details:', err);
-        res.status(500).send('Database query error.');
-    }
+    } catch (err) { console.error(err); res.status(500).send('Database query error.'); }
 });
 
 newapp2.get('/tour-approved-successfully', ensureAuthenticated, async (req, res) => {
@@ -954,10 +796,7 @@ newapp2.get('/tour-approved-successfully', ensureAuthenticated, async (req, res)
         const [results] = await db.query('SELECT *, (SELECT COUNT(*) FROM request_tour) AS count FROM request_tour');
         const rowCount = results.length > 0 ? results[0].count : 0;
         res.render('requested-tour', { card: results, isAdmin, userId: req.user.id, userEmail: req.user.email, rowCount });
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Database query error.');
-    }
+    } catch (err) { console.error(err.message); res.status(500).send('Database query error.'); }
 });
 
 newapp2.get('/tour-declined-successfully', ensureAuthenticated, async (req, res) => {
@@ -966,136 +805,94 @@ newapp2.get('/tour-declined-successfully', ensureAuthenticated, async (req, res)
         const [results] = await db.query('SELECT *, (SELECT COUNT(*) FROM request_tour) AS count FROM request_tour');
         const rowCount = results.length > 0 ? results[0].count : 0;
         res.render('requested-tour', { card: results, rowCount, isAdmin, userId: req.user.id, userEmail: req.user.email });
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Database query error.');
-    }
+    } catch (err) { console.error(err.message); res.status(500).send('Database query error.'); }
 });
 
 // ==================== SEARCH ====================
 newapp2.get('/search', ensureAuthenticated, async (req, res) => {
-    if (!req.user) return res.status(401).send('Unauthorized: Please log in first.');
+    if (!req.user) return res.status(401).send('Unauthorized');
     const isAdmin = isAdminEmail(req.user.email);
     const { location, min_price, max_price, min_beds, min_baths } = req.query;
-
     let sql = "SELECT * FROM all_properties WHERE 1=1";
     let values = [];
-
     if (location)   { sql += " AND propertyAddress LIKE ?"; values.push(`%${location}%`); }
     if (min_price)  { sql += " AND amount >= ?"; values.push(min_price); }
     if (max_price)  { sql += " AND amount <= ?"; values.push(max_price); }
     if (min_beds)   { sql += " AND bedrooms >= ?"; values.push(min_beds); }
     if (min_baths)  { sql += " AND bathrooms >= ?"; values.push(min_baths); }
-
     try {
         const [card] = await db.query(sql, values);
         res.render('index', { card, isAdmin });
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server error');
-    }
+    } catch (err) { console.error(err.message); res.status(500).send('Server error'); }
 });
 
 newapp2.get('/buy-search-form', ensureAuthenticated, async (req, res) => {
-    if (!req.user) return res.status(401).send('Unauthorized: Please log in first.');
+    if (!req.user) return res.status(401).send('Unauthorized');
     const isAdmin = isAdminEmail(req.user.email);
     const { location, min_price, max_price, min_beds, min_baths } = req.query;
-
     let query = "SELECT * FROM all_properties WHERE rentSell = 'sell'";
     let queryParams = [];
-
-    if (location && location.trim() !== '')  { query += " AND propertyAddress LIKE ?"; queryParams.push(`%${location}%`); }
-    if (min_price && !isNaN(min_price))      { query += " AND amount >= ?"; queryParams.push(parseInt(min_price)); }
-    if (max_price && !isNaN(max_price))      { query += " AND amount <= ?"; queryParams.push(parseInt(max_price)); }
-    if (min_beds  && !isNaN(min_beds))       { query += " AND bedrooms >= ?"; queryParams.push(parseInt(min_beds)); }
-    if (min_baths && !isNaN(min_baths))      { query += " AND bathrooms >= ?"; queryParams.push(parseInt(min_baths)); }
-
+    if (location && location.trim())     { query += " AND propertyAddress LIKE ?"; queryParams.push(`%${location}%`); }
+    if (min_price && !isNaN(min_price))  { query += " AND amount >= ?"; queryParams.push(parseInt(min_price)); }
+    if (max_price && !isNaN(max_price))  { query += " AND amount <= ?"; queryParams.push(parseInt(max_price)); }
+    if (min_beds  && !isNaN(min_beds))   { query += " AND bedrooms >= ?"; queryParams.push(parseInt(min_beds)); }
+    if (min_baths && !isNaN(min_baths))  { query += " AND bathrooms >= ?"; queryParams.push(parseInt(min_baths)); }
     try {
         const [card] = await db.query(query, queryParams);
         res.render('buy-page', { card, isAdmin });
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server error');
-    }
+    } catch (err) { console.error(err.message); res.status(500).send('Server error'); }
 });
 
 // ==================== CUSTOMER-FACING PAGES ====================
 newapp2.get('/customer-buy-page.html', async (req, res) => {
     let query = "SELECT * FROM all_properties WHERE rentSell = 'sell'";
     let params = [];
-    if (req.query.property_type && req.query.property_type !== 'all') {
-        query += " AND `property-type` = ?";
-        params.push(req.query.property_type);
-    }
+    if (req.query.property_type && req.query.property_type !== 'all') { query += " AND `property-type` = ?"; params.push(req.query.property_type); }
     try {
         const [card] = await db.query(query, params);
         res.render('customer-buy-page', { card });
-    } catch (err) {
-        console.error('Database error:', err.message);
-        res.status(500).send('Server error: Unable to fetch properties.');
-    }
+    } catch (err) { console.error(err.message); res.status(500).send('Server error.'); }
 });
 
 newapp2.get('/costumer-sell-page.html', async (req, res) => {
     let query = "SELECT * FROM all_properties WHERE rentSell = 'Rent'";
     let params = [];
-    if (req.query.property_type && req.query.property_type !== 'all') {
-        query += " AND `property-type` = ?";
-        params.push(req.query.property_type);
-    }
+    if (req.query.property_type && req.query.property_type !== 'all') { query += " AND `property-type` = ?"; params.push(req.query.property_type); }
     try {
         const [card] = await db.query(query, params);
         res.render('costumer-sell-page', { card });
-    } catch (err) {
-        console.error('Database error:', err.message);
-        res.status(500).send('Server error: Unable to fetch properties.');
-    }
+    } catch (err) { console.error(err.message); res.status(500).send('Server error.'); }
 });
 
 newapp2.get('/customer-rent-page.html', async (req, res) => {
     let query = "SELECT * FROM all_properties WHERE rentSell = 'Rent'";
     let params = [];
-    if (req.query.property_type && req.query.property_type !== 'all') {
-        query += " AND `property-type` = ?";
-        params.push(req.query.property_type);
-    }
+    if (req.query.property_type && req.query.property_type !== 'all') { query += " AND `property-type` = ?"; params.push(req.query.property_type); }
     try {
         const [card] = await db.query(query, params);
         res.render('customer-rent-page', { card });
-    } catch (err) {
-        console.error('Database error:', err.message);
-        res.status(500).send('Server error: Unable to fetch properties.');
-    }
+    } catch (err) { console.error(err.message); res.status(500).send('Server error.'); }
 });
 
 // ==================== PROPERTY DETAIL ====================
 newapp2.get('/property-detail', ensureAuthenticated, async (req, res) => {
     const propertyId = req.query.id;
     if (!propertyId) return res.status(400).send('Property ID is required.');
-
     try {
         const [userResults] = await db.query("SELECT role FROM signin WHERE id = ?", [req.user.id]);
         if (userResults.length === 0) return res.status(404).send('User not found.');
         const isAdmin = isAdminEmail(req.user.email) || userResults[0].role === 'admin';
-
         let [propResults] = await db.query("SELECT * FROM all_properties WHERE id = ?", [propertyId]);
-        if (propResults.length === 0) {
-            [propResults] = await db.query("SELECT * FROM sold_properties WHERE id = ?", [propertyId]);
-        }
+        if (propResults.length === 0) [propResults] = await db.query("SELECT * FROM sold_properties WHERE id = ?", [propertyId]);
         if (propResults.length === 0) return res.status(404).send('No property found with that ID.');
-
         const property = propResults[0];
         let agent = null;
         if (property.agentId) {
             const [agentResults] = await db.query("SELECT * FROM signin WHERE id = ? AND role = 'agent'", [property.agentId]);
             agent = agentResults.length > 0 ? agentResults[0] : null;
         }
-
         res.render('view-details', { property, isAdmin, userId: req.user.id, userEmail: req.user.email, agent });
-    } catch (err) {
-        console.error(err);
-        res.status(500).send('Database query error.');
-    }
+    } catch (err) { console.error(err); res.status(500).send('Database query error.'); }
 });
 
 newapp2.get('/property-detail.html', (req, res) => res.render('login'));
@@ -1103,115 +900,57 @@ newapp2.get('/property-detail.html', (req, res) => res.render('login'));
 // ==================== CONTACT ====================
 newapp2.post('/contact', ensureAuthenticated, (req, res) => {
     const { name, email, phone, subject, message } = req.body;
-    if (!name || !email || !phone || !message) {
-        return res.status(400).json({ success: false, message: 'All fields are required' });
-    }
+    if (!name || !email || !phone || !message) return res.status(400).json({ success: false, message: 'All fields are required' });
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-        return res.status(400).json({ success: false, message: 'Please enter a valid email address' });
-    }
-    const mailOptions = {
+    if (!emailRegex.test(email)) return res.status(400).json({ success: false, message: 'Please enter a valid email address' });
+    transporter.sendMail({
         from: `"G.O AREGBAN Real Estate" <${process.env.EMAIL_USER || 'ibarealestate2023@gmail.com'}>`,
-        to: ADMIN_EMAILS.join(','), // send to both admins
+        to: ADMIN_EMAILS.join(','),
         subject: `Contact Form: ${subject || 'New Inquiry'}`,
-        html: `
-            <h2>New Contact Message from G.O AREGBAN REAL ESTATE Website</h2>
-            <p><strong>Name:</strong> ${name}</p>
-            <p><strong>Email:</strong> ${email}</p>
-            <p><strong>Phone:</strong> ${phone}</p>
-            <p><strong>Subject:</strong> ${subject || 'N/A'}</p>
-            <p><strong>Message:</strong></p>
-            <p>${message.replace(/\n/g, '<br>')}</p>
-            <hr>
-            <p><em>This message was submitted on ${new Date().toLocaleString()}.</em></p>
-        `
-    };
-    transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-            console.error('Email send error:', error);
-            return res.status(500).json({ success: false, message: 'Failed to send email. Please try again later.' });
-        }
-        console.log('Contact email sent successfully:', info.response);
-        return res.status(200).json({ success: true, message: "Your message has been sent successfully! We'll get back to you soon." });
+        html: `<h2>New Contact Message</h2><p><strong>Name:</strong> ${name}</p><p><strong>Email:</strong> ${email}</p><p><strong>Phone:</strong> ${phone}</p><p><strong>Subject:</strong> ${subject || 'N/A'}</p><p>${message.replace(/\n/g, '<br>')}</p>`
+    }, (error, info) => {
+        if (error) { console.error(error); return res.status(500).json({ success: false, message: 'Failed to send email.' }); }
+        return res.status(200).json({ success: true, message: "Message sent successfully!" });
     });
 });
 
 newapp2.post('/detail-contact', ensureAuthenticated, async (req, res) => {
     const { name, email, phone, message, propertyId } = req.body;
     const userId = req.user.id;
-
-    if (!name || !email || !phone || !message || !propertyId) {
-        return res.status(400).json({ success: false, message: 'All fields are required' });
-    }
+    if (!name || !email || !phone || !message || !propertyId) return res.status(400).json({ success: false, message: 'All fields are required' });
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-        return res.status(400).json({ success: false, message: 'Please enter a valid email address' });
-    }
-
+    if (!emailRegex.test(email)) return res.status(400).json({ success: false, message: 'Please enter a valid email address' });
     try {
         const [propResults] = await db.query("SELECT agentId FROM all_properties WHERE id = ?", [propertyId]);
         if (propResults.length === 0) return res.status(404).json({ success: false, message: 'Property not found' });
-
         const agentId = propResults[0].agentId;
         let recipientEmail = ADMIN_EMAILS.join(',');
         let receiverId = null;
-
         if (agentId) {
             const [agentResults] = await db.query("SELECT id, email FROM signin WHERE id = ? AND role = 'agent'", [agentId]);
-            if (agentResults.length > 0 && agentResults[0].email) {
-                recipientEmail = agentResults[0].email;
-                receiverId = agentId;
-            }
+            if (agentResults.length > 0 && agentResults[0].email) { recipientEmail = agentResults[0].email; receiverId = agentId; }
         }
-
         if (!receiverId) {
             const [adminResults] = await db.query("SELECT id FROM signin WHERE email = 'esvgoddey@gmail.com' LIMIT 1");
             if (adminResults.length === 0) {
-                // Fall back to the other admin email
                 const [adminResults2] = await db.query("SELECT id FROM signin WHERE email = 'ibarealestate2023@gmail.com' LIMIT 1");
                 if (adminResults2.length === 0) return res.status(500).json({ success: false, message: 'Admin not found' });
                 receiverId = adminResults2[0].id;
-            } else {
-                receiverId = adminResults[0].id;
-            }
+            } else { receiverId = adminResults[0].id; }
         }
-
-        const mailOptions = {
+        transporter.sendMail({
             from: `"G.O AREGBAN Real Estate" <${process.env.EMAIL_USER || 'ibarealestate2023@gmail.com'}>`,
             to: recipientEmail,
             subject: 'New Contact Message from Property Detail Page',
-            html: `
-                <h2>New Contact Message</h2>
-                <p><strong>Name:</strong> ${name}</p>
-                <p><strong>Email:</strong> ${email}</p>
-                <p><strong>Phone:</strong> ${phone}</p>
-                <p><strong>Message:</strong></p>
-                <p>${message.replace(/\n/g, '<br>')}</p>
-                <hr>
-                <p><em>Submitted on ${new Date().toLocaleString()}.</em></p>
-            `
-        };
-
-        transporter.sendMail(mailOptions, async (error) => {
-            if (error) {
-                console.error('Email send error:', error);
-                return res.status(500).json({ success: false, message: 'Failed to send email. Please try again later.' });
-            }
+            html: `<h2>New Contact Message</h2><p><strong>Name:</strong> ${name}</p><p><strong>Email:</strong> ${email}</p><p><strong>Phone:</strong> ${phone}</p><p>${message.replace(/\n/g, '<br>')}</p>`
+        }, async (error) => {
+            if (error) { console.error(error); return res.status(500).json({ success: false, message: 'Failed to send email.' }); }
             try {
-                await db.query(
-                    'INSERT INTO chat_messages (sender_id, receiver_id, message) VALUES (?, ?, ?)',
-                    [userId, receiverId, message]
-                );
+                await db.query('INSERT INTO chat_messages (sender_id, receiver_id, message) VALUES (?, ?, ?)', [userId, receiverId, message]);
                 res.redirect('/chat?success=Message sent! Redirecting to chat...');
-            } catch (insertErr) {
-                console.error('Error saving to chat:', insertErr);
-                res.status(500).json({ success: false, message: 'Message sent via email, but chat save failed.' });
-            }
+            } catch (insertErr) { console.error(insertErr); res.status(500).json({ success: false, message: 'Message sent via email, but chat save failed.' }); }
         });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ success: false, message: 'Server error' });
-    }
+    } catch (err) { console.error(err); res.status(500).json({ success: false, message: 'Server error' }); }
 });
 
 // ==================== LOGOUT ====================
@@ -1229,53 +968,44 @@ newapp2.get('/logout', (req, res) => {
 newapp2.post('/logout', (req, res) => {
     req.logout((err) => {
         if (err) console.error('Logout error:', err);
-        req.session.destroy(() => {
-            res.json({ success: true, message: 'Logged out successfully' });
-        });
+        req.session.destroy(() => res.json({ success: true, message: 'Logged out successfully' }));
     });
 });
 
 // ==================== SOLD / UNSOLD / EDIT SOLD ====================
-// Updated: now carries 'documents' column when marking as sold
 newapp2.get('/sold', ensureAuthenticated, async (req, res) => {
     const propertyId = req.query.id;
-    if (!propertyId || isNaN(propertyId)) {
-        return res.redirect('/sell-page.html?error=Invalid property ID. Please try again.');
-    }
-
+    if (!propertyId || isNaN(propertyId)) return res.redirect('/sell-page.html?error=Invalid property ID.');
     try {
         const [results] = await db.query('SELECT * FROM all_properties WHERE id = ?', [propertyId]);
         if (results.length === 0) return res.redirect('/sell-page.html?error=Property not found.');
-
-        const property = results[0];
+        const p = results[0];
         await db.query(
-            `INSERT INTO sold_properties 
+            `INSERT INTO sold_properties
             (ownerName, ownerEmail, ownerPhone, propertyAddress, bedrooms, bathrooms, description,
-             sqft, image_data, video, documents, amount, title, rentSell, agentId, \`property-type\`) 
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [property.ownerName || '', property.ownerEmail || '', property.ownerPhone || '',
-             property.propertyAddress || '', property.bedrooms || '0', property.bathrooms || '0',
-             property.description || '', property.sqft || '0', property.image_data, property.video,
-             property.documents || '',
-             property.amount || null, property.title || null, property.rentSell || null,
-             property.agentId, property['property-type'] || null]
+             sqft, land_size, building_size, num_flats,
+             image_data, video, documents, amount, title, rentSell, agentId, \`property-type\`)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [
+                p.ownerName || '', p.ownerEmail || '', p.ownerPhone || '',
+                p.propertyAddress || '', p.bedrooms || '0', p.bathrooms || '0',
+                p.description || '', p.sqft || '0',
+                p.land_size || null, p.building_size || null, p.num_flats || null,
+                p.image_data, p.video, p.documents || '',
+                p.amount || null, p.title || null, p.rentSell || null,
+                p.agentId, p['property-type'] || null
+            ]
         );
         await db.query('DELETE FROM all_properties WHERE id = ?', [propertyId]);
-        res.redirect(`/index.html?success=sold&title=${encodeURIComponent(property.title)}`);
-    } catch (err) {
-        console.error('Sold route error:', err);
-        res.redirect('/sell-page.html?error=Failed to mark property as sold. Please try again.');
-    }
+        res.redirect(`/index.html?success=sold&title=${encodeURIComponent(p.title || '')}`);
+    } catch (err) { console.error('Sold route error:', err); res.redirect('/sell-page.html?error=Failed to mark property as sold.'); }
 });
 
 newapp2.get('/sold-properties', ensureAuthenticated, async (req, res) => {
     try {
         const [results] = await db.query('SELECT * FROM sold_properties ORDER BY id DESC');
         res.render('sold-properties', { soldProperties: results, isAdmin: true });
-    } catch (err) {
-        console.error('DB fetch sold properties error:', err);
-        res.redirect('/sold-properties?error=Failed to load sold properties.');
-    }
+    } catch (err) { console.error(err); res.redirect('/sold-properties?error=Failed to load sold properties.'); }
 });
 
 newapp2.get('/edit-sold', ensureAuthenticated, async (req, res) => {
@@ -1285,73 +1015,67 @@ newapp2.get('/edit-sold', ensureAuthenticated, async (req, res) => {
         const [results] = await db.query('SELECT * FROM sold_properties WHERE id = ?', [propertyId]);
         if (results.length === 0) return res.redirect('/sold-properties?error=Property not found.');
         res.render('edit-sold', { property: results[0], isAdmin: true });
-    } catch (err) {
-        console.error('DB fetch for edit error:', err);
-        res.redirect('/login');
-    }
+    } catch (err) { console.error(err); res.redirect('/login'); }
 });
 
 newapp2.post('/update-sold', ensureAuthenticated, async (req, res) => {
     const propertyId = req.body.id;
-    const updates = {
-        title:           req.body.title || null,
-        description:     req.body.description || '',
-        amount:          req.body.amount || null,
-        propertyAddress: req.body.propertyAddress || '',
-        bedrooms:        req.body.bedrooms || '0',
-        bathrooms:       req.body.bathrooms || '0',
-        sqft:            req.body.sqft || '0',
-        ownerName:       req.body.ownerName || '',
-        ownerEmail:      req.body.ownerEmail || '',
-        ownerPhone:      req.body.ownerPhone || '',
-        rentSell:        req.body.rentSell || null,
-        'property-type': req.body['property-type'] || null
+    const u = {
+        title:           req.body.title           || null,
+        description:     req.body.description     || '',
+        amount:          req.body.amount           || null,
+        propertyAddress: req.body.propertyAddress  || '',
+        bedrooms:        req.body.bedrooms         || '0',
+        bathrooms:       req.body.bathrooms        || '0',
+        sqft:            req.body.sqft             || '0',
+        land_size:       req.body.land_size        || null,
+        building_size:   req.body.building_size    || null,
+        num_flats:       req.body.num_flats ? parseInt(req.body.num_flats) : null,
+        ownerName:       req.body.ownerName        || '',
+        ownerEmail:      req.body.ownerEmail       || '',
+        ownerPhone:      req.body.ownerPhone       || '',
+        rentSell:        req.body.rentSell         || null,
+        property_type:   req.body['property-type'] || null
     };
-
     try {
         await db.query(
             `UPDATE sold_properties SET title = ?, description = ?, amount = ?, propertyAddress = ?,
-             bedrooms = ?, bathrooms = ?, sqft = ?, ownerName = ?, ownerEmail = ?, ownerPhone = ?,
-             rentSell = ?, \`property-type\` = ? WHERE id = ?`,
-            [updates.title, updates.description, updates.amount, updates.propertyAddress,
-             updates.bedrooms, updates.bathrooms, updates.sqft, updates.ownerName,
-             updates.ownerEmail, updates.ownerPhone, updates.rentSell, updates['property-type'], propertyId]
+             bedrooms = ?, bathrooms = ?, sqft = ?, land_size = ?, building_size = ?, num_flats = ?,
+             ownerName = ?, ownerEmail = ?, ownerPhone = ?, rentSell = ?, \`property-type\` = ? WHERE id = ?`,
+            [u.title, u.description, u.amount, u.propertyAddress, u.bedrooms, u.bathrooms,
+             u.sqft, u.land_size, u.building_size, u.num_flats,
+             u.ownerName, u.ownerEmail, u.ownerPhone, u.rentSell, u.property_type, propertyId]
         );
         res.redirect('/sold-properties?success=Property updated successfully!');
-    } catch (err) {
-        console.error('DB update error:', err);
-        res.redirect('/sold-properties?error=Failed to update property.');
-    }
+    } catch (err) { console.error(err); res.redirect('/sold-properties?error=Failed to update property.'); }
 });
 
-// Updated: carries 'documents' when moving back to active
 newapp2.post('/unsold', ensureAuthenticated, async (req, res) => {
     const propertyId = req.body.id;
     if (!propertyId || isNaN(propertyId)) return res.redirect('/sold-properties?error=Invalid property ID.');
-
     try {
         const [results] = await db.query('SELECT * FROM sold_properties WHERE id = ?', [propertyId]);
         if (results.length === 0) return res.redirect('/sold-properties?error=Property not found.');
-
-        const property = results[0];
+        const p = results[0];
         await db.query(
-            `INSERT INTO all_properties 
+            `INSERT INTO all_properties
             (ownerName, ownerEmail, ownerPhone, propertyAddress, bedrooms, bathrooms, description,
-             sqft, image_data, video, documents, amount, title, rentSell, \`property-type\`, agentId) 
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [property.ownerName || '', property.ownerEmail || '', property.ownerPhone || '',
-             property.propertyAddress || '', property.bedrooms || '0', property.bathrooms || '0',
-             property.description || '', property.sqft || '0', property.image_data, property.video,
-             property.documents || '',
-             property.amount || null, property.title || null, property.rentSell || null,
-             property['property-type'] || null, property.agentId]
+             sqft, land_size, building_size, num_flats,
+             image_data, video, documents, amount, title, rentSell, \`property-type\`, agentId)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [
+                p.ownerName || '', p.ownerEmail || '', p.ownerPhone || '',
+                p.propertyAddress || '', p.bedrooms || '0', p.bathrooms || '0',
+                p.description || '', p.sqft || '0',
+                p.land_size || null, p.building_size || null, p.num_flats || null,
+                p.image_data, p.video, p.documents || '',
+                p.amount || null, p.title || null, p.rentSell || null,
+                p['property-type'] || null, p.agentId
+            ]
         );
         await db.query('DELETE FROM sold_properties WHERE id = ?', [propertyId]);
         res.redirect('/sold-properties?success=Property moved back to active sales!');
-    } catch (err) {
-        console.error('Unsold route error:', err);
-        res.redirect('/sold-properties?error=Failed to move property back to sales.');
-    }
+    } catch (err) { console.error(err); res.redirect('/sold-properties?error=Failed to move property back.'); }
 });
 
 newapp2.post('/delete-sold', ensureAuthenticated, async (req, res) => {
@@ -1361,18 +1085,14 @@ newapp2.post('/delete-sold', ensureAuthenticated, async (req, res) => {
         const [result] = await db.query('DELETE FROM sold_properties WHERE id = ?', [propertyId]);
         if (result.affectedRows === 0) return res.redirect('/sold-properties?error=Property not found.');
         res.redirect('/sold-properties?success=Property deleted successfully!');
-    } catch (err) {
-        console.error('DB delete error:', err);
-        res.redirect('/sold-properties?error=Failed to delete property.');
-    }
+    } catch (err) { console.error(err); res.redirect('/sold-properties?error=Failed to delete property.'); }
 });
 
 // ==================== MANAGE AGENTS ====================
 newapp2.get('/manage-agent', ensureAuthenticated, async (req, res) => {
     try {
         const [results] = await db.query(`
-            SELECT 
-                s.id, s.firstName, s.middleName, s.lastName, s.email, s.phone,
+            SELECT s.id, s.firstName, s.middleName, s.lastName, s.email, s.phone,
                 COALESCE(stats.propertiesAdded, 0) AS propertiesAdded,
                 COALESCE(stats.soldProperties, 0) AS soldProperties,
                 COALESCE(stats.pendingProperties, 0) AS pendingProperties
@@ -1384,59 +1104,37 @@ newapp2.get('/manage-agent', ensureAuthenticated, async (req, res) => {
                     SUM(CASE WHEN status IN ('pending', 'approved') THEN 1 ELSE 0 END) AS pendingProperties
                 FROM (
                     SELECT agentId, status FROM all_properties
-                    UNION ALL
-                    SELECT agentId, status FROM sold_properties
-                    UNION ALL
-                    SELECT agentId, status FROM sales_approval
+                    UNION ALL SELECT agentId, status FROM sold_properties
+                    UNION ALL SELECT agentId, status FROM sales_approval
                 ) combined
                 GROUP BY agentId
             ) stats ON s.id = stats.agentId
             WHERE s.role = 'agent'
         `);
         res.render('manage-agent', { agents: results, isAdmin: true });
-    } catch (err) {
-        console.error('Database error:', err);
-        res.status(500).send('Server error');
-    }
+    } catch (err) { console.error(err); res.status(500).send('Server error'); }
 });
 
 newapp2.post('/manage/agent', ensureAuthenticated, async (req, res) => {
     const { firstName, middleName, lastName, email, phone } = req.body;
     if (!validator.isEmail(email)) return res.status(400).json({ error: 'Invalid email address' });
-
     try {
         const [existing] = await db.query('SELECT COUNT(*) AS count FROM signin WHERE email = ?', [email]);
         if (existing[0].count > 0) return res.status(400).json({ error: 'Email already exists' });
-
         const tempPassword = Math.random().toString(36).slice(-8);
         const hashedPassword = bcrypt.hashSync(tempPassword, 10);
         await db.query(
             'INSERT INTO signin (firstName, middleName, lastName, email, phone, confirmPassword, role) VALUES (?, ?, ?, ?, ?, ?, ?)',
             [firstName, middleName || null, lastName, email, phone || null, hashedPassword, 'agent']
         );
-
-        const mailOptions = {
+        transporter.sendMail({
             from: process.env.EMAIL_USER || 'ibarealestate2023@gmail.com',
             to: email,
             subject: 'Welcome to G.O AREGBAN Real Estate - Agent Account Created',
-            html: `
-                <h1>Welcome to G.O AREGBAN Real Estate!</h1>
-                <p>Dear ${firstName} ${lastName},</p>
-                <p>Your agent account has been created. Login details:</p>
-                <p><strong>Email:</strong> ${email}</p>
-                <p><strong>Temporary Password:</strong> ${tempPassword}</p>
-                <p>Please change your password after logging in.</p>
-                <p>Best regards,<br>The G.O AREGBAN Real Estate Team</p>
-            `
-        };
-        transporter.sendMail(mailOptions, (error) => {
-            if (error) console.error('Email error:', error);
-        });
+            html: `<h1>Welcome!</h1><p>Dear ${firstName} ${lastName},</p><p><strong>Email:</strong> ${email}<br><strong>Temporary Password:</strong> ${tempPassword}</p><p>Please change your password after logging in.</p>`
+        }, (error) => { if (error) console.error('Email error:', error); });
         res.json({ success: true, message: 'Agent added successfully! Email sent with login details.' });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Server error' });
-    }
+    } catch (err) { console.error(err); res.status(500).json({ error: 'Server error' }); }
 });
 
 newapp2.put('/manage/agent/:id', ensureAuthenticated, async (req, res) => {
@@ -1444,15 +1142,9 @@ newapp2.put('/manage/agent/:id', ensureAuthenticated, async (req, res) => {
     const { firstName, middleName, lastName, email, phone } = req.body;
     if (!validator.isEmail(email)) return res.status(400).send('Invalid email address');
     try {
-        await db.query(
-            'UPDATE signin SET firstName = ?, middleName = ?, lastName = ?, email = ?, phone = ? WHERE id = ? AND role = "agent"',
-            [firstName, middleName || null, lastName, email, phone || null, id]
-        );
+        await db.query('UPDATE signin SET firstName = ?, middleName = ?, lastName = ?, email = ?, phone = ? WHERE id = ? AND role = "agent"', [firstName, middleName || null, lastName, email, phone || null, id]);
         res.send('Agent updated successfully');
-    } catch (err) {
-        console.error(err);
-        res.status(500).send('Server error');
-    }
+    } catch (err) { console.error(err); res.status(500).send('Server error'); }
 });
 
 newapp2.delete('/manage/agent/:id', ensureAuthenticated, async (req, res) => {
@@ -1460,69 +1152,57 @@ newapp2.delete('/manage/agent/:id', ensureAuthenticated, async (req, res) => {
     try {
         await db.query('DELETE FROM signin WHERE id = ? AND role = "agent"', [id]);
         res.send('Agent deleted successfully');
-    } catch (err) {
-        console.error(err);
-        res.status(500).send('Server error');
-    }
+    } catch (err) { console.error(err); res.status(500).send('Server error'); }
 });
 
-// Updated: carries 'documents' when approving via shortcut
 newapp2.post('/properties/approve/:id', ensureAuthenticated, async (req, res) => {
     const { id } = req.params;
     try {
         const [results] = await db.query('SELECT * FROM sales_approval WHERE id = ?', [id]);
         if (results.length === 0) return res.status(404).send('Property not found');
-        const property = results[0];
+        const p = results[0];
         await db.query(
-            `INSERT INTO all_properties 
+            `INSERT INTO all_properties
             (ownerName, ownerEmail, ownerPhone, propertyAddress, bedrooms, bathrooms, description,
-             sqft, image_data, video, documents, amount, title, rentSell, \`property-type\`, agentId, status) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [property.ownerName, property.ownerEmail, property.ownerPhone, property.propertyAddress,
-             property.bedrooms, property.bathrooms, property.description, property.sqft,
-             property.image_data, property.video, property.documents || '',
-             property.amount, property.title, property.rentSell,
-             property.property_type, property.agentId, 'approved']
+             sqft, land_size, building_size, num_flats,
+             image_data, video, documents, amount, title, rentSell, \`property-type\`, agentId, status)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'approved')`,
+            [p.ownerName, p.ownerEmail, p.ownerPhone, p.propertyAddress, p.bedrooms, p.bathrooms,
+             p.description, p.sqft, p.land_size || null, p.building_size || null, p.num_flats || null,
+             p.image_data, p.video, p.documents || '', p.amount, p.title, p.rentSell,
+             p.property_type, p.agentId]
         );
         await db.query('DELETE FROM sales_approval WHERE id = ?', [id]);
         res.send('Property approved');
-    } catch (err) {
-        console.error(err);
-        res.status(500).send('Error');
-    }
+    } catch (err) { console.error(err); res.status(500).send('Error'); }
 });
 
-// Updated: carries 'documents' when selling via shortcut
 newapp2.post('/properties/sell/:id', ensureAuthenticated, async (req, res) => {
     const { id } = req.params;
     try {
         const [results] = await db.query('SELECT * FROM all_properties WHERE id = ?', [id]);
         if (results.length === 0) return res.status(404).send('Property not found');
-        const property = results[0];
+        const p = results[0];
         await db.query(
-            `INSERT INTO sold_properties 
+            `INSERT INTO sold_properties
             (ownerName, ownerEmail, ownerPhone, propertyAddress, bedrooms, bathrooms, description,
-             sqft, image_data, video, documents, amount, title, rentSell, \`property-type\`, agentId, status) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [property.ownerName, property.ownerEmail, property.ownerPhone, property.propertyAddress,
-             property.bedrooms, property.bathrooms, property.description, property.sqft,
-             property.image_data, property.video, property.documents || '',
-             property.amount, property.title, property.rentSell,
-             property['property-type'], property.agentId, 'sold']
+             sqft, land_size, building_size, num_flats,
+             image_data, video, documents, amount, title, rentSell, \`property-type\`, agentId, status)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'sold')`,
+            [p.ownerName, p.ownerEmail, p.ownerPhone, p.propertyAddress, p.bedrooms, p.bathrooms,
+             p.description, p.sqft, p.land_size || null, p.building_size || null, p.num_flats || null,
+             p.image_data, p.video, p.documents || '', p.amount, p.title, p.rentSell,
+             p['property-type'], p.agentId]
         );
         await db.query('DELETE FROM all_properties WHERE id = ?', [id]);
         res.send('Property marked as sold');
-    } catch (err) {
-        console.error(err);
-        res.status(500).send('Error');
-    }
+    } catch (err) { console.error(err); res.status(500).send('Error'); }
 });
 
 // ==================== AGENT DASHBOARD & LISTINGS ====================
 newapp2.get('/submit-listing', ensureAuthenticated, async (req, res) => {
     const agentId = req.user ? req.user.id : req.session.userId;
     if (!agentId) return res.status(400).send('Invalid session');
-
     try {
         const [
             [totalPropsRows],
@@ -1547,148 +1227,105 @@ newapp2.get('/submit-listing', ensureAuthenticated, async (req, res) => {
             db.query(`SELECT s.title, u.firstName AS agentName, s.amount, s.created_at AS soldDate FROM sold_properties s JOIN signin u ON s.agentId = u.id WHERE s.agentId = ?`, [agentId]),
             db.query(`SELECT 'G.O AREGBAN Real Estate' AS siteTitle, 'esvgoddey@gmail.com' AS adminEmail`)
         ]);
-
         res.render('agent-dashboard', {
             totalProperties: totalPropsRows[0].totalProperties,
             totalAgents: totalAgentsRows[0].totalAgents,
             pendingApprovals: pendingRows[0].pendingApprovals,
             soldProperties: soldRows[0].soldProperties,
             activities, agents, approvals, customers, soldProps,
-            siteTitle: settings[0].siteTitle,
-            adminEmail: settings[0].adminEmail,
+            siteTitle: settings[0].siteTitle, adminEmail: settings[0].adminEmail,
             username: req.session.firstName || (req.user && req.user.firstName),
             surname: req.session.lastName || (req.user && req.user.lastName),
             isAdmin: req.session.role === 'admin' || isAdminEmail(req.user?.email),
             isAgent: req.session.role === 'agent'
         });
-    } catch (err) {
-        console.error('Data fetch error:', err);
-        res.status(500).send('Server error');
-    }
+    } catch (err) { console.error(err); res.status(500).send('Server error'); }
 });
 
 newapp2.get('/manage-listings', ensureAuthenticated, async (req, res) => {
     const agentId = req.user.id;
     if (!agentId) return res.status(400).send('Invalid session: Agent ID not found');
-
     try {
-        const [
-            [pendingListings],
-            [approvedListings],
-            [soldListings],
-            [allListings]
-        ] = await Promise.all([
+        const [[pendingListings], [approvedListings], [soldListings], [allListings]] = await Promise.all([
             db.query(`SELECT id, title, status FROM sales_approval WHERE agentId = ? AND status = 'pending'`, [agentId]),
             db.query(`SELECT id, title, status FROM all_properties WHERE agentId = ? AND status = 'approved'`, [agentId]),
             db.query(`SELECT id, title, status FROM sold_properties WHERE agentId = ?`, [agentId]),
             db.query(`(SELECT id, title, status FROM all_properties WHERE agentId = ?) UNION (SELECT id, title, status FROM sold_properties WHERE agentId = ?)`, [agentId, agentId])
         ]);
-
-        res.render('manage-listing', {
-            title: 'Manage Listings',
-            pendingListings, approvedListings, soldListings, allListings
-        });
-    } catch (err) {
-        console.error('Data fetch error for manage-listings:', err);
-        res.status(500).send('Server error');
-    }
+        res.render('manage-listing', { title: 'Manage Listings', pendingListings, approvedListings, soldListings, allListings });
+    } catch (err) { console.error(err); res.status(500).send('Server error'); }
 });
 
 newapp2.get('/agent/listings/all', ensureAuthenticated, async (req, res) => {
-    const agentId = req.user.id;
     try {
-        const [results] = await db.query('SELECT id, title, status FROM all_properties WHERE agentId = ?', [agentId]);
+        const [results] = await db.query('SELECT id, title, status FROM all_properties WHERE agentId = ?', [req.user.id]);
         res.json(results);
-    } catch (err) {
-        console.error('Database error fetching all listings:', err);
-        res.status(500).json({ error: 'Database error: ' + err.message });
-    }
+    } catch (err) { res.status(500).json({ error: 'Database error: ' + err.message }); }
 });
 
 newapp2.get('/agent/listings/pending', ensureAuthenticated, async (req, res) => {
-    const agentId = req.user.id;
     try {
-        const [results] = await db.query('SELECT id, title, status FROM sales_approval WHERE agentId = ? AND status = "pending"', [agentId]);
+        const [results] = await db.query('SELECT id, title, status FROM sales_approval WHERE agentId = ? AND status = "pending"', [req.user.id]);
         res.json(results);
-    } catch (err) {
-        console.error('Database error fetching pending listings:', err);
-        res.status(500).json({ error: 'Database error: ' + err.message });
-    }
+    } catch (err) { res.status(500).json({ error: 'Database error: ' + err.message }); }
 });
 
 newapp2.get('/agent/listings/approved', ensureAuthenticated, async (req, res) => {
-    const agentId = req.user.id;
     try {
-        const [results] = await db.query('SELECT id, title, status FROM all_properties WHERE agentId = ? AND status = "approved"', [agentId]);
+        const [results] = await db.query('SELECT id, title, status FROM all_properties WHERE agentId = ? AND status = "approved"', [req.user.id]);
         res.json(results);
-    } catch (err) {
-        console.error('Database error fetching approved listings:', err);
-        res.status(500).json({ error: 'Database error: ' + err.message });
-    }
+    } catch (err) { res.status(500).json({ error: 'Database error: ' + err.message }); }
 });
 
 newapp2.get('/agent/listings/sold', ensureAuthenticated, async (req, res) => {
-    const agentId = req.user.id;
     try {
-        const [results] = await db.query('SELECT id, title, status FROM sold_properties WHERE agentId = ?', [agentId]);
+        const [results] = await db.query('SELECT id, title, status FROM sold_properties WHERE agentId = ?', [req.user.id]);
         res.json(results);
-    } catch (err) {
-        console.error('Database error fetching sold listings:', err);
-        res.status(500).json({ error: 'Database error: ' + err.message });
-    }
+    } catch (err) { res.status(500).json({ error: 'Database error: ' + err.message }); }
 });
 
 newapp2.get('/edit-property/:id', requireAgent, async (req, res) => {
     const propertyId = req.params.id;
     const agentId = req.session.userId;
-
     try {
         const [[pending], [approved], [sold]] = await Promise.all([
             db.query(`SELECT *, 'pending' AS tableName FROM sales_approval WHERE id = ? AND agentId = ?`, [propertyId, agentId]),
             db.query(`SELECT *, 'approved' AS tableName FROM all_properties WHERE id = ? AND agentId = ?`, [propertyId, agentId]),
             db.query(`SELECT *, 'sold' AS tableName FROM sold_properties WHERE id = ? AND agentId = ?`, [propertyId, agentId])
         ]);
-
         const property = [...pending, ...approved, ...sold][0];
         if (!property) return res.status(404).json({ error: 'Property not found or not owned by you' });
         res.json(property);
-    } catch (err) {
-        console.error('Error fetching property for edit:', err);
-        res.status(500).json({ error: 'Database error' });
-    }
+    } catch (err) { console.error(err); res.status(500).json({ error: 'Database error' }); }
 });
 
 newapp2.post('/update-property/:id', requireAgent, async (req, res) => {
     const propertyId = req.params.id;
     const agentId = req.session.userId;
-    const { title, description, amount, rentSell, property_type, status, bedrooms, bathrooms } = req.body;
-
+    const { title, description, amount, rentSell, property_type, status, bedrooms, bathrooms, land_size, building_size, num_flats } = req.body;
     try {
         const [findResults] = await db.query(`
             SELECT 'pending' AS tableName FROM sales_approval WHERE id = ? AND agentId = ?
-            UNION
-            SELECT 'approved' AS tableName FROM all_properties WHERE id = ? AND agentId = ?
-            UNION
-            SELECT 'sold' AS tableName FROM sold_properties WHERE id = ? AND agentId = ?
+            UNION SELECT 'approved' AS tableName FROM all_properties WHERE id = ? AND agentId = ?
+            UNION SELECT 'sold' AS tableName FROM sold_properties WHERE id = ? AND agentId = ?
         `, [propertyId, agentId, propertyId, agentId, propertyId, agentId]);
-
         if (findResults.length === 0) return res.status(404).json({ error: 'Property not found or not owned by you' });
-
         const tableName = findResults[0].tableName;
         let table, propertyTypeColumn;
-        if (tableName === 'pending')   { table = 'sales_approval'; propertyTypeColumn = 'property_type'; }
+        if (tableName === 'pending')   { table = 'sales_approval';  propertyTypeColumn = 'property_type'; }
         else if (tableName === 'approved') { table = 'all_properties'; propertyTypeColumn = '`property-type`'; }
         else { table = 'sold_properties'; propertyTypeColumn = '`property-type`'; }
-
         await db.query(
-            `UPDATE ${table} SET title = ?, description = ?, amount = ?, rentSell = ?, ${propertyTypeColumn} = ?, status = ?, bedrooms = ?, bathrooms = ? WHERE id = ? AND agentId = ?`,
-            [title, description, amount, rentSell, property_type, status, bedrooms, bathrooms, propertyId, agentId]
+            `UPDATE ${table} SET title = ?, description = ?, amount = ?, rentSell = ?,
+             ${propertyTypeColumn} = ?, status = ?, bedrooms = ?, bathrooms = ?,
+             land_size = ?, building_size = ?, num_flats = ?
+             WHERE id = ? AND agentId = ?`,
+            [title, description, amount, rentSell, property_type, status, bedrooms, bathrooms,
+             land_size || null, building_size || null, num_flats ? parseInt(num_flats) : null,
+             propertyId, agentId]
         );
         res.json({ success: true, message: 'Property updated successfully' });
-    } catch (err) {
-        console.error('Error updating property:', err);
-        res.status(500).json({ error: 'Update failed: ' + err.message });
-    }
+    } catch (err) { console.error(err); res.status(500).json({ error: 'Update failed: ' + err.message }); }
 });
 
 // ==================== TRACK PERFORMANCE ====================
@@ -1699,32 +1336,21 @@ newapp2.get('/track-performance', ensureAuthenticated, async (req, res) => {
         views: [1200, 1500, 1800, 2200, 2500, 2800],
         inquiries: [100, 150, 200, 250, 300, 350]
     };
-
     try {
-        const [
-            [totalPropsRows],
-            [pendingRows],
-            [soldRows],
-            [activities]
-        ] = await Promise.all([
+        const [[totalPropsRows], [pendingRows], [soldRows], [activities]] = await Promise.all([
             db.query(`SELECT COUNT(*) AS totalProperties FROM (SELECT id FROM all_properties WHERE agentId = ? UNION SELECT id FROM sold_properties WHERE agentId = ?) AS combined`, [agentId, agentId]),
             db.query(`SELECT COUNT(*) AS pendingApprovals FROM sales_approval WHERE agentId = ? AND status = 'pending'`, [agentId]),
             db.query(`SELECT COUNT(*) AS soldProperties FROM sold_properties WHERE agentId = ?`, [agentId]),
             db.query(`SELECT CONCAT('Property: ', title) AS description, created_at AS date FROM all_properties WHERE agentId = ? ORDER BY created_at DESC LIMIT 5`, [agentId])
         ]);
-
         res.render('track-performance', {
             title: 'Track Performance',
             totalProperties: totalPropsRows[0].totalProperties,
             pendingApprovals: pendingRows[0].pendingApprovals,
             soldProperties: soldRows[0].soldProperties,
-            activities,
-            chartData
+            activities, chartData
         });
-    } catch (err) {
-        console.error('Data fetch error for track-performance:', err);
-        res.status(500).send('Server error');
-    }
+    } catch (err) { console.error(err); res.status(500).send('Server error'); }
 });
 
 // ==================== CHAT ROUTES ====================
@@ -1732,16 +1358,14 @@ newapp2.get('/chat', ensureAuthenticated, async (req, res) => {
     const userId = req.user.id;
     const successMessage = req.query.success;
     const receiverId = req.query.receiverId;
-
     try {
         if (receiverId) {
             const [receiverResults] = await db.query("SELECT firstName, lastName, role FROM signin WHERE id = ?", [receiverId]);
-            let receiverName = 'Unknown';
-            let isAgent = false;
+            let receiverName = 'Unknown', isAgent = false;
             if (receiverResults.length > 0) {
-                const receiver = receiverResults[0];
-                receiverName = `${receiver.firstName || ''} ${receiver.lastName || ''}`.trim() || (isAdminEmail(receiver.email) ? 'Admin' : 'Unknown');
-                isAgent = receiver.role === 'agent';
+                const r = receiverResults[0];
+                receiverName = `${r.firstName || ''} ${r.lastName || ''}`.trim() || 'Unknown';
+                isAgent = r.role === 'agent';
             }
             const [messages] = await db.query(
                 'SELECT * FROM chat_messages WHERE (sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?) ORDER BY timestamp ASC',
@@ -1750,16 +1374,16 @@ newapp2.get('/chat', ensureAuthenticated, async (req, res) => {
             res.render('chat', { messages, userId, receiverId, success: successMessage, receiverName, isAgent, chatList: null });
         } else {
             const [chatList] = await db.query(`
-                SELECT DISTINCT 
+                SELECT DISTINCT
                     CASE WHEN cm.sender_id = ? THEN cm.receiver_id ELSE cm.sender_id END AS receiverId,
                     s.firstName, s.lastName, s.role,
-                    (SELECT message FROM chat_messages 
-                     WHERE (sender_id = ? AND receiver_id = CASE WHEN cm.sender_id = ? THEN cm.receiver_id ELSE cm.sender_id END) 
-                        OR (sender_id = CASE WHEN cm.sender_id = ? THEN cm.receiver_id ELSE cm.sender_id END AND receiver_id = ?) 
+                    (SELECT message FROM chat_messages
+                     WHERE (sender_id = ? AND receiver_id = CASE WHEN cm.sender_id = ? THEN cm.receiver_id ELSE cm.sender_id END)
+                        OR (sender_id = CASE WHEN cm.sender_id = ? THEN cm.receiver_id ELSE cm.sender_id END AND receiver_id = ?)
                      ORDER BY timestamp DESC LIMIT 1) AS lastMessage,
-                    (SELECT timestamp FROM chat_messages 
-                     WHERE (sender_id = ? AND receiver_id = CASE WHEN cm.sender_id = ? THEN cm.receiver_id ELSE cm.sender_id END) 
-                        OR (sender_id = CASE WHEN cm.sender_id = ? THEN cm.receiver_id ELSE cm.sender_id END AND receiver_id = ?) 
+                    (SELECT timestamp FROM chat_messages
+                     WHERE (sender_id = ? AND receiver_id = CASE WHEN cm.sender_id = ? THEN cm.receiver_id ELSE cm.sender_id END)
+                        OR (sender_id = CASE WHEN cm.sender_id = ? THEN cm.receiver_id ELSE cm.sender_id END AND receiver_id = ?)
                      ORDER BY timestamp DESC LIMIT 1) AS lastMessageTime
                 FROM chat_messages cm
                 JOIN signin s ON s.id = CASE WHEN cm.sender_id = ? THEN cm.receiver_id ELSE cm.sender_id END
@@ -1769,17 +1393,14 @@ newapp2.get('/chat', ensureAuthenticated, async (req, res) => {
             );
             const processedChatList = chatList.map(chat => ({
                 receiverId: chat.receiverId,
-                receiverName: `${chat.firstName || ''} ${chat.lastName || ''}`.trim() || (chat.role === 'admin' ? 'Admin' : 'Unknown'),
+                receiverName: `${chat.firstName || ''} ${chat.lastName || ''}`.trim() || 'Unknown',
                 isAgent: chat.role === 'agent',
                 lastMessage: chat.lastMessage,
                 lastMessageTime: chat.lastMessageTime
             }));
             res.render('chat', { messages: null, userId, receiverId: null, success: successMessage, receiverName: null, isAgent: null, chatList: processedChatList });
         }
-    } catch (err) {
-        console.error('Chat error:', err);
-        res.status(500).send('Error loading chat');
-    }
+    } catch (err) { console.error(err); res.status(500).send('Error loading chat'); }
 });
 
 newapp2.get('/customer-chat', ensureAuthenticated, async (req, res) => {
@@ -1788,54 +1409,37 @@ newapp2.get('/customer-chat', ensureAuthenticated, async (req, res) => {
     try {
         const [agents] = await db.query('SELECT id FROM signin WHERE role = "agent" LIMIT 1');
         if (agents.length === 0) return res.send('No agents available.');
-        const agentId = agents[0].id;
-        res.render('customer-chat', { agentId, clientId });
-    } catch (err) {
-        console.error('Error in customer-chat:', err);
-        res.status(500).send('Server error');
-    }
+        res.render('customer-chat', { agentId: agents[0].id, clientId });
+    } catch (err) { console.error(err); res.status(500).send('Server error'); }
 });
 
 newapp2.get('/api/staff-list', ensureAuthenticated, async (req, res) => {
     try {
         const [results] = await db.query("SELECT id, firstName, lastName, role FROM signin WHERE role IN ('admin', 'agent')");
         res.json(results);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json([]);
-    }
+    } catch (err) { console.error(err); res.status(500).json([]); }
 });
 
 newapp2.post('/chat/send', ensureAuthenticated, async (req, res) => {
     const { senderId, receiverId, message } = req.body;
-    if (!senderId || !receiverId || !message) {
-        return res.status(400).json({ error: 'Missing required fields' });
-    }
+    if (!senderId || !receiverId || !message) return res.status(400).json({ error: 'Missing required fields' });
     try {
-        const [result] = await db.query(
-            'INSERT INTO chat_messages (sender_id, receiver_id, message, timestamp) VALUES (?, ?, ?, NOW())',
-            [senderId, receiverId, message]
-        );
+        const [result] = await db.query('INSERT INTO chat_messages (sender_id, receiver_id, message, timestamp) VALUES (?, ?, ?, NOW())', [senderId, receiverId, message]);
         res.json({ success: true, messageId: result.insertId });
-    } catch (err) {
-        console.error('Error saving message:', err);
-        res.status(500).json({ error: 'Error saving message' });
-    }
+    } catch (err) { console.error(err); res.status(500).json({ error: 'Error saving message' }); }
 });
 
 newapp2.get('/agent-chat', ensureAuthenticated, async (req, res) => {
     const userId = req.user.id;
     const receiverId = req.query.receiverId;
-
     try {
         if (receiverId) {
             const [receiverResults] = await db.query("SELECT firstName, lastName, role FROM signin WHERE id = ?", [receiverId]);
-            let receiverName = 'Client';
-            let isClient = false;
+            let receiverName = 'Client', isClient = false;
             if (receiverResults.length > 0) {
-                const receiver = receiverResults[0];
-                receiverName = `${receiver.firstName || ''} ${receiver.lastName || ''}`.trim() || 'Client';
-                isClient = receiver.role === 'user';
+                const r = receiverResults[0];
+                receiverName = `${r.firstName || ''} ${r.lastName || ''}`.trim() || 'Client';
+                isClient = r.role === 'user';
             }
             const [messages] = await db.query(
                 'SELECT * FROM chat_messages WHERE (sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?) ORDER BY timestamp ASC',
@@ -1844,7 +1448,7 @@ newapp2.get('/agent-chat', ensureAuthenticated, async (req, res) => {
             res.render('agent-chat', { messages, userId, receiverId, receiverName, isClient, chatList: null });
         } else {
             const [chatList] = await db.query(`
-                SELECT DISTINCT 
+                SELECT DISTINCT
                     CASE WHEN cm.sender_id = ? THEN cm.receiver_id ELSE cm.sender_id END AS receiverId,
                     s.firstName, s.lastName, s.role,
                     (SELECT message FROM chat_messages WHERE (sender_id = ? AND receiver_id = CASE WHEN cm.sender_id = ? THEN cm.receiver_id ELSE cm.sender_id END) OR (sender_id = CASE WHEN cm.sender_id = ? THEN cm.receiver_id ELSE cm.sender_id END AND receiver_id = ?) ORDER BY timestamp DESC LIMIT 1) AS lastMessage,
@@ -1864,41 +1468,30 @@ newapp2.get('/agent-chat', ensureAuthenticated, async (req, res) => {
             }));
             res.render('agent-chat', { messages: null, userId, receiverId: null, receiverName: null, isClient: null, chatList: processedChatList });
         }
-    } catch (err) {
-        console.error('Agent chat error:', err);
-        res.status(500).send('Error loading chats');
-    }
+    } catch (err) { console.error(err); res.status(500).send('Error loading chats'); }
 });
 
 newapp2.post('/agent-chat/send', ensureAuthenticated, async (req, res) => {
     const { senderId, receiverId, message } = req.body;
     if (!senderId || !receiverId || !message) return res.status(400).json({ error: 'Missing required fields' });
     try {
-        const [result] = await db.query(
-            'INSERT INTO chat_messages (sender_id, receiver_id, message, timestamp) VALUES (?, ?, ?, NOW())',
-            [senderId, receiverId, message]
-        );
+        const [result] = await db.query('INSERT INTO chat_messages (sender_id, receiver_id, message, timestamp) VALUES (?, ?, ?, NOW())', [senderId, receiverId, message]);
         res.json({ success: true, messageId: result.insertId });
-    } catch (err) {
-        console.error('Error saving message:', err);
-        res.status(500).json({ error: 'Error saving message' });
-    }
+    } catch (err) { console.error(err); res.status(500).json({ error: 'Error saving message' }); }
 });
 
 newapp2.get('/admin-chat', ensureAuthenticated, async (req, res) => {
-    if (!req.user) return res.status(401).send('Unauthorized: Please log in first.');
+    if (!req.user) return res.status(401).send('Unauthorized');
     const userId = req.user.id;
     const receiverId = req.query.receiverId;
-
     try {
         if (receiverId) {
             const [receiverResults] = await db.query("SELECT firstName, lastName, role FROM signin WHERE id = ?", [receiverId]);
-            let receiverName = 'Client';
-            let isClient = false;
+            let receiverName = 'Client', isClient = false;
             if (receiverResults.length > 0) {
-                const receiver = receiverResults[0];
-                receiverName = `${receiver.firstName || ''} ${receiver.lastName || ''}`.trim() || 'Client';
-                isClient = receiver.role === 'user';
+                const r = receiverResults[0];
+                receiverName = `${r.firstName || ''} ${r.lastName || ''}`.trim() || 'Client';
+                isClient = r.role === 'user';
             }
             const [messages] = await db.query(
                 'SELECT * FROM chat_messages WHERE (sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?) ORDER BY timestamp ASC',
@@ -1907,7 +1500,7 @@ newapp2.get('/admin-chat', ensureAuthenticated, async (req, res) => {
             res.render('admin-chat', { messages, userId, receiverId, receiverName, isClient, chatList: null });
         } else {
             const [chatList] = await db.query(`
-                SELECT DISTINCT 
+                SELECT DISTINCT
                     CASE WHEN cm.sender_id = ? THEN cm.receiver_id ELSE cm.sender_id END AS receiverId,
                     s.firstName, s.lastName, s.role,
                     (SELECT message FROM chat_messages WHERE (sender_id = ? AND receiver_id = CASE WHEN cm.sender_id = ? THEN cm.receiver_id ELSE cm.sender_id END) OR (sender_id = CASE WHEN cm.sender_id = ? THEN cm.receiver_id ELSE cm.sender_id END AND receiver_id = ?) ORDER BY timestamp DESC LIMIT 1) AS lastMessage,
@@ -1927,37 +1520,25 @@ newapp2.get('/admin-chat', ensureAuthenticated, async (req, res) => {
             }));
             res.render('admin-chat', { messages: null, userId, receiverId: null, receiverName: null, isClient: null, chatList: processedChatList });
         }
-    } catch (err) {
-        console.error('Admin chat error:', err);
-        res.status(500).send('Error loading chats');
-    }
+    } catch (err) { console.error(err); res.status(500).send('Error loading chats'); }
 });
 
 // ==================== MISC ROUTES ====================
 newapp2.get('/inquiries', ensureAuthenticated, async (req, res) => {
-    if (req.session.role !== 'agent' && !isAdminEmail(req.user.email)) {
-        return res.redirect('/login');
-    }
+    if (req.session.role !== 'agent' && !isAdminEmail(req.user.email)) return res.redirect('/login');
     try {
         const [enquiries] = await db.query('SELECT * FROM enquiries ORDER BY timestamp DESC');
         res.render('enquiry', { enquiries });
-    } catch (err) {
-        console.error('Error fetching enquiries:', err);
-        res.status(500).send('Server error');
-    }
+    } catch (err) { console.error(err); res.status(500).send('Server error'); }
 });
 
-newapp2.get('/property-valuation', ensureAuthenticated, (req, res) => {
-    res.render('property-valuation');
-});
+newapp2.get('/property-valuation', ensureAuthenticated, (req, res) => res.render('property-valuation'));
 
-// AI Valuation endpoint
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY || "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" });
 
 newapp2.post('/valuate', ensureAuthenticated, async (req, res) => {
     const { prompt } = req.body;
     if (!prompt) return res.status(400).json({ error: 'Prompt is required' });
-
     try {
         const completion = await groq.chat.completions.create({
             model: 'llama-3.1-8b-instant',
@@ -1968,36 +1549,25 @@ newapp2.post('/valuate', ensureAuthenticated, async (req, res) => {
             max_tokens: 1000,
             temperature: 0.3,
         });
-
         const raw = completion.choices[0].message.content;
         const match = raw.match(/\{[\s\S]*\}/);
         if (!match) throw new Error('Could not parse AI response');
         res.json(JSON.parse(match[0]));
-    } catch (error) {
-        console.error('Groq error:', error.message);
-        res.status(500).json({ error: 'Valuation failed: ' + error.message });
-    }
+    } catch (error) { console.error('Groq error:', error.message); res.status(500).json({ error: 'Valuation failed: ' + error.message }); }
 });
 
 newapp2.get('/gallery', async (req, res) => {
     try {
         const [card] = await db.query("SELECT * FROM all_properties ORDER BY id DESC");
         res.render('gallery', { card });
-    } catch (err) {
-        console.error(err);
-        res.status(500).send('Server error');
-    }
+    } catch (err) { console.error(err); res.status(500).send('Server error'); }
 });
 
 // ==================== START SERVER ====================
 const PORT = process.env.PORT || 3000;
 
 connectWithRetry().then(() => {
-    server.listen(PORT, '0.0.0.0', () => {
-        console.log(`Server running on port ${PORT}`);
-    });
+    server.listen(PORT, '0.0.0.0', () => console.log(`Server running on port ${PORT}`));
 }).catch(() => {
-    server.listen(PORT, '0.0.0.0', () => {
-        console.log(`Server started (DB may be unavailable)`);
-    });
+    server.listen(PORT, '0.0.0.0', () => console.log(`Server started (DB may be unavailable)`));
 });
