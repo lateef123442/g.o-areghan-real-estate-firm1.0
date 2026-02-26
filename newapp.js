@@ -1856,7 +1856,7 @@ newapp2.get('/property-valuation', ensureAuthenticated, (req, res) => {
 
 // AI Valuation endpoint
 // SECURITY NOTE: Move your Groq API key to .env as GROQ_API_KEY
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY || "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" });
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY || "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" });
 
 newapp2.post('/valuate', ensureAuthenticated, async (req, res) => {
     const { prompt } = req.body;
@@ -1910,6 +1910,7 @@ connectWithRetry().then(() => {
         console.log(`Server started (DB may be unavailable)`);
     });
 });
+
 
 
 
