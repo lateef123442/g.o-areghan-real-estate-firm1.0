@@ -582,15 +582,31 @@ newapp2.get('/track-sales.html', ensureAuthenticated, async (req, res) => {
 newapp2.get('/register.html', (req, res) => res.render('signin-page'));
 
 // ==================== PROPERTY UPLOAD ====================
-// Updated: now accepts 'documents' field (PDF, DOC, XLS, etc.)
-// SQL required: ALTER TABLE sales_approval ADD COLUMN documents TEXT NULL AFTER video;
-//               ALTER TABLE all_properties  ADD COLUMN documents TEXT NULL AFTER video;
-//               ALTER TABLE sold_properties ADD COLUMN documents TEXT NULL AFTER video;
-newapp2.post('/upload', upload.fields([
-    { name: 'image',     maxCount: 10 },
-    { name: 'video',     maxCount: 5  },
-    { name: 'documents', maxCount: 10 }
-]), async (req, res) => {
+// All file fields (image, video, documents) are OPTIONAL.
+// SQL required: ALTER TABLE sales_approval ADD COLUMN IF NOT EXISTS documents TEXT NULL AFTER video;
+//               ALTER TABLE all_properties  ADD COLUMN IF NOT EXISTS documents TEXT NULL AFTER video;
+//               ALTER TABLE sold_properties ADD COLUMN IF NOT EXISTS documents TEXT NULL AFTER video;
+//               Also ensure image_data and video columns are NULL-able:
+//               ALTER TABLE sales_approval  MODIFY COLUMN image_data TEXT NULL;
+//               ALTER TABLE sales_approval  MODIFY COLUMN video      TEXT NULL;
+//               ALTER TABLE all_properties  MODIFY COLUMN image_data TEXT NULL;
+//               ALTER TABLE all_properties  MODIFY COLUMN video      TEXT NULL;
+//               ALTER TABLE sold_properties MODIFY COLUMN image_data TEXT NULL;
+//               ALTER TABLE sold_properties MODIFY COLUMN video      TEXT NULL;
+newapp2.post('/upload', (req, res, next) => {
+    // Wrap multer so we can return a clean JSON error instead of crashing
+    upload.fields([
+        { name: 'image',     maxCount: 10 },
+        { name: 'video',     maxCount: 5  },
+        { name: 'documents', maxCount: 10 }
+    ])(req, res, (err) => {
+        if (err) {
+            console.error('Multer error:', err.message);
+            return res.status(400).json({ success: false, message: err.message });
+        }
+        next();
+    });
+}, async (req, res) => {
     if (!req.user) return res.status(401).json({ success: false, message: 'Unauthorized' });
 
     const userId = req.user.id;
@@ -598,9 +614,11 @@ newapp2.post('/upload', upload.fields([
         const [results] = await db.query('SELECT role FROM signin WHERE id = ?', [userId]);
         if (results.length === 0) return res.status(404).json({ success: false, message: 'User not found' });
 
-        const imagePaths    = req.files.image     ? req.files.image.map(f => f.path).join(',')     : '';
-        const videoPaths    = req.files.video     ? req.files.video.map(f => f.path).join(',')     : '';
-        const documentPaths = req.files.documents ? req.files.documents.map(f => f.path).join(',') : '';
+        // All three file fields are fully optional — default to empty string if not provided
+        const files        = req.files || {};
+        const imagePaths    = files.image     ? files.image.map(f => f.path).join(',')     : '';
+        const videoPaths    = files.video     ? files.video.map(f => f.path).join(',')     : '';
+        const documentPaths = files.documents ? files.documents.map(f => f.path).join(',') : '';
 
         const {
             ownerName, ownerEmail, ownerPhone, propertyAddress,
