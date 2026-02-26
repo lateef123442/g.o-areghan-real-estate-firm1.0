@@ -21,7 +21,6 @@ const Groq = require('groq-sdk');
 const mysql = require('mysql2/promise');
 
 const newapp2 = express();
-// FIX: Use server.listen() instead of newapp2.listen() so Socket.IO works
 const server = http.createServer(newapp2);
 const io = socketIo(server);
 
@@ -29,38 +28,75 @@ newapp2.use(cors());
 newapp2.use(express.json());
 newapp2.use(express.urlencoded({ extended: true }));
 
-// Middleware for handling file uploads
+// ==================== ADMIN EMAILS ====================
+// Both emails are treated as admin
+const ADMIN_EMAILS = ['esvgoddey@gmail.com', 'ibarealestate2023@gmail.com'];
+
+function isAdminEmail(email) {
+    return ADMIN_EMAILS.includes(email);
+}
+
+// ==================== MULTER CONFIG ====================
+// Updated: organises uploads into sub-folders, validates MIME types,
+// sanitises filenames, enforces 20 MB per file limit, supports documents field.
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        const dir = 'uploads/';
-        if (!fs.existsSync(dir)) {
-            fs.mkdirSync(dir);
-        }
+        let dir = 'uploads/';
+        if (file.fieldname === 'image')          dir = 'uploads/images/';
+        else if (file.fieldname === 'video')     dir = 'uploads/videos/';
+        else if (file.fieldname === 'documents') dir = 'uploads/documents/';
+
+        if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
         cb(null, dir);
     },
     filename: (req, file, cb) => {
-        cb(null, Date.now() + path.extname(file.originalname));
+        const safeName = file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_');
+        cb(null, Date.now() + '_' + safeName);
     }
 });
 
-const upload = multer({ storage: storage });
+const fileFilter = (req, file, cb) => {
+    const allowedMimeTypes = [
+        // Images
+        'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/bmp',
+        // Videos
+        'video/mp4', 'video/mpeg', 'video/quicktime', 'video/x-msvideo', 'video/webm',
+        // Documents
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/vnd.ms-excel',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'application/vnd.ms-powerpoint',
+        'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        'text/plain',
+    ];
+    if (allowedMimeTypes.includes(file.mimetype)) {
+        cb(null, true);
+    } else {
+        cb(new Error(`File type not allowed: ${file.mimetype}`), false);
+    }
+};
 
-// Set up session middleware
+const upload = multer({
+    storage,
+    fileFilter,
+    limits: { fileSize: 20 * 1024 * 1024 } // 20 MB per file
+});
+
+// ==================== SESSION ====================
 newapp2.use(session({
     secret: process.env.SESSION_SECRET || 'lateef.2008',
     resave: false,
     saveUninitialized: false
 }));
 
-// Authentication middleware
+// ==================== AUTH MIDDLEWARE ====================
 function ensureAuthenticated(req, res, next) {
-    if (req.isAuthenticated()) {
-        return next();
-    }
+    if (req.isAuthenticated()) return next();
     res.redirect('/login');
 }
 
-// Middleware to check if agent is logged in
 function requireAgent(req, res, next) {
     if (req.session && req.session.role === 'agent' && req.session.userId) {
         next();
@@ -70,16 +106,14 @@ function requireAgent(req, res, next) {
     }
 }
 
-// Initialize Passport.js
+// ==================== PASSPORT ====================
 newapp2.use(passport.initialize());
 newapp2.use(passport.session());
 
-// Serialize user into the session
 passport.serializeUser((user, done) => {
     done(null, user.id);
 });
 
-// Deserialize user from the session
 passport.deserializeUser(async (id, done) => {
     try {
         const [results] = await db.query('SELECT * FROM signin WHERE id = ?', [id]);
@@ -89,7 +123,7 @@ passport.deserializeUser(async (id, done) => {
     }
 });
 
-// Configure mail transporter
+// ==================== NODEMAILER ====================
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -99,16 +133,14 @@ const transporter = nodemailer.createTransport({
 });
 
 // ==================== DATABASE POOL ====================
-// FIX: Added connectTimeout, acquireTimeout, and retry logic to prevent 503 on cold start
 const db = mysql.createPool({
-    host:'127.0.0.1',
+    host: '127.0.0.1',
     database: 'u166499615_realestate',
-    user:'u166499615_ahmed',
+    user: 'u166499615_ahmed',
     password: 'Lateef.2008',
-    port:  3306,
+    port: 3306,
 });
 
-// FIX: Wrap DB test in a retry loop so the server doesn't crash on slow cold-start DB connections
 async function connectWithRetry(retries = 5, delayMs = 3000) {
     for (let i = 1; i <= retries; i++) {
         try {
@@ -127,27 +159,25 @@ async function connectWithRetry(retries = 5, delayMs = 3000) {
     }
 }
 
-// Set views file
+// ==================== STATIC FILES ====================
 newapp2.set('views', path.join(__dirname, 'views'));
-newapp2.use('/img', express.static(path.join(__dirname, 'public', 'img')));
-newapp2.use('/css', express.static(path.join(__dirname, 'public', 'css')));
-newapp2.use('/plugins', express.static(path.join(__dirname, 'public', 'plugins')));
-newapp2.use('/dist', express.static(path.join(__dirname, 'public', 'dist')));
-newapp2.use('/js', express.static(path.join(__dirname, 'public', 'js')));
-newapp2.use('/data', express.static(path.join(__dirname, 'public', 'data')));
-newapp2.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+newapp2.use('/img',      express.static(path.join(__dirname, 'public', 'img')));
+newapp2.use('/css',      express.static(path.join(__dirname, 'public', 'css')));
+newapp2.use('/plugins',  express.static(path.join(__dirname, 'public', 'plugins')));
+newapp2.use('/dist',     express.static(path.join(__dirname, 'public', 'dist')));
+newapp2.use('/js',       express.static(path.join(__dirname, 'public', 'js')));
+newapp2.use('/data',     express.static(path.join(__dirname, 'public', 'data')));
+newapp2.use('/uploads',  express.static(path.join(__dirname, 'uploads')));
 
-// Set view engine
 newapp2.set('view engine', 'ejs');
 
-// Body parser middleware
+// ==================== BODY PARSER ====================
 newapp2.use(bodyParser.json({ limit: '50mb' }));
 newapp2.use(bodyParser.urlencoded({ limit: '50mb', extended: true, parameterLimit: 1000000 }));
 newapp2.use(cookieParser());
 
 // ==================== SOCKET.IO ====================
 io.on('connection', (socket) => {
-
     socket.on('joinChat', (userId) => {
         socket.join(String(userId));
         console.log(`User ${userId} joined their room`);
@@ -171,7 +201,6 @@ io.on('connection', (socket) => {
 
 // ==================== API ROUTES ====================
 
-// API to check login status
 newapp2.get('/api/check-login', (req, res) => {
     if (req.user) {
         res.json({ loggedIn: true, username: req.user.firstName });
@@ -180,7 +209,7 @@ newapp2.get('/api/check-login', (req, res) => {
     }
 });
 
-// Render website page
+// ==================== PUBLIC PAGES ====================
 newapp2.get('/', async (req, res) => {
     try {
         const [card] = await db.query("SELECT * FROM all_properties LIMIT 3");
@@ -201,12 +230,10 @@ newapp2.get('/website', async (req, res) => {
     }
 });
 
-// Render login page
 newapp2.get('/login', (req, res) => {
     res.render('login');
 });
 
-// Render forgotten password
 newapp2.get('/forgot-password.html', (req, res) => {
     res.render('forgotten-password');
 });
@@ -233,17 +260,16 @@ newapp2.post('/submit', async (req, res) => {
             [firstName, middleName, lastName, email, phone, hashedPassword, 'user']
         );
 
-        // Send welcome email (non-blocking)
         const mailOptions = {
             from: process.env.EMAIL_USER || 'ibarealestate2023@gmail.com',
             to: email,
-            subject: 'Welcome to Iba Real Estate',
+            subject: 'Welcome to G.O AREGBAN Real Estate',
             html: `
-                <h1>Welcome to Iba Real Estate!</h1>
+                <h1>Welcome to G.O AREGBAN Real Estate!</h1>
                 <p>Dear ${firstName} ${lastName},</p>
-                <p>Thank you for creating an account with Iba Real Estate. We're excited to help you find your dream property!</p>
+                <p>Thank you for creating an account with G.O AREGBAN Real Estate. We're excited to help you find your dream property!</p>
                 <p>If you have any questions, don't hesitate to contact our support team.</p>
-                <p>Best regards,<br>The Iba Real Estate Team</p>
+                <p>Best regards,<br>The G.O AREGBAN Real Estate Team</p>
             `
         };
         transporter.sendMail(mailOptions, (error, info) => {
@@ -260,8 +286,8 @@ newapp2.post('/submit', async (req, res) => {
 });
 
 newapp2.get('/invalid-reg-details', (req, res) => res.render('signin-page'));
-newapp2.get('/valid-reg-details', (req, res) => res.render('login'));
-newapp2.get('/already-have-acct', (req, res) => res.render('login'));
+newapp2.get('/valid-reg-details',   (req, res) => res.render('login'));
+newapp2.get('/already-have-acct',   (req, res) => res.render('login'));
 
 // ==================== LOGIN ====================
 newapp2.post('/dashboard', async (req, res) => {
@@ -283,10 +309,11 @@ newapp2.post('/dashboard', async (req, res) => {
                 return res.status(500).send('Login error');
             }
 
-            // Admin login
-            if (email === 'esvgoddey@gmail.com') {
+            // Admin login — both admin emails get admin access
+            if (isAdminEmail(email)) {
                 req.session.isAdmin = true;
                 req.session.isAgent = false;
+                req.session.role = 'admin';
                 return res.render('valid-login', {
                     username: user.firstName,
                     surname: user.lastName,
@@ -333,7 +360,7 @@ newapp2.post('/dashboard', async (req, res) => {
                         db.query(`SELECT s.id, s.title, s.status, u.firstName AS agentName FROM sales_approval s JOIN signin u ON s.agentId = u.id WHERE s.agentId = ? AND s.status = 'pending'`, [agentId]),
                         db.query(`SELECT firstName, lastName, email, phone, role FROM signin WHERE role = 'user' LIMIT 10`),
                         db.query(`SELECT s.title, u.firstName AS agentName, s.amount, s.created_at AS soldDate FROM sold_properties s JOIN signin u ON s.agentId = u.id WHERE s.agentId = ?`, [agentId]),
-                        db.query(`SELECT 'IBA Real Estate' AS siteTitle, 'admin@example.com' AS adminEmail`)
+                        db.query(`SELECT 'G.O AREGBAN Real Estate' AS siteTitle, 'esvgoddey@gmail.com' AS adminEmail`)
                     ]);
 
                     return res.render('agent-dashboard', {
@@ -386,7 +413,7 @@ newapp2.get('/invalid-login', (req, res) => res.render('login'));
 
 newapp2.get('/index.html', ensureAuthenticated, async (req, res) => {
     if (!req.user) return res.status(401).send('Unauthorized: Please log in first.');
-    const isAdmin = req.user.email === 'ibarealestate2023@gmail.com';
+    const isAdmin = isAdminEmail(req.user.email);
     try {
         const [card] = await db.query("SELECT * FROM all_properties");
         res.render('index', { card, isAdmin });
@@ -398,7 +425,7 @@ newapp2.get('/index.html', ensureAuthenticated, async (req, res) => {
 
 newapp2.get('/buy-page.html', ensureAuthenticated, async (req, res) => {
     if (!req.user) return res.status(401).send('Unauthorized: Please log in first.');
-    const isAdmin = req.user.email === 'ibarealestate2023@gmail.com';
+    const isAdmin = isAdminEmail(req.user.email);
     try {
         const [card] = await db.query("SELECT * FROM all_properties WHERE rentSell = 'sell'");
         res.render('buy-page', { card, isAdmin });
@@ -410,13 +437,13 @@ newapp2.get('/buy-page.html', ensureAuthenticated, async (req, res) => {
 
 newapp2.get('/home-improvemet-page.html', ensureAuthenticated, (req, res) => {
     if (!req.user) return res.status(401).send('Unauthorized: Please log in first.');
-    const isAdmin = req.user.email === 'ibarealestate2023@gmail.com';
+    const isAdmin = isAdminEmail(req.user.email);
     res.render('home-improvemet-page', { isAdmin });
 });
 
 newapp2.get('/sell-page.html', ensureAuthenticated, async (req, res) => {
     if (!req.user) return res.status(401).send('Unauthorized: Please log in first.');
-    const isAdmin = req.user.email === 'ibarealestate2023@gmail.com';
+    const isAdmin = isAdminEmail(req.user.email);
     try {
         const [card] = await db.query("SELECT * FROM all_properties");
         res.render('sell-page', { card, isAdmin });
@@ -428,7 +455,7 @@ newapp2.get('/sell-page.html', ensureAuthenticated, async (req, res) => {
 
 newapp2.get('/rent-page.html', ensureAuthenticated, async (req, res) => {
     if (!req.user) return res.status(401).send('Unauthorized: Please log in first.');
-    const isAdmin = req.user.email === 'ibarealestate2023@gmail.com';
+    const isAdmin = isAdminEmail(req.user.email);
     try {
         const [card] = await db.query("SELECT * FROM all_properties WHERE rentSell = 'rent'");
         res.render('rent-page', { card, isAdmin });
@@ -440,19 +467,19 @@ newapp2.get('/rent-page.html', ensureAuthenticated, async (req, res) => {
 
 newapp2.get('/message-page.html', ensureAuthenticated, (req, res) => {
     if (!req.user) return res.status(401).send('Unauthorized: Please log in first.');
-    const isAdmin = req.user.email === 'ibarealestate2023@gmail.com';
+    const isAdmin = isAdminEmail(req.user.email);
     res.render('message-page', { isAdmin });
 });
 
 newapp2.get('/setting-page.html', ensureAuthenticated, (req, res) => {
     if (!req.user) return res.status(401).send('Unauthorized: Please log in first.');
-    const isAdmin = req.user.email === 'ibarealestate2023@gmail.com';
+    const isAdmin = isAdminEmail(req.user.email);
     res.render('setting-page', { isAdmin });
 });
 
 newapp2.get('/sales-approval.html', ensureAuthenticated, async (req, res) => {
     if (!req.user) return res.status(401).send('Unauthorized: Please log in first.');
-    const isAdmin = req.user.email === 'ibarealestate2023@gmail.com';
+    const isAdmin = isAdminEmail(req.user.email);
     try {
         const [card] = await db.query("SELECT * FROM sales_approval");
         res.render('sales-approval', { card, isAdmin });
@@ -464,13 +491,13 @@ newapp2.get('/sales-approval.html', ensureAuthenticated, async (req, res) => {
 
 newapp2.get('/notificatin-page.html', ensureAuthenticated, (req, res) => {
     if (!req.user) return res.status(401).send('Unauthorized: Please log in first.');
-    const isAdmin = req.user.email === 'ibarealestate2023@gmail.com';
+    const isAdmin = isAdminEmail(req.user.email);
     res.render('notification-page', { isAdmin });
 });
 
 newapp2.get('/tour-requested.html', ensureAuthenticated, async (req, res) => {
     if (!req.user) return res.status(401).send('Unauthorized: Please log in first.');
-    const isAdmin = req.user.email === 'ibarealestate2023@gmail.com';
+    const isAdmin = isAdminEmail(req.user.email);
     try {
         const [results] = await db.query('SELECT *, (SELECT COUNT(*) FROM request_tour) AS count FROM request_tour');
         const rowCount = results.length > 0 ? results[0].count : 0;
@@ -483,7 +510,7 @@ newapp2.get('/tour-requested.html', ensureAuthenticated, async (req, res) => {
 
 newapp2.get('/profile-page.html', ensureAuthenticated, async (req, res) => {
     if (!req.user || !req.user.id) return res.redirect('/login');
-    const isAdmin = req.user.email === 'ibarealestate2023@gmail.com';
+    const isAdmin = isAdminEmail(req.user.email);
     try {
         const [results] = await db.query(
             'SELECT id, firstName, middleName, lastName, email, phone FROM signin WHERE id = ?',
@@ -507,7 +534,6 @@ newapp2.get('/profile-page.html', ensureAuthenticated, async (req, res) => {
 });
 
 // ==================== TRACK SALES ====================
-// FIX: Converted to async/await with Promise.all — cleaner, faster, no race conditions with counter
 newapp2.get('/track-sales.html', ensureAuthenticated, async (req, res) => {
     try {
         const [
@@ -556,19 +582,26 @@ newapp2.get('/track-sales.html', ensureAuthenticated, async (req, res) => {
 newapp2.get('/register.html', (req, res) => res.render('signin-page'));
 
 // ==================== PROPERTY UPLOAD ====================
+// Updated: now accepts 'documents' field (PDF, DOC, XLS, etc.)
+// SQL required: ALTER TABLE sales_approval ADD COLUMN documents TEXT NULL AFTER video;
+//               ALTER TABLE all_properties  ADD COLUMN documents TEXT NULL AFTER video;
+//               ALTER TABLE sold_properties ADD COLUMN documents TEXT NULL AFTER video;
 newapp2.post('/upload', upload.fields([
-    { name: 'image', maxCount: 10 },
-    { name: 'video', maxCount: 5 }
+    { name: 'image',     maxCount: 10 },
+    { name: 'video',     maxCount: 5  },
+    { name: 'documents', maxCount: 10 }
 ]), async (req, res) => {
-    if (!req.user) return res.status(401).send('Unauthorized');
+    if (!req.user) return res.status(401).json({ success: false, message: 'Unauthorized' });
 
     const userId = req.user.id;
     try {
         const [results] = await db.query('SELECT role FROM signin WHERE id = ?', [userId]);
-        if (results.length === 0) return res.status(404).send('User not found');
+        if (results.length === 0) return res.status(404).json({ success: false, message: 'User not found' });
 
-        const imagePaths = req.files.image ? req.files.image.map(f => f.path).join(',') : '';
-        const videoPaths = req.files.video ? req.files.video.map(f => f.path).join(',') : '';
+        const imagePaths    = req.files.image     ? req.files.image.map(f => f.path).join(',')     : '';
+        const videoPaths    = req.files.video     ? req.files.video.map(f => f.path).join(',')     : '';
+        const documentPaths = req.files.documents ? req.files.documents.map(f => f.path).join(',') : '';
+
         const {
             ownerName, ownerEmail, ownerPhone, propertyAddress,
             bedrooms, bathrooms, sqft, description, title,
@@ -577,23 +610,45 @@ newapp2.post('/upload', upload.fields([
 
         await db.query(
             `INSERT INTO sales_approval 
-            (ownerName, ownerEmail, ownerPhone, propertyAddress, bedrooms, bathrooms, sqft, image_data, video, description, title, rentSell, amount, property_type, agentId) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            (ownerName, ownerEmail, ownerPhone, propertyAddress, bedrooms, bathrooms, sqft,
+             image_data, video, documents, description, title, rentSell, amount, property_type, agentId) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [ownerName, ownerEmail, ownerPhone, propertyAddress, bedrooms, bathrooms, sqft,
-             imagePaths, videoPaths, description, title, rentSell, amount, property_type, userId]
+             imagePaths, videoPaths, documentPaths,
+             description, title, rentSell, amount, property_type, userId]
         );
+
+        // Notify both admins
+        const notifyAdmins = ADMIN_EMAILS.map(adminEmail => {
+            const mailOptions = {
+                from: process.env.EMAIL_USER || 'ibarealestate2023@gmail.com',
+                to: adminEmail,
+                subject: 'New Property Listing Submitted for Approval',
+                html: `
+                    <h2>New Property Listing Submitted</h2>
+                    <p><strong>Title:</strong> ${title}</p>
+                    <p><strong>Agent ID:</strong> ${userId}</p>
+                    <p><strong>Address:</strong> ${propertyAddress}</p>
+                    <p><strong>Amount:</strong> ₦${amount}</p>
+                    <p><strong>Type:</strong> ${property_type}</p>
+                    <p>Please log in to review and approve/decline this listing.</p>
+                `
+            };
+            return transporter.sendMail(mailOptions);
+        });
+        Promise.all(notifyAdmins).catch(e => console.error('Admin notification email error:', e));
 
         res.json({ success: true, message: 'Property uploaded successfully! Your listing has been submitted for review.' });
     } catch (err) {
         console.error('Error in /upload:', err);
-        res.status(500).send('Error uploading property: ' + err.message);
+        res.status(500).json({ success: false, message: 'Error uploading property: ' + err.message });
     }
 });
 
 // ==================== SALES ROUTES ====================
 newapp2.get('/sales-completed', async (req, res) => {
     if (!req.user) return res.redirect('/login');
-    const isAdmin = req.user.email === 'ibarealestate2023@gmail.com';
+    const isAdmin = isAdminEmail(req.user.email);
     try {
         const [card] = await db.query("SELECT * FROM all_properties");
         res.render('sell-page', { card, isAdmin });
@@ -616,7 +671,7 @@ newapp2.get('/request-tour', ensureAuthenticated, async (req, res) => {
     const propertyId = req.query.id;
     if (!propertyId) return res.status(400).send('Property ID is required.');
 
-    const isAdmin = req.user.email === 'ibarealestate2023@gmail.com';
+    const isAdmin = isAdminEmail(req.user.email);
     try {
         const [card] = await db.query("SELECT * FROM all_properties WHERE id = ?", [propertyId]);
         if (card.length === 0) return res.status(404).send('No property found with that ID.');
@@ -635,7 +690,7 @@ newapp2.get('/request-tour', ensureAuthenticated, async (req, res) => {
 newapp2.get('/view', ensureAuthenticated, async (req, res) => {
     if (!req.user) return res.status(401).send('Unauthorized: Please log in first.');
     const propertyId = req.query.id;
-    const isAdmin = req.user.email === 'ibarealestate2023@gmail.com';
+    const isAdmin = isAdminEmail(req.user.email);
     try {
         const [card] = await db.query("SELECT * FROM sales_approval WHERE id = ?", [propertyId]);
         if (card.length === 0) return res.status(404).send('No property found with that ID.');
@@ -651,20 +706,19 @@ newapp2.get('/view', ensureAuthenticated, async (req, res) => {
     }
 });
 
-// Submit tour
 newapp2.post('/submit-tour', async (req, res) => {
     const { name, email, phone, date, time } = req.body;
     try {
-        await db.query('INSERT INTO request_tour (name, email, phone, date, time) VALUES (?, ?, ?, ?, ?)', [name, email, phone, date, time]);
+        await db.query('INSERT INTO request_tour (name, email, phone, date, time) VALUES (?, ?, ?, ?, ?)',
+            [name, email, phone, date, time]);
         res.render('tour-submitted');
     } catch (err) {
         res.status(500).send('Error inserting data: ' + err);
     }
 });
 
-// Tour submitted redirect
 newapp2.get('/tour-submitted', ensureAuthenticated, async (req, res) => {
-    const isAdmin = req.user.email === 'ibarealestate2023@gmail.com';
+    const isAdmin = isAdminEmail(req.user.email);
     try {
         const [card] = await db.query("SELECT * FROM all_properties");
         res.render('index', { card, isAdmin, userId: req.user.id, userEmail: req.user.email });
@@ -674,24 +728,23 @@ newapp2.get('/tour-submitted', ensureAuthenticated, async (req, res) => {
     }
 });
 
-// Home improvement form
 newapp2.post('/improvement-request-form', async (req, res) => {
     const { name, email, phone, message } = req.body;
     try {
-        await db.query('INSERT INTO homeImprovement (name, email, phone, message) VALUES (?, ?, ?, ?)', [name, email, phone, message]);
+        await db.query('INSERT INTO homeImprovement (name, email, phone, message) VALUES (?, ?, ?, ?)',
+            [name, email, phone, message]);
         res.render('tour-submitted');
     } catch (err) {
         res.status(500).send('Error inserting data: ' + err);
     }
 });
 
-// Edit profile
+// ==================== PROFILE ====================
 newapp2.get('/edit-profile', ensureAuthenticated, async (req, res) => {
-    const isAdmin = req.user.email === 'ibarealestate2023@gmail.com';
+    const isAdmin = isAdminEmail(req.user.email);
     res.render('setting-page', { isAdmin });
 });
 
-// Update profile
 newapp2.post('/update-profile', ensureAuthenticated, async (req, res) => {
     const { firstName, middleName, lastName, email, phone, currentPassword } = req.body;
     const userId = req.user.id;
@@ -728,7 +781,7 @@ newapp2.post('/message', ensureAuthenticated, async (req, res) => {
         const user = results[0];
         const mailOptions = {
             from: user.email,
-            to: 'ibarealestate2023@gmail.com',
+            to: ADMIN_EMAILS.join(','), // send to both admins
             subject: `New Message from ${user.firstName}`,
             text: message,
             html: `<p><strong>From:</strong> ${user.firstName} (${user.email})</p><p><strong>Message:</strong></p><p>${message}</p>`
@@ -747,6 +800,7 @@ newapp2.post('/message', ensureAuthenticated, async (req, res) => {
 });
 
 // ==================== SALES APPROVAL / DECLINE ====================
+// Updated: now carries 'documents' column when approving property
 newapp2.get('/approve', ensureAuthenticated, async (req, res) => {
     const propertyId = req.query.id;
     if (!propertyId) return res.status(400).send('Property ID is required.');
@@ -758,11 +812,13 @@ newapp2.get('/approve', ensureAuthenticated, async (req, res) => {
         const property = results[0];
         await db.query(
             `INSERT INTO all_properties 
-            (ownerName, ownerEmail, ownerPhone, propertyAddress, bedrooms, bathrooms, sqft, image_data, video, description, title, rentSell, agentId, amount, \`property-type\`, status) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'approved')`,
+            (ownerName, ownerEmail, ownerPhone, propertyAddress, bedrooms, bathrooms, sqft,
+             image_data, video, documents, description, title, rentSell, agentId, amount, \`property-type\`, status) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'approved')`,
             [property.ownerName, property.ownerEmail, property.ownerPhone, property.propertyAddress,
              property.bedrooms, property.bathrooms, property.sqft, property.image_data,
-             property.video, property.description, property.title, property.rentSell,
+             property.video, property.documents || '',
+             property.description, property.title, property.rentSell,
              property.agentId, property.amount, property.property_type]
         );
         await db.query('INSERT INTO total_amount (amount) VALUES (?)', [property.amount]);
@@ -791,7 +847,7 @@ newapp2.get('/decline', ensureAuthenticated, async (req, res) => {
 
 // ==================== CUSTOMERS ====================
 newapp2.get('/view-customers.html', ensureAuthenticated, async (req, res) => {
-    const isAdmin = req.user.email === 'ibarealestate2023@gmail.com';
+    const isAdmin = isAdminEmail(req.user.email);
     try {
         const [results] = await db.query(
             'SELECT id, firstName, middleName, email, phone, (SELECT COUNT(*) FROM signin) AS count FROM signin'
@@ -819,7 +875,7 @@ newapp2.get('/approve-tour', ensureAuthenticated, async (req, res) => {
             from: process.env.EMAIL_USER || 'ibarealestate2023@gmail.com',
             to: tour.email,
             subject: 'Tour Request Approved',
-            text: `Dear ${tour.name},\n\nYour tour request has been approved.\n\nBest regards,\nIba Real Estate`
+            text: `Dear ${tour.name},\n\nYour tour request has been approved.\n\nBest regards,\nG.O AREGBAN Real Estate`
         };
 
         transporter.sendMail(mailOptions, async (error) => {
@@ -852,7 +908,7 @@ newapp2.get('/decline-tour', ensureAuthenticated, async (req, res) => {
             from: process.env.EMAIL_USER || 'ibarealestate2023@gmail.com',
             to: tour.email,
             subject: 'Tour Request Declined',
-            text: `Dear ${tour.name},\n\nYour tour request has been declined.\n\nBest regards,\nIba Real Estate`
+            text: `Dear ${tour.name},\n\nYour tour request has been declined.\n\nBest regards,\nG.O AREGBAN Real Estate`
         };
 
         transporter.sendMail(mailOptions, async (error) => {
@@ -875,7 +931,7 @@ newapp2.get('/decline-tour', ensureAuthenticated, async (req, res) => {
 });
 
 newapp2.get('/tour-approved-successfully', ensureAuthenticated, async (req, res) => {
-    const isAdmin = req.user.email === 'ibarealestate2023@gmail.com';
+    const isAdmin = isAdminEmail(req.user.email);
     try {
         const [results] = await db.query('SELECT *, (SELECT COUNT(*) FROM request_tour) AS count FROM request_tour');
         const rowCount = results.length > 0 ? results[0].count : 0;
@@ -887,7 +943,7 @@ newapp2.get('/tour-approved-successfully', ensureAuthenticated, async (req, res)
 });
 
 newapp2.get('/tour-declined-successfully', ensureAuthenticated, async (req, res) => {
-    const isAdmin = req.user.email === 'ibarealestate2023@gmail.com';
+    const isAdmin = isAdminEmail(req.user.email);
     try {
         const [results] = await db.query('SELECT *, (SELECT COUNT(*) FROM request_tour) AS count FROM request_tour');
         const rowCount = results.length > 0 ? results[0].count : 0;
@@ -901,17 +957,17 @@ newapp2.get('/tour-declined-successfully', ensureAuthenticated, async (req, res)
 // ==================== SEARCH ====================
 newapp2.get('/search', ensureAuthenticated, async (req, res) => {
     if (!req.user) return res.status(401).send('Unauthorized: Please log in first.');
-    const isAdmin = req.user.email === 'ibarealestate2023@gmail.com';
+    const isAdmin = isAdminEmail(req.user.email);
     const { location, min_price, max_price, min_beds, min_baths } = req.query;
 
     let sql = "SELECT * FROM all_properties WHERE 1=1";
     let values = [];
 
-    if (location) { sql += " AND propertyAddress LIKE ?"; values.push(`%${location}%`); }
-    if (min_price) { sql += " AND amount >= ?"; values.push(min_price); }
-    if (max_price) { sql += " AND amount <= ?"; values.push(max_price); }
-    if (min_beds) { sql += " AND bedrooms >= ?"; values.push(min_beds); }
-    if (min_baths) { sql += " AND bathrooms >= ?"; values.push(min_baths); }
+    if (location)   { sql += " AND propertyAddress LIKE ?"; values.push(`%${location}%`); }
+    if (min_price)  { sql += " AND amount >= ?"; values.push(min_price); }
+    if (max_price)  { sql += " AND amount <= ?"; values.push(max_price); }
+    if (min_beds)   { sql += " AND bedrooms >= ?"; values.push(min_beds); }
+    if (min_baths)  { sql += " AND bathrooms >= ?"; values.push(min_baths); }
 
     try {
         const [card] = await db.query(sql, values);
@@ -922,20 +978,19 @@ newapp2.get('/search', ensureAuthenticated, async (req, res) => {
     }
 });
 
-// Buy Search
 newapp2.get('/buy-search-form', ensureAuthenticated, async (req, res) => {
     if (!req.user) return res.status(401).send('Unauthorized: Please log in first.');
-    const isAdmin = req.user.email === 'ibarealestate2023@gmail.com';
+    const isAdmin = isAdminEmail(req.user.email);
     const { location, min_price, max_price, min_beds, min_baths } = req.query;
 
     let query = "SELECT * FROM all_properties WHERE rentSell = 'sell'";
     let queryParams = [];
 
-    if (location && location.trim() !== '') { query += " AND propertyAddress LIKE ?"; queryParams.push(`%${location}%`); }
-    if (min_price && !isNaN(min_price)) { query += " AND amount >= ?"; queryParams.push(parseInt(min_price)); }
-    if (max_price && !isNaN(max_price)) { query += " AND amount <= ?"; queryParams.push(parseInt(max_price)); }
-    if (min_beds && !isNaN(min_beds)) { query += " AND bedrooms >= ?"; queryParams.push(parseInt(min_beds)); }
-    if (min_baths && !isNaN(min_baths)) { query += " AND bathrooms >= ?"; queryParams.push(parseInt(min_baths)); }
+    if (location && location.trim() !== '')  { query += " AND propertyAddress LIKE ?"; queryParams.push(`%${location}%`); }
+    if (min_price && !isNaN(min_price))      { query += " AND amount >= ?"; queryParams.push(parseInt(min_price)); }
+    if (max_price && !isNaN(max_price))      { query += " AND amount <= ?"; queryParams.push(parseInt(max_price)); }
+    if (min_beds  && !isNaN(min_beds))       { query += " AND bedrooms >= ?"; queryParams.push(parseInt(min_beds)); }
+    if (min_baths && !isNaN(min_baths))      { query += " AND bathrooms >= ?"; queryParams.push(parseInt(min_baths)); }
 
     try {
         const [card] = await db.query(query, queryParams);
@@ -1003,7 +1058,7 @@ newapp2.get('/property-detail', ensureAuthenticated, async (req, res) => {
     try {
         const [userResults] = await db.query("SELECT role FROM signin WHERE id = ?", [req.user.id]);
         if (userResults.length === 0) return res.status(404).send('User not found.');
-        const isAdmin = userResults[0].role === 'admin';
+        const isAdmin = isAdminEmail(req.user.email) || userResults[0].role === 'admin';
 
         let [propResults] = await db.query("SELECT * FROM all_properties WHERE id = ?", [propertyId]);
         if (propResults.length === 0) {
@@ -1038,11 +1093,11 @@ newapp2.post('/contact', ensureAuthenticated, (req, res) => {
         return res.status(400).json({ success: false, message: 'Please enter a valid email address' });
     }
     const mailOptions = {
-        from: `"IBA Real Estate" <${process.env.EMAIL_USER || 'ibarealestate2023@gmail.com'}>`,
-        to: process.env.ADMIN_EMAIL || 'ibarealestate2023@gmail.com',
+        from: `"G.O AREGBAN Real Estate" <${process.env.EMAIL_USER || 'ibarealestate2023@gmail.com'}>`,
+        to: ADMIN_EMAILS.join(','), // send to both admins
         subject: `Contact Form: ${subject || 'New Inquiry'}`,
         html: `
-            <h2>New Contact Message from IBA REAL ESTATE Website</h2>
+            <h2>New Contact Message from G.O AREGBAN REAL ESTATE Website</h2>
             <p><strong>Name:</strong> ${name}</p>
             <p><strong>Email:</strong> ${email}</p>
             <p><strong>Phone:</strong> ${phone}</p>
@@ -1063,7 +1118,6 @@ newapp2.post('/contact', ensureAuthenticated, (req, res) => {
     });
 });
 
-// Detail contact (property inquiry)
 newapp2.post('/detail-contact', ensureAuthenticated, async (req, res) => {
     const { name, email, phone, message, propertyId } = req.body;
     const userId = req.user.id;
@@ -1081,7 +1135,7 @@ newapp2.post('/detail-contact', ensureAuthenticated, async (req, res) => {
         if (propResults.length === 0) return res.status(404).json({ success: false, message: 'Property not found' });
 
         const agentId = propResults[0].agentId;
-        let recipientEmail = 'ibarealestate2023@gmail.com';
+        let recipientEmail = ADMIN_EMAILS.join(',');
         let receiverId = null;
 
         if (agentId) {
@@ -1093,13 +1147,19 @@ newapp2.post('/detail-contact', ensureAuthenticated, async (req, res) => {
         }
 
         if (!receiverId) {
-            const [adminResults] = await db.query("SELECT id FROM signin WHERE email = 'ibarealestate2023@gmail.com'");
-            if (adminResults.length === 0) return res.status(500).json({ success: false, message: 'Admin not found' });
-            receiverId = adminResults[0].id;
+            const [adminResults] = await db.query("SELECT id FROM signin WHERE email = 'esvgoddey@gmail.com' LIMIT 1");
+            if (adminResults.length === 0) {
+                // Fall back to the other admin email
+                const [adminResults2] = await db.query("SELECT id FROM signin WHERE email = 'ibarealestate2023@gmail.com' LIMIT 1");
+                if (adminResults2.length === 0) return res.status(500).json({ success: false, message: 'Admin not found' });
+                receiverId = adminResults2[0].id;
+            } else {
+                receiverId = adminResults[0].id;
+            }
         }
 
         const mailOptions = {
-            from: `"IBA Real Estate" <${process.env.EMAIL_USER || 'ibarealestate2023@gmail.com'}>`,
+            from: `"G.O AREGBAN Real Estate" <${process.env.EMAIL_USER || 'ibarealestate2023@gmail.com'}>`,
             to: recipientEmail,
             subject: 'New Contact Message from Property Detail Page',
             html: `
@@ -1158,6 +1218,7 @@ newapp2.post('/logout', (req, res) => {
 });
 
 // ==================== SOLD / UNSOLD / EDIT SOLD ====================
+// Updated: now carries 'documents' column when marking as sold
 newapp2.get('/sold', ensureAuthenticated, async (req, res) => {
     const propertyId = req.query.id;
     if (!propertyId || isNaN(propertyId)) {
@@ -1170,11 +1231,14 @@ newapp2.get('/sold', ensureAuthenticated, async (req, res) => {
 
         const property = results[0];
         await db.query(
-            `INSERT INTO sold_properties (ownerName, ownerEmail, ownerPhone, propertyAddress, bedrooms, bathrooms, description, sqft, image_data, video, amount, title, rentSell, agentId, \`property-type\`) 
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            `INSERT INTO sold_properties 
+            (ownerName, ownerEmail, ownerPhone, propertyAddress, bedrooms, bathrooms, description,
+             sqft, image_data, video, documents, amount, title, rentSell, agentId, \`property-type\`) 
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [property.ownerName || '', property.ownerEmail || '', property.ownerPhone || '',
              property.propertyAddress || '', property.bedrooms || '0', property.bathrooms || '0',
              property.description || '', property.sqft || '0', property.image_data, property.video,
+             property.documents || '',
              property.amount || null, property.title || null, property.rentSell || null,
              property.agentId, property['property-type'] || null]
         );
@@ -1212,23 +1276,25 @@ newapp2.get('/edit-sold', ensureAuthenticated, async (req, res) => {
 newapp2.post('/update-sold', ensureAuthenticated, async (req, res) => {
     const propertyId = req.body.id;
     const updates = {
-        title: req.body.title || null,
-        description: req.body.description || '',
-        amount: req.body.amount || null,
+        title:           req.body.title || null,
+        description:     req.body.description || '',
+        amount:          req.body.amount || null,
         propertyAddress: req.body.propertyAddress || '',
-        bedrooms: req.body.bedrooms || '0',
-        bathrooms: req.body.bathrooms || '0',
-        sqft: req.body.sqft || '0',
-        ownerName: req.body.ownerName || '',
-        ownerEmail: req.body.ownerEmail || '',
-        ownerPhone: req.body.ownerPhone || '',
-        rentSell: req.body.rentSell || null,
+        bedrooms:        req.body.bedrooms || '0',
+        bathrooms:       req.body.bathrooms || '0',
+        sqft:            req.body.sqft || '0',
+        ownerName:       req.body.ownerName || '',
+        ownerEmail:      req.body.ownerEmail || '',
+        ownerPhone:      req.body.ownerPhone || '',
+        rentSell:        req.body.rentSell || null,
         'property-type': req.body['property-type'] || null
     };
 
     try {
         await db.query(
-            `UPDATE sold_properties SET title = ?, description = ?, amount = ?, propertyAddress = ?, bedrooms = ?, bathrooms = ?, sqft = ?, ownerName = ?, ownerEmail = ?, ownerPhone = ?, rentSell = ?, \`property-type\` = ? WHERE id = ?`,
+            `UPDATE sold_properties SET title = ?, description = ?, amount = ?, propertyAddress = ?,
+             bedrooms = ?, bathrooms = ?, sqft = ?, ownerName = ?, ownerEmail = ?, ownerPhone = ?,
+             rentSell = ?, \`property-type\` = ? WHERE id = ?`,
             [updates.title, updates.description, updates.amount, updates.propertyAddress,
              updates.bedrooms, updates.bathrooms, updates.sqft, updates.ownerName,
              updates.ownerEmail, updates.ownerPhone, updates.rentSell, updates['property-type'], propertyId]
@@ -1240,6 +1306,7 @@ newapp2.post('/update-sold', ensureAuthenticated, async (req, res) => {
     }
 });
 
+// Updated: carries 'documents' when moving back to active
 newapp2.post('/unsold', ensureAuthenticated, async (req, res) => {
     const propertyId = req.body.id;
     if (!propertyId || isNaN(propertyId)) return res.redirect('/sold-properties?error=Invalid property ID.');
@@ -1250,11 +1317,14 @@ newapp2.post('/unsold', ensureAuthenticated, async (req, res) => {
 
         const property = results[0];
         await db.query(
-            `INSERT INTO all_properties (ownerName, ownerEmail, ownerPhone, propertyAddress, bedrooms, bathrooms, description, sqft, image_data, video, amount, title, rentSell, \`property-type\`, agentId) 
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            `INSERT INTO all_properties 
+            (ownerName, ownerEmail, ownerPhone, propertyAddress, bedrooms, bathrooms, description,
+             sqft, image_data, video, documents, amount, title, rentSell, \`property-type\`, agentId) 
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [property.ownerName || '', property.ownerEmail || '', property.ownerPhone || '',
              property.propertyAddress || '', property.bedrooms || '0', property.bathrooms || '0',
              property.description || '', property.sqft || '0', property.image_data, property.video,
+             property.documents || '',
              property.amount || null, property.title || null, property.rentSell || null,
              property['property-type'] || null, property.agentId]
         );
@@ -1330,15 +1400,15 @@ newapp2.post('/manage/agent', ensureAuthenticated, async (req, res) => {
         const mailOptions = {
             from: process.env.EMAIL_USER || 'ibarealestate2023@gmail.com',
             to: email,
-            subject: 'Welcome to Iba Real Estate - Agent Account Created',
+            subject: 'Welcome to G.O AREGBAN Real Estate - Agent Account Created',
             html: `
-                <h1>Welcome to Iba Real Estate!</h1>
+                <h1>Welcome to G.O AREGBAN Real Estate!</h1>
                 <p>Dear ${firstName} ${lastName},</p>
                 <p>Your agent account has been created. Login details:</p>
                 <p><strong>Email:</strong> ${email}</p>
                 <p><strong>Temporary Password:</strong> ${tempPassword}</p>
                 <p>Please change your password after logging in.</p>
-                <p>Best regards,<br>The Iba Real Estate Team</p>
+                <p>Best regards,<br>The G.O AREGBAN Real Estate Team</p>
             `
         };
         transporter.sendMail(mailOptions, (error) => {
@@ -1378,7 +1448,7 @@ newapp2.delete('/manage/agent/:id', ensureAuthenticated, async (req, res) => {
     }
 });
 
-// Property approval/sell shortcuts
+// Updated: carries 'documents' when approving via shortcut
 newapp2.post('/properties/approve/:id', ensureAuthenticated, async (req, res) => {
     const { id } = req.params;
     try {
@@ -1386,11 +1456,15 @@ newapp2.post('/properties/approve/:id', ensureAuthenticated, async (req, res) =>
         if (results.length === 0) return res.status(404).send('Property not found');
         const property = results[0];
         await db.query(
-            'INSERT INTO all_properties (ownerName, ownerEmail, ownerPhone, propertyAddress, bedrooms, bathrooms, description, sqft, image_data, video, amount, title, rentSell, `property-type`, agentId, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            `INSERT INTO all_properties 
+            (ownerName, ownerEmail, ownerPhone, propertyAddress, bedrooms, bathrooms, description,
+             sqft, image_data, video, documents, amount, title, rentSell, \`property-type\`, agentId, status) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [property.ownerName, property.ownerEmail, property.ownerPhone, property.propertyAddress,
              property.bedrooms, property.bathrooms, property.description, property.sqft,
-             property.image_data, property.video, property.amount, property.title,
-             property.rentSell, property.property_type, property.agentId, 'approved']
+             property.image_data, property.video, property.documents || '',
+             property.amount, property.title, property.rentSell,
+             property.property_type, property.agentId, 'approved']
         );
         await db.query('DELETE FROM sales_approval WHERE id = ?', [id]);
         res.send('Property approved');
@@ -1400,6 +1474,7 @@ newapp2.post('/properties/approve/:id', ensureAuthenticated, async (req, res) =>
     }
 });
 
+// Updated: carries 'documents' when selling via shortcut
 newapp2.post('/properties/sell/:id', ensureAuthenticated, async (req, res) => {
     const { id } = req.params;
     try {
@@ -1407,11 +1482,15 @@ newapp2.post('/properties/sell/:id', ensureAuthenticated, async (req, res) => {
         if (results.length === 0) return res.status(404).send('Property not found');
         const property = results[0];
         await db.query(
-            'INSERT INTO sold_properties (ownerName, ownerEmail, ownerPhone, propertyAddress, bedrooms, bathrooms, description, sqft, image_data, video, amount, title, rentSell, `property-type`, agentId, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            `INSERT INTO sold_properties 
+            (ownerName, ownerEmail, ownerPhone, propertyAddress, bedrooms, bathrooms, description,
+             sqft, image_data, video, documents, amount, title, rentSell, \`property-type\`, agentId, status) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [property.ownerName, property.ownerEmail, property.ownerPhone, property.propertyAddress,
              property.bedrooms, property.bathrooms, property.description, property.sqft,
-             property.image_data, property.video, property.amount, property.title,
-             property.rentSell, property['property-type'], property.agentId, 'sold']
+             property.image_data, property.video, property.documents || '',
+             property.amount, property.title, property.rentSell,
+             property['property-type'], property.agentId, 'sold']
         );
         await db.query('DELETE FROM all_properties WHERE id = ?', [id]);
         res.send('Property marked as sold');
@@ -1448,7 +1527,7 @@ newapp2.get('/submit-listing', ensureAuthenticated, async (req, res) => {
             db.query(`SELECT s.id, s.title, s.status, u.firstName AS agentName FROM sales_approval s JOIN signin u ON s.agentId = u.id WHERE s.agentId = ? AND s.status = 'pending'`, [agentId]),
             db.query(`SELECT firstName, lastName, email, phone, role FROM signin WHERE role = 'user' LIMIT 10`),
             db.query(`SELECT s.title, u.firstName AS agentName, s.amount, s.created_at AS soldDate FROM sold_properties s JOIN signin u ON s.agentId = u.id WHERE s.agentId = ?`, [agentId]),
-            db.query(`SELECT 'IBA Real Estate' AS siteTitle, 'admin@example.com' AS adminEmail`)
+            db.query(`SELECT 'G.O AREGBAN Real Estate' AS siteTitle, 'esvgoddey@gmail.com' AS adminEmail`)
         ]);
 
         res.render('agent-dashboard', {
@@ -1461,7 +1540,7 @@ newapp2.get('/submit-listing', ensureAuthenticated, async (req, res) => {
             adminEmail: settings[0].adminEmail,
             username: req.session.firstName || (req.user && req.user.firstName),
             surname: req.session.lastName || (req.user && req.user.lastName),
-            isAdmin: req.session.role === 'admin',
+            isAdmin: req.session.role === 'admin' || isAdminEmail(req.user?.email),
             isAgent: req.session.role === 'agent'
         });
     } catch (err) {
@@ -1579,7 +1658,7 @@ newapp2.post('/update-property/:id', requireAgent, async (req, res) => {
 
         const tableName = findResults[0].tableName;
         let table, propertyTypeColumn;
-        if (tableName === 'pending') { table = 'sales_approval'; propertyTypeColumn = 'property_type'; }
+        if (tableName === 'pending')   { table = 'sales_approval'; propertyTypeColumn = 'property_type'; }
         else if (tableName === 'approved') { table = 'all_properties'; propertyTypeColumn = '`property-type`'; }
         else { table = 'sold_properties'; propertyTypeColumn = '`property-type`'; }
 
@@ -1643,7 +1722,7 @@ newapp2.get('/chat', ensureAuthenticated, async (req, res) => {
             let isAgent = false;
             if (receiverResults.length > 0) {
                 const receiver = receiverResults[0];
-                receiverName = `${receiver.firstName || ''} ${receiver.lastName || ''}`.trim() || (receiver.role === 'admin' ? 'Admin' : 'Unknown');
+                receiverName = `${receiver.firstName || ''} ${receiver.lastName || ''}`.trim() || (isAdminEmail(receiver.email) ? 'Admin' : 'Unknown');
                 isAgent = receiver.role === 'agent';
             }
             const [messages] = await db.query(
@@ -1838,7 +1917,7 @@ newapp2.get('/admin-chat', ensureAuthenticated, async (req, res) => {
 
 // ==================== MISC ROUTES ====================
 newapp2.get('/inquiries', ensureAuthenticated, async (req, res) => {
-    if (req.session.role !== 'agent' && req.user.email !== 'ibarealestate2023@gmail.com') {
+    if (req.session.role !== 'agent' && !isAdminEmail(req.user.email)) {
         return res.redirect('/login');
     }
     try {
@@ -1855,7 +1934,6 @@ newapp2.get('/property-valuation', ensureAuthenticated, (req, res) => {
 });
 
 // AI Valuation endpoint
-// SECURITY NOTE: Move your Groq API key to .env as GROQ_API_KEY
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY || "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" });
 
 newapp2.post('/valuate', ensureAuthenticated, async (req, res) => {
@@ -1894,13 +1972,8 @@ newapp2.get('/gallery', async (req, res) => {
 });
 
 // ==================== START SERVER ====================
-// FIX 1: Use process.env.PORT first (required by hosting platforms like Render/Railway/Heroku)
-// FIX 2: Use server.listen() NOT newapp2.listen() — otherwise Socket.IO never works
-// FIX 3: Wait for DB connection before accepting traffic to prevent 503 on cold start
 const PORT = process.env.PORT || 3000;
 
-// Passenger on Hostinger manages the port itself.
-// We must always call server.listen() for Passenger to detect the app.
 connectWithRetry().then(() => {
     server.listen(PORT, '0.0.0.0', () => {
         console.log(`Server running on port ${PORT}`);
@@ -1910,9 +1983,3 @@ connectWithRetry().then(() => {
         console.log(`Server started (DB may be unavailable)`);
     });
 });
-
-
-
-
-
-
