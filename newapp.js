@@ -988,8 +988,8 @@ newapp2.get('/sold', ensureAuthenticated, async (req, res) => {
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
                 p.ownerName || '', p.ownerEmail || '', p.ownerPhone || '',
-                p.propertyAddress || '', p.bedrooms || '0', p.bathrooms || '0',
-                p.description || '', p.sqft || '0',
+                p.propertyAddress || '', p.bedrooms || null, p.bathrooms || null,
+                p.description || '', p.sqft || null,
                 p.land_size || null, p.building_size || null, p.num_flats || null,
                 p.image_data, p.video, p.documents || '',
                 p.amount || null, p.title || null, p.rentSell || null,
@@ -1025,9 +1025,9 @@ newapp2.post('/update-sold', ensureAuthenticated, async (req, res) => {
         description:     req.body.description     || '',
         amount:          req.body.amount           || null,
         propertyAddress: req.body.propertyAddress  || '',
-        bedrooms:        req.body.bedrooms         || '0',
-        bathrooms:       req.body.bathrooms        || '0',
-        sqft:            req.body.sqft             || '0',
+        bedrooms:        req.body.bedrooms         || null,
+        bathrooms:       req.body.bathrooms        || null,
+        sqft:            req.body.sqft             || null,
         land_size:       req.body.land_size        || null,
         building_size:   req.body.building_size    || null,
         num_flats:       req.body.num_flats ? parseInt(req.body.num_flats) : null,
@@ -1065,8 +1065,8 @@ newapp2.post('/unsold', ensureAuthenticated, async (req, res) => {
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
                 p.ownerName || '', p.ownerEmail || '', p.ownerPhone || '',
-                p.propertyAddress || '', p.bedrooms || '0', p.bathrooms || '0',
-                p.description || '', p.sqft || '0',
+                p.propertyAddress || '', p.bedrooms || null, p.bathrooms || null,
+                p.description || '', p.sqft || null,
                 p.land_size || null, p.building_size || null, p.num_flats || null,
                 p.image_data, p.video, p.documents || '',
                 p.amount || null, p.title || null, p.rentSell || null,
@@ -1167,8 +1167,8 @@ newapp2.post('/properties/approve/:id', ensureAuthenticated, async (req, res) =>
              sqft, land_size, building_size, num_flats,
              image_data, video, documents, amount, title, rentSell, \`property-type\`, agentId, status)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'approved')`,
-            [p.ownerName, p.ownerEmail, p.ownerPhone, p.propertyAddress, p.bedrooms, p.bathrooms,
-             p.description, p.sqft, p.land_size || null, p.building_size || null, p.num_flats || null,
+            [p.ownerName, p.ownerEmail, p.ownerPhone, p.propertyAddress, p.bedrooms || null, p.bathrooms || null,
+             p.description, p.sqft || null, p.land_size || null, p.building_size || null, p.num_flats || null,
              p.image_data, p.video, p.documents || '', p.amount, p.title, p.rentSell,
              p.property_type, p.agentId]
         );
@@ -1189,8 +1189,8 @@ newapp2.post('/properties/sell/:id', ensureAuthenticated, async (req, res) => {
              sqft, land_size, building_size, num_flats,
              image_data, video, documents, amount, title, rentSell, \`property-type\`, agentId, status)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'sold')`,
-            [p.ownerName, p.ownerEmail, p.ownerPhone, p.propertyAddress, p.bedrooms, p.bathrooms,
-             p.description, p.sqft, p.land_size || null, p.building_size || null, p.num_flats || null,
+            [p.ownerName, p.ownerEmail, p.ownerPhone, p.propertyAddress, p.bedrooms || null, p.bathrooms || null,
+             p.description, p.sqft || null, p.land_size || null, p.building_size || null, p.num_flats || null,
              p.image_data, p.video, p.documents || '', p.amount, p.title, p.rentSell,
              p['property-type'], p.agentId]
         );
