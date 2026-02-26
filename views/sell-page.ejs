@@ -412,54 +412,110 @@
       animation: icon-line-long 0.75s;
     }
     @keyframes icon-line-tip {
-      0% {
-        width: 0;
-        left: 1px;
-        top: 19px;
-      }
-      54% {
-        width: 0;
-        left: 1px;
-        top: 19px;
-      }
-      70% {
-        width: 50px;
-        left: -8px;
-        top: 37px;
-      }
-      84% {
-        width: 17px;
-        left: 21px;
-        top: 48px;
-      }
-      100% {
-        width: 25px;
-        left: 14px;
-        top: 45px;
-      }
+      0% { width: 0; left: 1px; top: 19px; }
+      54% { width: 0; left: 1px; top: 19px; }
+      70% { width: 50px; left: -8px; top: 37px; }
+      84% { width: 17px; left: 21px; top: 48px; }
+      100% { width: 25px; left: 14px; top: 45px; }
     }
     @keyframes icon-line-long {
-      0% {
-        width: 0;
-        right: 46px;
-        top: 54px;
-      }
-      65% {
-        width: 0;
-        right: 46px;
-        top: 54px;
-      }
-      84% {
-        width: 55px;
-        right: 0px;
-        top: 35px;
-      }
-      100% {
-        width: 47px;
-        right: 8px;
-        top: 38px;
-      }
+      0% { width: 0; right: 46px; top: 54px; }
+      65% { width: 0; right: 46px; top: 54px; }
+      84% { width: 55px; right: 0px; top: 35px; }
+      100% { width: 47px; right: 8px; top: 38px; }
     }
+
+    /* Document upload area */
+    .doc-upload-area {
+      border: 2px dashed #1761a0;
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+      background: #f0f6ff;
+      cursor: pointer;
+      transition: background 0.3s;
+      max-width: 600px;
+    }
+    .doc-upload-area:hover {
+      background: #dceeff;
+    }
+    .doc-upload-area .material-icons {
+      font-size: 40px;
+      color: #1761a0;
+      display: block;
+      margin-bottom: 8px;
+    }
+    .doc-upload-area p {
+      margin: 0 0 8px;
+      color: #444;
+      font-size: 0.95rem;
+    }
+    .doc-upload-area small {
+      color: #888;
+      font-size: 0.82rem;
+    }
+    .doc-file-list {
+      margin-top: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-width: 600px;
+    }
+    .doc-file-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #f8f9fa;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 10px 14px;
+    }
+    .doc-file-item .material-icons {
+      color: #e03e2f;
+      font-size: 26px;
+    }
+    .doc-file-item.doc-icon .material-icons { color: #1761a0; }
+    .doc-file-item.img-icon .material-icons { color: #28a745; }
+    .doc-file-item .file-info {
+      flex: 1;
+      overflow: hidden;
+    }
+    .doc-file-item .file-name {
+      font-weight: 600;
+      font-size: 0.9rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .doc-file-item .file-size {
+      font-size: 0.78rem;
+      color: #888;
+    }
+    .doc-file-item .remove-doc-btn {
+      background: none;
+      color: #e03e2f;
+      padding: 4px;
+      min-width: auto;
+      border-radius: 50%;
+      width: 28px;
+      height: 28px;
+      justify-content: center;
+    }
+    .doc-file-item .remove-doc-btn:hover {
+      background: #ffe0de;
+    }
+    .file-type-badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .badge-pdf { background: #ffe0de; color: #c0392b; }
+    .badge-doc { background: #dce8ff; color: #1761a0; }
+    .badge-img { background: #d4edda; color: #155724; }
+    .badge-other { background: #e2e3e5; color: #383d41; }
   </style>
   <link rel="stylesheet" href="/css/styles.css">
 </head>
@@ -470,77 +526,29 @@
           <a href="track-sales.html" tabindex="0" aria-label="Track Sales" >
         <span class="material-icons" aria-hidden="true">assessment</span>DASHBOARD
       </a>
-
         <a href="index.html"  tabindex="0" aria-current="page" aria-label="Home">
-          <span class="material-icons" aria-hidden="true">home</span>Avialable properties
+          <span class="material-icons" aria-hidden="true">home</span>Available properties
         </a>
-        <!--<a href="buy-page.html" tabindex="0" aria-label="Buy Homes">
-          <span class="material-icons" aria-hidden="true">support_agent</span>Buy
-        </a>
-        <a href="rent-page.html" tabindex="0" aria-label="Rent Homes">
-          <span class="material-icons" aria-hidden="true">key</span>Rent
-        </a>-->
         <a href="sell-page.html" tabindex="0" aria-label="Sell Homes" class="active">
           <span class="material-icons" aria-hidden="true" >sell</span>Sell
         </a>
-       <!-- <a href="home-improvemet-page.html" tabindex="0" aria-label="Home Improvement">
-          <span class="material-icons" aria-hidden="true">home_repair_service</span>Home Improvement
-        </a>
-        <a href="message-page.html" tabindex="0" aria-label="Messages">
-          <span class="material-icons" aria-hidden="true">message</span>Messages
-          
-        </a>-->
-       
-
-          <% if (isAdmin) { %> <a href="sales-approval.html" tabindex="0" aria-label="Sales Approval">
-        <span class="material-icons" aria-hidden="true">check_circle</span>Sales Approval
-      </a>
-      <!--<a href="tour-requested.html" tabindex="0" aria-label="Tour Requested">
-        <span class="material-icons" aria-hidden="true">event_available</span>Tour Requested
-      </a>-->
-       <a href="manage-agent" tabindex="0" aria-label="View All Customers">
-       <span class="material-icons" aria-hidden="true">event_available</span>Manage Agent
-      </a>
-      <a href="view-customers.html" tabindex="0" aria-label="View All Customers">
-        <span class="material-icons" aria-hidden="true">people</span>View All Customers
-      </a>
-       
-    
-
-       <a href="sold-properties" tabindex="0" aria-label="Track Sales" >
-        <span class="material-icons" aria-hidden="true">check_circle</span>Sold property
-      </a>
-
-       <a href="setting-page.html" tabindex="0" aria-label="Settings">
-          <span class="material-icons" aria-hidden="true">settings</span>Settings
-        </a>  <% } %>
-        
-
-
- <!-- <div class="admin-dropdown">
-    <button class="dropdown-toggle" aria-expanded="false" aria-controls="admin-menu">
-      <span class="material-icons" aria-hidden="true">admin_panel_settings</span>Admin
-      <span class="material-icons dropdown-icon">expand_more</span>
-    </button>
-    <div class="dropdown-menu" id="admin-menu">
-      <a href="sales-approval.html" tabindex="0" aria-label="Sales Approval">
-        <span class="material-icons" aria-hidden="true">check_circle</span>Sales Approval
-      </a>
-      <a href="tour-requested.html" tabindex="0" aria-label="Tour Requested">
-        <span class="material-icons" aria-hidden="true">event_available</span>Tour Requested
-      </a>
-      <a href="view-customers.html" tabindex="0" aria-label="View All Customers">
-        <span class="material-icons" aria-hidden="true">people</span>View All Customers
-      </a>
-       
-                        <a href="track-sales.html" tabindex="0" aria-label="Track Sales">
-                            <span class="material-icons" aria-hidden="true">assessment</span>Track Sales
-                        </a>
-                   
-    </div>
-  </div>-->
-  
-  
+          <% if (isAdmin) { %>
+          <a href="sales-approval.html" tabindex="0" aria-label="Sales Approval">
+            <span class="material-icons" aria-hidden="true">check_circle</span>Sales Approval
+          </a>
+          <a href="manage-agent" tabindex="0" aria-label="View All Customers">
+            <span class="material-icons" aria-hidden="true">event_available</span>Manage Agent
+          </a>
+          <a href="view-customers.html" tabindex="0" aria-label="View All Customers">
+            <span class="material-icons" aria-hidden="true">people</span>View All Customers
+          </a>
+          <a href="sold-properties" tabindex="0" aria-label="Track Sales" >
+            <span class="material-icons" aria-hidden="true">check_circle</span>Sold property
+          </a>
+          <a href="setting-page.html" tabindex="0" aria-label="Settings">
+            <span class="material-icons" aria-hidden="true">settings</span>Settings
+          </a>
+          <% } %>
       </nav>
       <footer>
         &copy; 2025 G.O AREGBAN REAL ESTATE FIRM. All rights reserved.
@@ -581,6 +589,7 @@
       </div>
       
       <form id="sell-form" method="POST" action="/upload" enctype="multipart/form-data">
+        <!-- STEP 1: Personal Information -->
         <div class="step active" id="step1">
           <div class="wizard-step-header"><span class="material-icons">person</span> Step 1: Personal Information</div>
           <div id="form-desc" style="margin-bottom: 20px; color:#666;">* Required fields</div>
@@ -601,6 +610,7 @@
           </div>
         </div>
         
+        <!-- STEP 2: Property Details -->
         <div class="step" id="step2">
           <div class="wizard-step-header"><span class="material-icons">home</span> Step 2: Property Details</div>
           <div>
@@ -640,6 +650,7 @@
           </div>
         </div>
         
+        <!-- STEP 3: Property Info -->
         <div class="step" id="step3">
           <div class="wizard-step-header"><span class="material-icons">description</span> Step 3: Property Info</div>
           <div>
@@ -681,24 +692,46 @@
           </div>
         </div>
         
+        <!-- STEP 4: Upload Media + Documents -->
         <div class="step" id="step4">
-          <div class="wizard-step-header"><span class="material-icons">upload</span> Step 4: Upload Media</div>
+          <div class="wizard-step-header"><span class="material-icons">upload</span> Step 4: Upload Media &amp; Documents</div>
+
+          <!-- Images -->
           <div>
             <label for="image">Upload Images *</label>
             <input type="file" id="image" name="image" accept="image/*" required multiple />
             <div id="image-preview" class="image-preview-container"></div>
             <div class="error-message" id="errorImage"></div>
           </div>
+
+          <!-- Video -->
           <div>
             <label for="video">Upload Video *</label>
             <input type="file" id="video" name="video" accept="video/*" required multiple />
-            <div id="video-preview" class="image-preview-container" style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 10px;"></div>
+            <div id="video-preview" class="image-preview-container" style="margin-top: 10px;"></div>
             <div class="error-message" id="errorVideo"></div>
+          </div>
+
+          <!-- Documents (NEW) -->
+          <div>
+            <label>Upload Documents <span style="color:#888;font-weight:400;">(Optional — PDF, Word, Excel, etc.)</span></label>
+            <div class="doc-upload-area" id="docDropArea" role="button" tabindex="0" aria-label="Upload documents">
+              <span class="material-icons">folder_open</span>
+              <p>Drag &amp; drop files here, or click to browse</p>
+              <small>Accepted: PDF, DOC, DOCX, XLS, XLSX, TXT, JPG, PNG &nbsp;|&nbsp; Max 20 MB per file &nbsp;|&nbsp; Up to 10 files</small>
+              <input type="file" id="documents" name="documents"
+                accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.ppt,.pptx,image/*"
+                multiple
+                style="display:none;" />
+            </div>
+            <div class="doc-file-list" id="docFileList"></div>
+            <div class="error-message" id="errorDocuments"></div>
           </div>
         </div>
         
+        <!-- STEP 5: Review & Submit -->
         <div class="step" id="step5">
-          <div class="wizard-step-header"><span class="material-icons">checklist</span> Step 5: Review & Submit</div>
+          <div class="wizard-step-header"><span class="material-icons">checklist</span> Step 5: Review &amp; Submit</div>
           <h2 style="color: #0d3a66; margin-bottom: 15px;">Review Your Information</h2>
           <p style="color: #666; margin-bottom: 25px;">Please review the details below before submitting:</p>
           <div id="summary">
@@ -716,6 +749,7 @@
             <p><strong>Amount:</strong> ₦<span id="summaryAmount"></span></p>
             <p><strong>Images:</strong> <span id="summaryImage"></span></p>
             <p><strong>Video:</strong> <span id="summaryVideo"></span></p>
+            <p><strong>Documents:</strong> <span id="summaryDocuments"></span></p>
           </div>
         </div>
         
@@ -730,7 +764,7 @@
         </div>
       </form>
       
-      <!-- Confirmation Message (hidden initially) -->
+      <!-- Confirmation Message -->
       <div id="confirmation" class="confirmation" style="display: none;">Your home listing has been submitted successfully! Our agents will contact you soon.</div>
     </main>
   </div>
@@ -755,15 +789,22 @@
     </div>
   </div>
 
-  <!-- Script for Wizard Functionality -->
   <script>
+    // =============================================
+    // WIZARD STATE
+    // =============================================
     const steps = document.querySelectorAll('.step');
     const progressBar = document.getElementById('progressBar');
     const progressText = document.getElementById('progress');
     let currentStep = 0;
 
+    // Tracks DataTransfer-style file list for documents since <input multiple> resets on re-pick
+    let selectedDocFiles = [];
+
+    // =============================================
+    // STEP NAVIGATION
+    // =============================================
     function showStep(stepIndex) {
-      console.log('Showing step:', stepIndex);
       steps.forEach((step, index) => {
         step.classList.toggle('active', index === stepIndex);
       });
@@ -774,154 +815,141 @@
 
       document.getElementById('prevBtn').style.display = stepIndex > 0 ? 'block' : 'none';
       const nextBtn = document.getElementById('nextBtn');
-      
+
       if (stepIndex < steps.length - 1) {
         nextBtn.innerHTML = 'Next <span class="material-icons">arrow_forward</span>';
         nextBtn.type = 'button';
       } else {
         nextBtn.innerHTML = '<span class="material-icons">check_circle</span> Submit';
-        nextBtn.type = 'button'; // Changed to button to handle submission manually
-        // Populate summary when reaching the last step
+        nextBtn.type = 'button';
         populateSummary();
       }
     }
 
-    function getStepIcon(stepIndex) {
-      const icons = ['person', 'home', 'description', 'upload', 'checklist'];
-      return icons[stepIndex] || 'help';
+    function getStepIcon(i) {
+      return ['person', 'home', 'description', 'upload', 'checklist'][i] || 'help';
+    }
+    function getStepLabel(i) {
+      return ['Personal Information', 'Property Details', 'Property Info', 'Upload Media & Documents', 'Review & Submit'][i] || 'Unknown';
     }
 
-    function getStepLabel(stepIndex) {
-      const labels = ['Personal Information', 'Property Details', 'Property Info', 'Upload Media', 'Review & Submit'];
-      return labels[stepIndex] || 'Unknown';
-    }
-
+    // =============================================
+    // SUMMARY POPULATION
+    // =============================================
     function populateSummary() {
-      document.getElementById('summaryOwnerName').textContent = document.getElementById('ownerName').value || 'N/A';
-      document.getElementById('summaryOwnerEmail').textContent = document.getElementById('ownerEmail').value || 'N/A';
-      document.getElementById('summaryOwnerPhone').textContent = document.getElementById('ownerPhone').value || 'N/A';
+      document.getElementById('summaryOwnerName').textContent     = document.getElementById('ownerName').value || 'N/A';
+      document.getElementById('summaryOwnerEmail').textContent    = document.getElementById('ownerEmail').value || 'N/A';
+      document.getElementById('summaryOwnerPhone').textContent    = document.getElementById('ownerPhone').value || 'N/A';
       document.getElementById('summaryPropertyAddress').textContent = document.getElementById('propertyAddress').value || 'N/A';
-      document.getElementById('summaryBedrooms').textContent = document.getElementById('bedrooms').value || 'N/A';
-      document.getElementById('summaryBathrooms').textContent = document.getElementById('bathrooms').value || 'N/A';
-      document.getElementById('summarySqft').textContent = document.getElementById('sqft').value || 'N/A';
-      document.getElementById('summaryTitle').textContent = document.getElementById('title').value || 'N/A';
-      document.getElementById('summaryDescription').textContent = document.getElementById('description').value || 'N/A';
-      document.getElementById('summaryRentSell').textContent = document.getElementById('rentSell').value || 'N/A';
-      document.getElementById('summaryPropertyType').textContent = document.getElementById('property-type').value || 'N/A';
-      document.getElementById('summaryAmount').textContent = document.getElementById('amount').value || 'N/A';
-      
+      document.getElementById('summaryBedrooms').textContent      = document.getElementById('bedrooms').value || 'N/A';
+      document.getElementById('summaryBathrooms').textContent     = document.getElementById('bathrooms').value || 'N/A';
+      document.getElementById('summarySqft').textContent          = document.getElementById('sqft').value || 'N/A';
+      document.getElementById('summaryTitle').textContent         = document.getElementById('title').value || 'N/A';
+      document.getElementById('summaryDescription').textContent   = document.getElementById('description').value || 'N/A';
+      document.getElementById('summaryRentSell').textContent      = document.getElementById('rentSell').value || 'N/A';
+      document.getElementById('summaryPropertyType').textContent  = document.getElementById('property-type').value || 'N/A';
+      document.getElementById('summaryAmount').textContent        = document.getElementById('amount').value || 'N/A';
+
       const imageFiles = document.getElementById('image').files;
       const videoFiles = document.getElementById('video').files;
-      document.getElementById('summaryImage').textContent = imageFiles.length > 0 ? `${imageFiles.length} file(s) selected` : 'No files selected';
-      document.getElementById('summaryVideo').textContent = videoFiles.length > 0 ? `${videoFiles.length} file(s) selected` : 'No files selected';
+      document.getElementById('summaryImage').textContent     = imageFiles.length > 0 ? `${imageFiles.length} file(s) selected` : 'No files selected';
+      document.getElementById('summaryVideo').textContent     = videoFiles.length > 0 ? `${videoFiles.length} file(s) selected` : 'No files selected';
+      document.getElementById('summaryDocuments').textContent = selectedDocFiles.length > 0
+        ? `${selectedDocFiles.length} document(s): ${selectedDocFiles.map(f => f.name).join(', ')}`
+        : 'No documents uploaded';
     }
 
+    // =============================================
+    // NEXT / PREV BUTTONS
+    // =============================================
     document.getElementById('nextBtn').addEventListener('click', () => {
-      console.log('Next button clicked. Current step:', currentStep);
-      
       if (currentStep < steps.length - 1) {
         if (validateStep(currentStep)) {
           currentStep++;
           showStep(currentStep);
         } else {
-          console.log('Validation failed for step:', currentStep);
           alert('Please fill in all required fields correctly before proceeding.');
         }
       } else {
-        // Last step - submit the form
         if (validateStep(currentStep)) {
           submitForm();
-        } else {
-          alert('Please review all information before submitting.');
         }
       }
     });
 
     document.getElementById('prevBtn').addEventListener('click', () => {
-      console.log('Previous button clicked. Current step:', currentStep);
       if (currentStep > 0) {
         currentStep--;
         showStep(currentStep);
       }
     });
 
+    // =============================================
+    // VALIDATION
+    // =============================================
     function validateStep(stepIndex) {
-      console.log('Validating step:', stepIndex);
       let isValid = true;
       const requiredFields = steps[stepIndex].querySelectorAll('[required]');
-      const stepErrors = [];
 
       requiredFields.forEach(field => {
-        console.log('Checking field:', field.id, 'Value:', field.value);
         const errorId = getErrorId(field.id);
         const errorElement = document.getElementById(errorId);
-
-        if (!errorElement) {
-          console.error('Error element not found for field:', field.id, 'Expected ID:', errorId);
-          return;
-        }
-
+        if (!errorElement) return;
         errorElement.textContent = '';
 
         if (field.type === 'file') {
           if (field.files.length === 0) {
             errorElement.textContent = 'Please select at least one file.';
             isValid = false;
-            stepErrors.push(field.id);
           }
         } else if (field.tagName === 'SELECT') {
           if (!field.value || field.value === field.options[0].value) {
             errorElement.textContent = 'Please select a valid option.';
             isValid = false;
-            stepErrors.push(field.id);
           }
         } else if (field.id === 'amount') {
           const value = field.value.trim();
           if (!value) {
             errorElement.textContent = 'This field is required.';
             isValid = false;
-            stepErrors.push(field.id);
           } else if (isNaN(value) || parseFloat(value) <= 0) {
             errorElement.textContent = 'Please enter a valid positive number.';
             isValid = false;
-            stepErrors.push(field.id);
           }
         } else {
           if (!field.value || !field.value.trim()) {
             errorElement.textContent = 'This field is required.';
             isValid = false;
-            stepErrors.push(field.id);
           }
         }
       });
 
-      console.log('Validation result for step', stepIndex, ':', isValid, 'Errors:', stepErrors);
       return isValid;
     }
 
     function getErrorId(fieldId) {
-      return 'error' + fieldId.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join('');
+      return 'error' + fieldId.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('');
     }
 
-    // Image preview functionality
+    // =============================================
+    // IMAGE PREVIEW
+    // =============================================
     document.getElementById('image').addEventListener('change', function(e) {
       const previewContainer = document.getElementById('image-preview');
       previewContainer.innerHTML = '';
-      Array.from(e.target.files).forEach((file, index) => {
+      Array.from(e.target.files).forEach(file => {
         if (file.type.startsWith('image/')) {
           const reader = new FileReader();
-          reader.onload = function(e) {
+          reader.onload = function(ev) {
             const div = document.createElement('div');
             div.className = 'preview-item';
             const img = document.createElement('img');
-            img.src = e.target.result;
+            img.src = ev.target.result;
             const removeBtn = document.createElement('button');
             removeBtn.className = 'remove-btn';
             removeBtn.textContent = '×';
             removeBtn.type = 'button';
-            removeBtn.onclick = function() {
-              div.remove();
-            };
+            removeBtn.onclick = () => div.remove();
             div.appendChild(img);
             div.appendChild(removeBtn);
             previewContainer.appendChild(div);
@@ -931,26 +959,26 @@
       });
     });
 
-    // Video preview functionality
+    // =============================================
+    // VIDEO PREVIEW
+    // =============================================
     document.getElementById('video').addEventListener('change', function(e) {
       const previewContainer = document.getElementById('video-preview');
       previewContainer.innerHTML = '';
-      Array.from(e.target.files).forEach((file, index) => {
+      Array.from(e.target.files).forEach(file => {
         if (file.type.startsWith('video/')) {
           const reader = new FileReader();
-          reader.onload = function(e) {
+          reader.onload = function(ev) {
             const div = document.createElement('div');
             div.className = 'preview-item';
             const video = document.createElement('video');
-            video.src = e.target.result;
+            video.src = ev.target.result;
             video.controls = true;
             const removeBtn = document.createElement('button');
             removeBtn.className = 'remove-btn';
             removeBtn.textContent = '×';
             removeBtn.type = 'button';
-            removeBtn.onclick = function() {
-              div.remove();
-            };
+            removeBtn.onclick = () => div.remove();
             div.appendChild(video);
             div.appendChild(removeBtn);
             previewContainer.appendChild(div);
@@ -960,100 +988,182 @@
       });
     });
 
-    function submitForm() {
-    const form = document.getElementById('sell-form');
-    const formData = new FormData(form);
-    const overlay = document.getElementById('uploadOverlay');
-    const spinner = document.getElementById('uploadSpinner');
-    const success = document.getElementById('uploadSuccess');
-    const uploadText = document.getElementById('uploadText');
-    const uploadSubtext = document.getElementById('uploadSubtext');
-    const uploadProgressBar = document.getElementById('uploadProgressBar');
+    // =============================================
+    // DOCUMENT UPLOAD (NEW)
+    // =============================================
+    const docDropArea = document.getElementById('docDropArea');
+    const docInput    = document.getElementById('documents');
+    const docFileList = document.getElementById('docFileList');
+    const MAX_DOC_FILES = 10;
+    const MAX_DOC_SIZE  = 20 * 1024 * 1024; // 20 MB
 
-    // Show upload overlay
-    overlay.classList.add('active');
-    spinner.style.display = 'block';
-    success.style.display = 'none';
-    uploadText.textContent = 'Uploading Your Property...';
-    uploadSubtext.textContent = 'Please wait while we process your listing';
+    // Click the hidden input when drop area is clicked
+    docDropArea.addEventListener('click', () => docInput.click());
+    docDropArea.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') docInput.click(); });
 
-    // Simulate progress
-    let progress = 0;
-    const progressInterval = setInterval(() => {
-        progress += 10;
-        uploadProgressBar.style.width = progress + '%';
-        if (progress >= 90) {
-            clearInterval(progressInterval);
+    // Drag and drop events
+    docDropArea.addEventListener('dragover', e => { e.preventDefault(); docDropArea.style.background = '#dceeff'; });
+    docDropArea.addEventListener('dragleave', () => { docDropArea.style.background = '#f0f6ff'; });
+    docDropArea.addEventListener('drop', e => {
+      e.preventDefault();
+      docDropArea.style.background = '#f0f6ff';
+      addDocFiles(Array.from(e.dataTransfer.files));
+    });
+
+    // File input change
+    docInput.addEventListener('change', function() {
+      addDocFiles(Array.from(this.files));
+      this.value = ''; // Reset so same file can be re-added after removal
+    });
+
+    function addDocFiles(newFiles) {
+      const errorEl = document.getElementById('errorDocuments');
+      errorEl.textContent = '';
+
+      newFiles.forEach(file => {
+        if (selectedDocFiles.length >= MAX_DOC_FILES) {
+          errorEl.textContent = `Maximum ${MAX_DOC_FILES} documents allowed.`;
+          return;
         }
-    }, 200);
+        if (file.size > MAX_DOC_SIZE) {
+          errorEl.textContent = `"${file.name}" exceeds the 20 MB limit and was skipped.`;
+          return;
+        }
+        // Prevent duplicates by name+size
+        const isDuplicate = selectedDocFiles.some(f => f.name === file.name && f.size === file.size);
+        if (isDuplicate) return;
 
-    // Submit form via AJAX
-    fetch('/upload', {
+        selectedDocFiles.push(file);
+      });
+
+      renderDocFileList();
+    }
+
+    function renderDocFileList() {
+      docFileList.innerHTML = '';
+      selectedDocFiles.forEach((file, index) => {
+        const item = document.createElement('div');
+        item.className = 'doc-file-item';
+
+        const { icon, iconClass, badgeClass, badgeLabel } = getFileTypeMeta(file);
+
+        item.classList.add(iconClass);
+        item.innerHTML = `
+          <span class="material-icons">${icon}</span>
+          <div class="file-info">
+            <div class="file-name" title="${file.name}">${file.name}</div>
+            <div class="file-size">${formatBytes(file.size)} &nbsp;<span class="file-type-badge ${badgeClass}">${badgeLabel}</span></div>
+          </div>
+          <button class="remove-doc-btn" type="button" aria-label="Remove ${file.name}">
+            <span class="material-icons" style="font-size:18px;">close</span>
+          </button>
+        `;
+        item.querySelector('.remove-doc-btn').addEventListener('click', () => {
+          selectedDocFiles.splice(index, 1);
+          renderDocFileList();
+        });
+        docFileList.appendChild(item);
+      });
+    }
+
+    function getFileTypeMeta(file) {
+      const ext = file.name.split('.').pop().toLowerCase();
+      if (ext === 'pdf') return { icon: 'picture_as_pdf', iconClass: '', badgeClass: 'badge-pdf', badgeLabel: 'PDF' };
+      if (['doc', 'docx'].includes(ext)) return { icon: 'description', iconClass: 'doc-icon', badgeClass: 'badge-doc', badgeLabel: ext.toUpperCase() };
+      if (['xls', 'xlsx'].includes(ext)) return { icon: 'table_chart', iconClass: 'doc-icon', badgeClass: 'badge-doc', badgeLabel: ext.toUpperCase() };
+      if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)) return { icon: 'image', iconClass: 'img-icon', badgeClass: 'badge-img', badgeLabel: ext.toUpperCase() };
+      return { icon: 'insert_drive_file', iconClass: '', badgeClass: 'badge-other', badgeLabel: ext.toUpperCase() };
+    }
+
+    function formatBytes(bytes) {
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+      return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    }
+
+    // =============================================
+    // FORM SUBMISSION
+    // =============================================
+    function submitForm() {
+      const form = document.getElementById('sell-form');
+      const formData = new FormData(form);
+
+      // Append selected documents manually (since we manage them outside the native input)
+      selectedDocFiles.forEach(file => {
+        formData.append('documents', file);
+      });
+
+      const overlay          = document.getElementById('uploadOverlay');
+      const spinner          = document.getElementById('uploadSpinner');
+      const success          = document.getElementById('uploadSuccess');
+      const uploadText       = document.getElementById('uploadText');
+      const uploadSubtext    = document.getElementById('uploadSubtext');
+      const uploadProgressBar = document.getElementById('uploadProgressBar');
+
+      overlay.classList.add('active');
+      spinner.style.display = 'block';
+      success.style.display = 'none';
+      uploadText.textContent = 'Uploading Your Property...';
+      uploadSubtext.textContent = 'Please wait while we process your listing';
+      uploadProgressBar.style.width = '0%';
+
+      let progress = 0;
+      const progressInterval = setInterval(() => {
+        progress += 8;
+        uploadProgressBar.style.width = Math.min(progress, 90) + '%';
+        if (progress >= 90) clearInterval(progressInterval);
+      }, 250);
+
+      fetch('/upload', {
         method: 'POST',
         body: formData
-    })
-    .then(response => {
+      })
+      .then(response => {
         clearInterval(progressInterval);
         uploadProgressBar.style.width = '100%';
-        
-        // Check if response is OK
-        if (!response.ok) {
-            throw new Error(`Server error: ${response.status}`);
-        }
-        
-        // Get content type
+        if (!response.ok) throw new Error(`Server error: ${response.status}`);
         const contentType = response.headers.get('content-type');
-        
-        // Parse JSON if available, otherwise return success
         if (contentType && contentType.includes('application/json')) {
-            return response.json();
-        } else {
-            return { success: true, message: 'Upload successful' };
+          return response.json();
         }
-    })
-    .then(data => {
-        console.log('Server response:', data);
-        
-        // Show success animation
+        return { success: true, message: 'Upload successful' };
+      })
+      .then(data => {
         setTimeout(() => {
-            spinner.style.display = 'none';
-            success.style.display = 'block';
-            uploadText.textContent = 'Upload Successful!';
-            uploadSubtext.textContent = data.message || 'Your property listing has been submitted for review';
-            
-            // Hide overlay after 3 seconds
-            setTimeout(() => {
-                overlay.classList.remove('active');
-                // Show confirmation message
-                document.getElementById('confirmation').style.display = 'block';
-                form.reset();
-                currentStep = 0;
-                showStep(currentStep);
-                
-                // Show popup message
-                alert('Your property has been uploaded successfully! It will be reviewed and approved shortly.');
-                
-                // Optional: redirect to sales approval page
-                // window.location.href = '/sales-approved';
-            }, 3000);
+          spinner.style.display = 'none';
+          success.style.display = 'block';
+          uploadText.textContent = 'Upload Successful!';
+          uploadSubtext.textContent = data.message || 'Your property listing has been submitted for review';
+
+          setTimeout(() => {
+            overlay.classList.remove('active');
+            document.getElementById('confirmation').style.display = 'block';
+            form.reset();
+            selectedDocFiles = [];
+            renderDocFileList();
+            document.getElementById('image-preview').innerHTML = '';
+            document.getElementById('video-preview').innerHTML = '';
+            currentStep = 0;
+            showStep(currentStep);
+            alert('Your property has been uploaded successfully! It will be reviewed and approved shortly.');
+          }, 3000);
         }, 500);
-    })
-    .catch(error => {
-        console.error('Error:', error);
+      })
+      .catch(error => {
+        console.error('Upload error:', error);
         clearInterval(progressInterval);
         spinner.style.display = 'none';
-        success.style.display = 'none';
         uploadText.textContent = 'Upload Failed';
         uploadSubtext.textContent = 'Please try again or contact support';
         uploadProgressBar.style.width = '0%';
-        
         setTimeout(() => {
-            overlay.classList.remove('active');
-            alert('There was an error uploading your property. Please try again.');
+          overlay.classList.remove('active');
+          alert('There was an error uploading your property. Please try again.');
         }, 2500);
-    });
-}
-    // Initialize first step
+      });
+    }
+
+    // Initialize
     showStep(currentStep);
   </script>
 </body>
