@@ -3,424 +3,162 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Buy Properties | G.O AREGHAN REAL ESTATE FIRM</title>
+    <title>Buy Properties | G.O AREGHAN REAL ESTATE FIRM & CONSULTANT</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --navy: #0d2137;
-            --navy-mid: #163352;
-            --navy-light: #1e4a78;
-            --gold: #c8922a;
-            --gold-light: #e0aa45;
-            --gold-pale: #f5e6c8;
-            --cream: #faf7f2;
-            --white: #ffffff;
-            --gray-50: #f8fafc;
-            --gray-100: #f1f5f9;
-            --gray-200: #e2e8f0;
-            --gray-400: #94a3b8;
-            --gray-600: #475569;
-            --gray-800: #1e293b;
-            --text: #0d1f35;
-            --shadow-sm: 0 1px 3px rgba(13,33,55,0.08);
-            --shadow-md: 0 4px 20px rgba(13,33,55,0.10);
-            --shadow-lg: 0 12px 50px rgba(13,33,55,0.15);
-            --shadow-xl: 0 24px 80px rgba(13,33,55,0.2);
+            --navy: #0d2137; --navy-mid: #163352; --navy-light: #1e4a78;
+            --gold: #c8922a; --gold-light: #e0aa45; --gold-pale: #f5e6c8;
+            --cream: #faf7f2; --white: #ffffff;
+            --gray-50: #f8fafc; --gray-100: #f1f5f9; --gray-200: #e2e8f0;
+            --gray-400: #94a3b8; --gray-600: #475569; --gray-800: #1e293b; --text: #0d1f35;
+            --shadow-sm: 0 1px 3px rgba(13,33,55,0.08); --shadow-md: 0 4px 20px rgba(13,33,55,0.10);
+            --shadow-lg: 0 12px 50px rgba(13,33,55,0.15); --shadow-xl: 0 24px 80px rgba(13,33,55,0.2);
         }
-
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         html { scroll-behavior: smooth; }
-
-        body {
-            font-family: 'DM Sans', sans-serif;
-            color: var(--text);
-            background: var(--cream);
-        }
-
+        body { font-family: 'DM Sans', sans-serif; color: var(--text); background: var(--cream); }
         h1, h2, h3 { font-family: 'Cormorant Garamond', serif; letter-spacing: -0.01em; }
 
-        /* ===== NAVBAR ===== */
-        .navbar {
-            position: sticky; top: 0; z-index: 100;
-            background: rgba(255,255,255,0.97);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid var(--gray-200);
-            box-shadow: var(--shadow-sm);
-        }
-
-        .nav-inner {
-            max-width: 1400px; margin: 0 auto; padding: 0 32px;
-            height: 70px; display: flex; align-items: center;
-            justify-content: space-between; gap: 20px;
-        }
-
+        /* NAVBAR */
+        .navbar { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.97); backdrop-filter: blur(12px); border-bottom: 1px solid var(--gray-200); box-shadow: var(--shadow-sm); }
+        .nav-inner { max-width: 1400px; margin: 0 auto; padding: 0 32px; height: 70px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
         .nav-brand { display: flex; align-items: center; gap: 12px; text-decoration: none; flex-shrink: 0; }
         .nav-logo { width: 44px; height: 44px; border-radius: 50%; overflow: hidden; border: 2px solid var(--gold); }
         .nav-logo img { width: 100%; height: 100%; object-fit: cover; }
         .brand-name { display: block; font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-weight: 700; color: var(--navy); }
         .brand-tagline { display: block; font-size: 0.62rem; font-weight: 600; color: var(--gold); letter-spacing: 0.1em; text-transform: uppercase; }
-
         .nav-links { display: flex; align-items: center; gap: 2px; flex: 1; justify-content: center; }
-
-        .nav-link {
-            display: flex; align-items: center; gap: 5px; padding: 7px 12px; border-radius: 8px;
-            font-size: 0.82rem; font-weight: 600; color: var(--gray-600); text-decoration: none;
-            transition: all 0.2s; white-space: nowrap;
-        }
+        .nav-link { display: flex; align-items: center; gap: 5px; padding: 7px 12px; border-radius: 8px; font-size: 0.82rem; font-weight: 600; color: var(--gray-600); text-decoration: none; transition: all 0.2s; white-space: nowrap; }
         .nav-link i { font-size: 0.75rem; opacity: 0.8; }
         .nav-link:hover { background: var(--gray-100); color: var(--navy); }
         .nav-link.active { background: #e8eef8; color: var(--navy-light); }
-
         .dropdown { position: relative; }
-        .dropdown-toggle {
-            display: flex; align-items: center; gap: 5px; padding: 7px 12px; border-radius: 8px;
-            font-size: 0.82rem; font-weight: 600; color: var(--gray-600);
-            background: none; border: none; cursor: pointer; transition: all 0.2s;
-        }
+        .dropdown-toggle { display: flex; align-items: center; gap: 5px; padding: 7px 12px; border-radius: 8px; font-size: 0.82rem; font-weight: 600; color: var(--gray-600); background: none; border: none; cursor: pointer; transition: all 0.2s; }
         .dropdown-toggle:hover { background: var(--gray-100); color: var(--navy); }
-        .dropdown-menu {
-            position: absolute; top: calc(100% + 10px); left: 0;
-            background: var(--white); border: 1px solid var(--gray-200); border-radius: 12px;
-            box-shadow: var(--shadow-lg); min-width: 190px; padding: 8px;
-            opacity: 0; visibility: hidden; transform: translateY(8px); transition: all 0.2s;
-        }
+        .dropdown-menu { position: absolute; top: calc(100% + 10px); left: 0; background: var(--white); border: 1px solid var(--gray-200); border-radius: 12px; box-shadow: var(--shadow-lg); min-width: 190px; padding: 8px; opacity: 0; visibility: hidden; transform: translateY(8px); transition: all 0.2s; }
         .dropdown-menu.show { opacity: 1; visibility: visible; transform: translateY(0); }
-        .dropdown-item {
-            display: flex; align-items: center; gap: 10px; padding: 10px 14px;
-            font-size: 0.85rem; font-weight: 500; color: var(--text); text-decoration: none;
-            border-radius: 8px; transition: background 0.15s;
-        }
+        .dropdown-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; font-size: 0.85rem; font-weight: 500; color: var(--text); text-decoration: none; border-radius: 8px; transition: background 0.15s; }
         .dropdown-item i { width: 16px; color: var(--navy-light); font-size: 0.8rem; }
         .dropdown-item:hover { background: var(--gray-100); color: var(--navy); }
-
         .nav-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
         #desktop-login-container { display: flex; align-items: center; }
-
-        .btn-primary {
-            background: var(--navy); color: white; padding: 9px 22px; border-radius: 8px;
-            font-size: 0.82rem; font-weight: 700; border: none; cursor: pointer;
-            transition: all 0.2s; text-decoration: none; display: inline-block;
-        }
+        .btn-primary { background: var(--navy); color: white; padding: 9px 22px; border-radius: 8px; font-size: 0.82rem; font-weight: 700; border: none; cursor: pointer; transition: all 0.2s; text-decoration: none; display: inline-block; }
         .btn-primary:hover { background: var(--navy-light); transform: translateY(-1px); }
-
-        .btn-logout {
-            background: #fee2e2; color: #dc2626; padding: 9px 22px; border-radius: 8px;
-            font-size: 0.82rem; font-weight: 700; border: none; cursor: pointer;
-            transition: all 0.2s; text-decoration: none; display: inline-block;
-        }
+        .btn-logout { background: #fee2e2; color: #dc2626; padding: 9px 22px; border-radius: 8px; font-size: 0.82rem; font-weight: 700; border: none; cursor: pointer; transition: all 0.2s; text-decoration: none; display: inline-block; }
         .btn-logout:hover { background: #fecaca; }
-
-        .mobile-menu-btn {
-            display: none; background: none; border: 1px solid var(--gray-200);
-            border-radius: 8px; padding: 8px 10px; cursor: pointer; color: var(--text); font-size: 1rem;
-        }
-
-        #mobile-menu {
-            display: none; position: fixed; inset: 0; background: var(--white); z-index: 200; overflow-y: auto;
-        }
+        .mobile-menu-btn { display: none; background: none; border: 1px solid var(--gray-200); border-radius: 8px; padding: 8px 10px; cursor: pointer; color: var(--text); font-size: 1rem; }
+        #mobile-menu { display: none; position: fixed; inset: 0; background: var(--white); z-index: 200; overflow-y: auto; }
         #mobile-menu.show { display: block; }
         .mobile-menu-inner { padding: 24px; }
-        .mobile-menu-header {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 32px; padding-bottom: 20px; border-bottom: 1px solid var(--gray-200);
-        }
-        .mobile-close-btn {
-            width: 36px; height: 36px; border-radius: 8px; background: var(--gray-100);
-            border: none; cursor: pointer; color: var(--gray-600); font-size: 1rem;
-            display: flex; align-items: center; justify-content: center;
-        }
-        .mobile-nav-link {
-            display: flex; align-items: center; gap: 12px; padding: 14px 0;
-            font-size: 1rem; font-weight: 600; color: var(--text); text-decoration: none;
-            border-bottom: 1px solid var(--gray-100);
-        }
+        .mobile-menu-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; padding-bottom: 20px; border-bottom: 1px solid var(--gray-200); }
+        .mobile-close-btn { width: 36px; height: 36px; border-radius: 8px; background: var(--gray-100); border: none; cursor: pointer; color: var(--gray-600); font-size: 1rem; display: flex; align-items: center; justify-content: center; }
+        .mobile-nav-link { display: flex; align-items: center; gap: 12px; padding: 14px 0; font-size: 1rem; font-weight: 600; color: var(--text); text-decoration: none; border-bottom: 1px solid var(--gray-100); }
         .mobile-nav-link i { width: 20px; color: var(--navy-light); }
         #mobile-login-section { margin-top: 28px; }
 
-        /* ===== HERO ===== */
-        .hero {
-            position: relative; min-height: 65vh; display: flex; align-items: center; overflow: hidden;
-        }
-        .hero-bg {
-            position: absolute; inset: 0;
-            background: url('/img/OGA AYO COM CARDXS.jpg') center/cover no-repeat;
-        }
-        .hero-overlay {
-            position: absolute; inset: 0;
-            background: linear-gradient(135deg, rgba(13,33,55,0.92) 0%, rgba(13,33,55,0.7) 60%, rgba(200,146,42,0.15) 100%);
-        }
+        /* HERO */
+        .hero { position: relative; min-height: 65vh; display: flex; align-items: center; overflow: hidden; }
+        .hero-bg { position: absolute; inset: 0; background: url('/img/OGA AYO COM CARDXS.jpg') center/cover no-repeat; }
+        .hero-overlay { position: absolute; inset: 0; background: linear-gradient(135deg, rgba(13,33,55,0.92) 0%, rgba(13,33,55,0.7) 60%, rgba(200,146,42,0.15) 100%); }
         .hero-accent { position: absolute; bottom: 0; left: 0; right: 0; height: 5px; background: linear-gradient(90deg, var(--gold), var(--gold-light), var(--gold)); }
-
-        .hero-inner {
-            position: relative; z-index: 2; max-width: 1400px; margin: 0 auto;
-            padding: 80px 32px 70px; width: 100%;
-        }
-
-        .hero-eyebrow {
-            display: inline-flex; align-items: center; gap: 8px;
-            background: rgba(200,146,42,0.15); border: 1px solid rgba(200,146,42,0.4);
-            color: var(--gold-light); padding: 6px 16px; border-radius: 30px;
-            font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
-            margin-bottom: 22px;
-        }
-
-        .hero-title {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: clamp(2.5rem, 5vw, 4.5rem);
-            font-weight: 700; color: white; line-height: 1.1; margin-bottom: 18px; max-width: 680px;
-        }
+        .hero-inner { position: relative; z-index: 2; max-width: 1400px; margin: 0 auto; padding: 80px 32px 70px; width: 100%; }
+        .hero-eyebrow { display: inline-flex; align-items: center; gap: 8px; background: rgba(200,146,42,0.15); border: 1px solid rgba(200,146,42,0.4); color: var(--gold-light); padding: 6px 16px; border-radius: 30px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 22px; }
+        .hero-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(2.5rem, 5vw, 4.5rem); font-weight: 700; color: white; line-height: 1.1; margin-bottom: 18px; max-width: 680px; }
         .hero-title em { font-style: italic; color: var(--gold-light); }
-
-        .hero-subtitle {
-            font-size: 1rem; color: rgba(255,255,255,0.75); max-width: 500px;
-            line-height: 1.7; margin-bottom: 36px;
-        }
-
-        /* Search card */
-        .search-card {
-            background: white; border-radius: 16px; padding: 24px;
-            box-shadow: var(--shadow-xl); max-width: 900px;
-        }
-
-        .search-grid {
-            display: grid; grid-template-columns: 2fr 1fr 1fr 1fr auto; gap: 12px; align-items: end;
-        }
-
-        .search-field label {
-            display: block; font-size: 0.72rem; font-weight: 700; color: var(--gray-600);
-            letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 6px;
-        }
-
-        .search-input {
-            width: 100%; padding: 11px 14px; border: 1.5px solid var(--gray-200); border-radius: 10px;
-            font-family: inherit; font-size: 0.875rem; color: var(--text);
-            background: var(--gray-50); transition: all 0.2s;
-        }
+        .hero-subtitle { font-size: 1rem; color: rgba(255,255,255,0.75); max-width: 500px; line-height: 1.7; margin-bottom: 36px; }
+        .search-card { background: white; border-radius: 16px; padding: 24px; box-shadow: var(--shadow-xl); max-width: 920px; }
+        .search-grid { display: grid; grid-template-columns: 2fr 1.5fr 1fr 1fr auto; gap: 12px; align-items: end; }
+        .search-field label { display: block; font-size: 0.72rem; font-weight: 700; color: var(--gray-600); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 6px; }
+        .search-input { width: 100%; padding: 11px 14px; border: 1.5px solid var(--gray-200); border-radius: 10px; font-family: inherit; font-size: 0.875rem; color: var(--text); background: var(--gray-50); transition: all 0.2s; }
         .search-input:focus { outline: none; border-color: var(--navy-light); background: white; }
-
         .search-input-icon { position: relative; }
         .search-input-icon i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--gray-400); font-size: 0.8rem; }
         .search-input-icon .search-input { padding-left: 34px; }
-
-        .btn-search {
-            background: linear-gradient(135deg, var(--navy), var(--navy-light));
-            color: white; padding: 11px 24px; border-radius: 10px; font-family: inherit;
-            font-size: 0.875rem; font-weight: 700; border: none; cursor: pointer;
-            transition: all 0.2s; display: flex; align-items: center; gap: 7px; white-space: nowrap;
-        }
+        .btn-search { background: linear-gradient(135deg, var(--navy), var(--navy-light)); color: white; padding: 11px 24px; border-radius: 10px; font-family: inherit; font-size: 0.875rem; font-weight: 700; border: none; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 7px; white-space: nowrap; }
         .btn-search:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(13,33,55,0.3); }
+        .scroll-cue { position: absolute; bottom: 22px; left: 50%; transform: translateX(-50%); z-index: 2; color: rgba(255,255,255,0.5); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 5px; animation: bobble 2s ease-in-out infinite; }
+        @keyframes bobble { 0%,100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(6px); } }
 
-        .scroll-cue {
-            position: absolute; bottom: 22px; left: 50%; transform: translateX(-50%); z-index: 2;
-            color: rgba(255,255,255,0.5); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase;
-            text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 5px;
-            animation: bobble 2s ease-in-out infinite;
-        }
-        @keyframes bobble {
-            0%,100% { transform: translateX(-50%) translateY(0); }
-            50% { transform: translateX(-50%) translateY(6px); }
-        }
-
-        /* ===== PROPERTIES SECTION ===== */
+        /* PROPERTIES */
         .properties-section { padding: 80px 0; background: var(--white); }
         .container { max-width: 1400px; margin: 0 auto; padding: 0 32px; }
-
         .section-header { text-align: center; margin-bottom: 48px; }
-        .section-eyebrow {
-            display: inline-block; color: var(--gold); font-size: 0.72rem; font-weight: 700;
-            letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 12px;
-        }
-        .section-title {
-            font-family: 'Cormorant Garamond', serif; font-size: clamp(1.8rem, 3.5vw, 2.6rem);
-            font-weight: 700; color: var(--navy); line-height: 1.15; margin-bottom: 14px;
-        }
+        .section-eyebrow { display: inline-block; color: var(--gold); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 12px; }
+        .section-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(1.8rem, 3.5vw, 2.6rem); font-weight: 700; color: var(--navy); line-height: 1.15; margin-bottom: 14px; }
         .section-desc { font-size: 0.95rem; color: var(--gray-600); max-width: 560px; margin: 0 auto; line-height: 1.7; }
         .gold-divider { width: 50px; height: 3px; background: var(--gold); margin: 0 auto 24px; border-radius: 2px; }
 
-        /* Filter tabs */
+        /* FILTER TABS */
         .filter-wrap { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; margin-bottom: 40px; }
-
-        .filter-tab {
-            display: flex; align-items: center; gap: 6px; padding: 9px 18px;
-            border: 1.5px solid var(--gray-200); border-radius: 30px; background: var(--white);
-            color: var(--gray-600); font-size: 0.82rem; font-weight: 600; cursor: pointer;
-            transition: all 0.2s; font-family: inherit;
-        }
-        .filter-tab i { font-size: 0.75rem; }
+        .filter-tab { display: flex; align-items: center; gap: 6px; padding: 8px 16px; border: 1.5px solid var(--gray-200); border-radius: 30px; background: var(--white); color: var(--gray-600); font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit; }
+        .filter-tab i { font-size: 0.72rem; }
         .filter-tab:hover { border-color: var(--navy-light); color: var(--navy); }
         .filter-tab.active { background: var(--navy); border-color: var(--navy); color: white; }
 
-        /* Results bar */
-        .results-bar {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 14px 20px; background: var(--cream); border-radius: 12px;
-            border: 1px solid var(--gray-200); margin-bottom: 28px; font-size: 0.875rem;
-        }
+        .results-bar { display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; background: var(--cream); border-radius: 12px; border: 1px solid var(--gray-200); margin-bottom: 28px; font-size: 0.875rem; }
         .results-count { color: var(--gray-600); font-weight: 500; }
         .results-count strong { color: var(--navy); font-weight: 700; }
-        .sort-select {
-            padding: 6px 12px; border: 1px solid var(--gray-200); border-radius: 8px;
-            font-family: inherit; font-size: 0.8rem; color: var(--gray-600); background: white;
-        }
+        .sort-select { padding: 6px 12px; border: 1px solid var(--gray-200); border-radius: 8px; font-family: inherit; font-size: 0.8rem; color: var(--gray-600); background: white; }
 
-        /* Property Grid */
-        .property-grid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px;
-        }
-
-        .property-card {
-            background: var(--white); border-radius: 16px; overflow: hidden;
-            box-shadow: var(--shadow-md); border: 1px solid var(--gray-200);
-            transition: all 0.3s ease;
-        }
+        /* PROPERTY CARDS */
+        .property-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px; }
+        .property-card { background: var(--white); border-radius: 16px; overflow: hidden; box-shadow: var(--shadow-md); border: 1px solid var(--gray-200); transition: all 0.3s ease; }
         .property-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-xl); }
-
         .card-img-wrap { position: relative; overflow: hidden; height: 210px; }
         .card-img-wrap img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
         .property-card:hover .card-img-wrap img { transform: scale(1.06); }
-
-        .card-img-placeholder {
-            width: 100%; height: 210px; background: var(--gray-100);
-            display: flex; align-items: center; justify-content: center; color: var(--gray-400);
-        }
-
-        .card-badge {
-            position: absolute; top: 14px; left: 14px; background: var(--navy);
-            color: white; font-size: 0.68rem; font-weight: 700; padding: 4px 10px;
-            border-radius: 6px; letter-spacing: 0.06em; text-transform: uppercase;
-        }
-
-        .card-location {
-            position: absolute; bottom: 12px; left: 12px;
-            background: rgba(13,33,55,0.82); backdrop-filter: blur(6px);
-            color: white; font-size: 0.75rem; padding: 5px 11px; border-radius: 20px;
-            display: flex; align-items: center; gap: 5px; max-width: calc(100% - 24px);
-        }
+        .card-img-placeholder { width: 100%; height: 210px; background: var(--gray-100); display: flex; align-items: center; justify-content: center; color: var(--gray-400); }
+        .card-badge { position: absolute; top: 14px; left: 14px; background: var(--navy); color: white; font-size: 0.68rem; font-weight: 700; padding: 4px 10px; border-radius: 6px; letter-spacing: 0.06em; text-transform: uppercase; }
+        .card-location { position: absolute; bottom: 12px; left: 12px; background: rgba(13,33,55,0.82); backdrop-filter: blur(6px); color: white; font-size: 0.75rem; padding: 5px 11px; border-radius: 20px; display: flex; align-items: center; gap: 5px; max-width: calc(100% - 24px); }
         .card-location i { color: var(--gold-light); font-size: 0.68rem; flex-shrink: 0; }
-
         .card-body { padding: 18px 20px; }
-
-        .card-type {
-            font-size: 0.68rem; font-weight: 700; color: var(--gold); letter-spacing: 0.08em;
-            text-transform: uppercase; margin-bottom: 6px;
-        }
-
-        .card-title {
-            font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 700;
-            color: var(--navy); margin-bottom: 8px; line-height: 1.25;
-        }
-
+        .card-type { font-size: 0.68rem; font-weight: 700; color: var(--gold); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 6px; }
+        .card-title { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 700; color: var(--navy); margin-bottom: 8px; line-height: 1.25; }
         .card-desc { font-size: 0.8rem; color: var(--gray-600); line-height: 1.6; margin-bottom: 14px; }
-
         .card-divider { height: 1px; background: var(--gray-100); margin: 14px 0; }
-
-        .card-meta {
-            display: flex; gap: 14px; font-size: 0.78rem; color: var(--gray-600); margin-bottom: 16px; flex-wrap: wrap;
-        }
+        .card-meta { display: flex; gap: 14px; font-size: 0.78rem; color: var(--gray-600); margin-bottom: 16px; flex-wrap: wrap; }
         .card-meta span { display: flex; align-items: center; gap: 5px; }
         .card-meta i { color: var(--navy-light); }
-
         .card-footer { display: flex; align-items: center; justify-content: space-between; }
-
-        .card-price {
-            font-family: 'Cormorant Garamond', serif; font-size: 1.4rem;
-            font-weight: 700; color: var(--navy);
-        }
+        .card-price { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 700; color: var(--navy); }
         .card-price-label { font-size: 0.68rem; color: var(--gray-400); display: block; margin-bottom: 1px; }
-
-        .card-btn {
-            display: inline-flex; align-items: center; gap: 6px;
-            background: var(--navy); color: white; padding: 9px 16px; border-radius: 8px;
-            font-size: 0.8rem; font-weight: 700; text-decoration: none; transition: all 0.2s;
-            border: none; cursor: pointer;
-        }
+        .card-btn { display: inline-flex; align-items: center; gap: 6px; background: var(--navy); color: white; padding: 9px 16px; border-radius: 8px; font-size: 0.8rem; font-weight: 700; text-decoration: none; transition: all 0.2s; border: none; cursor: pointer; }
         .card-btn:hover { background: var(--navy-light); transform: translateY(-1px); }
-
-        /* Empty state */
-        .empty-state {
-            grid-column: 1 / -1; text-align: center; padding: 80px 20px;
-        }
-        .empty-icon {
-            width: 80px; height: 80px; border-radius: 50%;
-            background: var(--gray-100); display: flex; align-items: center; justify-content: center;
-            margin: 0 auto 24px; font-size: 2rem; color: var(--gray-400);
-        }
+        .empty-state { grid-column: 1 / -1; text-align: center; padding: 80px 20px; }
+        .empty-icon { width: 80px; height: 80px; border-radius: 50%; background: var(--gray-100); display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; font-size: 2rem; color: var(--gray-400); }
         .empty-state h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; color: var(--navy); margin-bottom: 10px; }
         .empty-state p { color: var(--gray-600); font-size: 0.9rem; }
-
-        /* Pagination */
-        .pagination {
-            display: flex; justify-content: center; align-items: center;
-            gap: 10px; margin-top: 52px;
-        }
-        .page-btn {
-            display: flex; align-items: center; gap: 6px; padding: 10px 20px;
-            border: 1.5px solid var(--gray-200); border-radius: 10px; background: white;
-            color: var(--gray-600); font-size: 0.875rem; font-weight: 600; cursor: pointer;
-            transition: all 0.2s; font-family: inherit;
-        }
+        .pagination { display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 52px; }
+        .page-btn { display: flex; align-items: center; gap: 6px; padding: 10px 20px; border: 1.5px solid var(--gray-200); border-radius: 10px; background: white; color: var(--gray-600); font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit; }
         .page-btn:hover:not(:disabled) { border-color: var(--navy); color: var(--navy); }
         .page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-        .page-indicator {
-            font-size: 0.875rem; color: var(--gray-600); font-weight: 500;
-            padding: 10px 16px; background: var(--cream); border-radius: 10px;
-            border: 1px solid var(--gray-200);
-        }
+        .page-indicator { font-size: 0.875rem; color: var(--gray-600); font-weight: 500; padding: 10px 16px; background: var(--cream); border-radius: 10px; border: 1px solid var(--gray-200); }
 
-        /* ===== CTA STRIP ===== */
+        /* CTA */
         .cta-strip { background: var(--navy); padding: 60px 0; }
-        .cta-inner {
-            max-width: 1400px; margin: 0 auto; padding: 0 32px;
-            display: grid; grid-template-columns: 1fr auto; gap: 40px; align-items: center;
-        }
-        .cta-title {
-            font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 700;
-            color: white; margin-bottom: 8px;
-        }
+        .cta-inner { max-width: 1400px; margin: 0 auto; padding: 0 32px; display: grid; grid-template-columns: 1fr auto; gap: 40px; align-items: center; }
+        .cta-title { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 700; color: white; margin-bottom: 8px; }
         .cta-sub { font-size: 0.9rem; color: rgba(255,255,255,0.65); }
         .cta-actions { display: flex; gap: 12px; flex-shrink: 0; flex-wrap: wrap; }
-
-        .btn-gold {
-            display: inline-flex; align-items: center; gap: 7px;
-            background: var(--gold); color: var(--navy); padding: 12px 24px; border-radius: 10px;
-            font-size: 0.875rem; font-weight: 700; text-decoration: none; transition: all 0.2s;
-            border: 2px solid var(--gold);
-        }
+        .btn-gold { display: inline-flex; align-items: center; gap: 7px; background: var(--gold); color: var(--navy); padding: 12px 24px; border-radius: 10px; font-size: 0.875rem; font-weight: 700; text-decoration: none; transition: all 0.2s; border: 2px solid var(--gold); }
         .btn-gold:hover { background: var(--gold-light); transform: translateY(-1px); }
-
-        .btn-outline-white {
-            display: inline-flex; align-items: center; gap: 7px;
-            background: transparent; color: white; padding: 12px 24px; border-radius: 10px;
-            font-size: 0.875rem; font-weight: 700; text-decoration: none; transition: all 0.2s;
-            border: 2px solid rgba(255,255,255,0.4);
-        }
+        .btn-outline-white { display: inline-flex; align-items: center; gap: 7px; background: transparent; color: white; padding: 12px 24px; border-radius: 10px; font-size: 0.875rem; font-weight: 700; text-decoration: none; transition: all 0.2s; border: 2px solid rgba(255,255,255,0.4); }
         .btn-outline-white:hover { background: rgba(255,255,255,0.1); border-color: white; }
 
-        /* Quick contact */
+        /* QUICK CONTACT */
         .quick-contact { background: var(--cream); padding: 70px 0; }
         .contact-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
-
-        .contact-card {
-            background: var(--white); border: 1px solid var(--gray-200); border-radius: 16px;
-            padding: 32px 24px; text-align: center; transition: all 0.3s;
-        }
+        .contact-card { background: var(--white); border: 1px solid var(--gray-200); border-radius: 16px; padding: 32px 24px; text-align: center; transition: all 0.3s; }
         .contact-card:hover { border-color: var(--gold); transform: translateY(-3px); box-shadow: var(--shadow-md); }
-        .contact-icon-wrap {
-            width: 56px; height: 56px; border-radius: 14px;
-            background: linear-gradient(135deg, var(--navy), var(--navy-light));
-            display: flex; align-items: center; justify-content: center;
-            color: var(--gold-light); font-size: 1.2rem; margin: 0 auto 16px;
-        }
-        .contact-card h3 {
-            font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-weight: 700;
-            color: var(--navy); margin-bottom: 6px;
-        }
+        .contact-icon-wrap { width: 56px; height: 56px; border-radius: 14px; background: linear-gradient(135deg, var(--navy), var(--navy-light)); display: flex; align-items: center; justify-content: center; color: var(--gold-light); font-size: 1.2rem; margin: 0 auto 16px; }
+        .contact-card h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-weight: 700; color: var(--navy); margin-bottom: 6px; }
         .contact-card p { font-size: 0.875rem; color: var(--gray-600); }
 
-        /* ===== FOOTER ===== */
+        /* FOOTER */
         footer { background: var(--navy); color: white; }
         .footer-top { padding: 70px 0 50px; }
         .footer-grid { display: grid; grid-template-columns: 1.8fr 1fr 1fr 1.4fr; gap: 48px; }
@@ -430,11 +168,7 @@
         .footer-brand-name { font-family: 'Cormorant Garamond', serif; font-size: 1rem; font-weight: 700; color: white; }
         .footer-desc { font-size: 0.875rem; color: rgba(255,255,255,0.5); line-height: 1.75; margin-bottom: 22px; }
         .footer-socials { display: flex; gap: 8px; }
-        .footer-social {
-            width: 34px; height: 34px; border-radius: 8px; background: rgba(255,255,255,0.08);
-            color: rgba(255,255,255,0.6); display: flex; align-items: center; justify-content: center;
-            font-size: 0.78rem; text-decoration: none; transition: all 0.2s;
-        }
+        .footer-social { width: 34px; height: 34px; border-radius: 8px; background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.6); display: flex; align-items: center; justify-content: center; font-size: 0.78rem; text-decoration: none; transition: all 0.2s; }
         .footer-social:hover { background: var(--gold); color: var(--navy); }
         .footer-col-title { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold-light); margin-bottom: 18px; }
         .footer-links { list-style: none; }
@@ -443,49 +177,27 @@
         .footer-links a:hover { color: white; }
         .footer-contact-item { display: flex; gap: 10px; margin-bottom: 11px; font-size: 0.875rem; color: rgba(255,255,255,0.5); }
         .footer-contact-item i { color: var(--gold); width: 14px; margin-top: 2px; flex-shrink: 0; }
-        .footer-bottom {
-            border-top: 1px solid rgba(255,255,255,0.08); padding: 22px 0;
-            display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap;
-        }
+        .footer-bottom { border-top: 1px solid rgba(255,255,255,0.08); padding: 22px 0; display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
         .footer-bottom-text { font-size: 0.8rem; color: rgba(255,255,255,0.35); }
         .footer-bottom-links { display: flex; gap: 18px; }
         .footer-bottom-links a { font-size: 0.8rem; color: rgba(255,255,255,0.35); text-decoration: none; transition: color 0.2s; }
         .footer-bottom-links a:hover { color: white; }
 
-        /* ===== RESPONSIVE ===== */
+        /* RESPONSIVE */
         @media (max-width: 1100px) { .footer-grid { grid-template-columns: 1fr 1fr; } }
-        @media (max-width: 900px) {
-            .nav-links { display: none; }
-            .mobile-menu-btn { display: block; }
-            .search-grid { grid-template-columns: 1fr 1fr; }
-            .search-grid > div:last-child { grid-column: span 2; }
-            .cta-inner { grid-template-columns: 1fr; }
-            .cta-actions { justify-content: flex-start; }
-        }
-        @media (max-width: 640px) {
-            .container { padding: 0 20px; }
-            .search-grid { grid-template-columns: 1fr; }
-            .search-grid > div:last-child { grid-column: auto; }
-            .footer-grid { grid-template-columns: 1fr; }
-            .hero-inner { padding: 60px 20px 50px; }
-            .nav-inner { padding: 0 16px; }
-            .footer-bottom { flex-direction: column; text-align: center; }
-        }
+        @media (max-width: 900px) { .nav-links { display: none; } .mobile-menu-btn { display: block; } .search-grid { grid-template-columns: 1fr 1fr; } .search-grid > div:last-child { grid-column: span 2; } .cta-inner { grid-template-columns: 1fr; } .cta-actions { justify-content: flex-start; } }
+        @media (max-width: 640px) { .container { padding: 0 20px; } .search-grid { grid-template-columns: 1fr; } .search-grid > div:last-child { grid-column: auto; } .footer-grid { grid-template-columns: 1fr; } .hero-inner { padding: 60px 20px 50px; } .nav-inner { padding: 0 16px; } .footer-bottom { flex-direction: column; text-align: center; } }
     </style>
 </head>
 <body>
 
-<!-- ===== NAVBAR ===== -->
+<!-- NAVBAR -->
 <nav class="navbar">
     <div class="nav-inner">
         <a href="/" class="nav-brand">
             <div class="nav-logo"><img src="/img/OGA AYO COM CARDXS.jpg" alt="Logo"></div>
-            <div>
-                <span class="brand-name">G.O AREGHAN</span>
-                <span class="brand-tagline">Real Estate Firm</span>
-            </div>
+            <div><span class="brand-name">G.O AREGHAN</span><span class="brand-tagline">Real Estate Firm</span></div>
         </a>
-
         <div class="nav-links">
             <a href="/" class="nav-link"><i class="fas fa-home"></i> Home</a>
             <a href="#properties" class="nav-link active"><i class="fas fa-building"></i> Properties</a>
@@ -494,30 +206,26 @@
             <a href="#contact" class="nav-link"><i class="fas fa-envelope"></i> Contact</a>
             <div class="dropdown">
                 <button class="dropdown-toggle" id="service-toggle" aria-expanded="false">
-                    <i class="fas fa-th-large"></i> Services
-                    <i class="fas fa-chevron-down" style="font-size:0.65rem;opacity:0.6;"></i>
+                    <i class="fas fa-th-large"></i> Services <i class="fas fa-chevron-down" style="font-size:0.65rem;opacity:0.6;"></i>
                 </button>
-                <div class="dropdown-menu" id="service-menu" role="menu">
-                    <a href="/customer-buy-page.html" class="dropdown-item" role="menuitem"><i class="fas fa-shopping-cart"></i> Buy Property</a>
-                    <a href="/customer-rent-page.html" class="dropdown-item" role="menuitem"><i class="fas fa-key"></i> Rent Property</a>
+                <div class="dropdown-menu" id="service-menu">
+                    <a href="/customer-buy-page.html" class="dropdown-item"><i class="fas fa-shopping-cart"></i> Buy Property</a>
+                    <a href="/customer-rent-page.html" class="dropdown-item"><i class="fas fa-key"></i> Rent Property</a>
                 </div>
             </div>
         </div>
-
         <div class="nav-right">
-            <div id="desktop-login-container">
-                <a href="/login" class="btn-primary">Login / Register</a>
-            </div>
+            <div id="desktop-login-container"><a href="/login" class="btn-primary">Login / Register</a></div>
             <button class="mobile-menu-btn" id="mobile-menu-button"><i class="fas fa-bars"></i></button>
         </div>
     </div>
 </nav>
 
-<!-- ===== MOBILE MENU ===== -->
+<!-- MOBILE MENU -->
 <div id="mobile-menu">
     <div class="mobile-menu-inner">
         <div class="mobile-menu-header">
-            <span class="brand-name" style="font-family:'Cormorant Garamond',serif;font-size:1.05rem;">G.O AREGHAN REAL ESTATE</span>
+            <span style="font-family:'Cormorant Garamond',serif;font-size:1.05rem;font-weight:700;color:var(--navy);">G.O AREGHAN REAL ESTATE</span>
             <button class="mobile-close-btn" id="mobile-close"><i class="fas fa-times"></i></button>
         </div>
         <a href="/" class="mobile-nav-link"><i class="fas fa-home"></i> Home</a>
@@ -533,17 +241,15 @@
     </div>
 </div>
 
-<!-- ===== HERO ===== -->
+<!-- HERO -->
 <section class="hero">
     <div class="hero-bg"></div>
     <div class="hero-overlay"></div>
     <div class="hero-accent"></div>
-
     <div class="hero-inner">
         <div class="hero-eyebrow"><i class="fas fa-shopping-cart" style="font-size:0.65rem;"></i> Properties for Sale</div>
         <h1 class="hero-title">Find Your Perfect<br><em>Home to Buy</em></h1>
         <p class="hero-subtitle">Browse our verified collection of residential and commercial properties across Edo and Lagos State.</p>
-
         <div class="search-card">
             <div class="search-grid">
                 <div class="search-field">
@@ -555,12 +261,32 @@
                 </div>
                 <div class="search-field">
                     <label>Property Type</label>
-                    <select id="property-type" class="search-input">
+                    <select id="search-property-type" class="search-input">
                         <option value="">All Types</option>
-                        <option>Self Contain</option>
-                        <option>Plots of Land</option>
-                        <option>Duplex/Bangalow/Storey building</option>
-                        <option>Single Room</option>
+                        <optgroup label="Residential">
+                            <option>Duplex</option>
+                            <option>Bungalow</option>
+                            <option>Storey Building</option>
+                            <option>Flat</option>
+                            <option>Apartment</option>
+                            <option>Mini Flat</option>
+                            <option>Self Contain</option>
+                            <option>Single Room</option>
+                            <option>Detached House</option>
+                            <option>Semi-Detached House</option>
+                            <option>Terrace House</option>
+                        </optgroup>
+                        <optgroup label="Commercial">
+                            <option>Commercial Building</option>
+                            <option>Warehouse</option>
+                            <option>Land and Building</option>
+                            <option>Building and Machinery</option>
+                            <option>Plant and Machinery</option>
+                            <option>Chattels</option>
+                        </optgroup>
+                        <optgroup label="Land">
+                            <option>Plots of Land</option>
+                        </optgroup>
                     </select>
                 </div>
                 <div class="search-field">
@@ -585,35 +311,44 @@
                 </div>
                 <div class="search-field">
                     <label>&nbsp;</label>
-                    <a href="#properties"><button class="btn-search" type="button">
+                    <button class="btn-search" type="button" id="hero-search-btn">
                         <i class="fas fa-search"></i> Search
-                    </button></a>
+                    </button>
                 </div>
             </div>
         </div>
     </div>
-
-    <a href="#properties" class="scroll-cue">
-        <span>Scroll</span><i class="fas fa-chevron-down"></i>
-    </a>
+    <a href="#properties" class="scroll-cue"><span>Scroll</span><i class="fas fa-chevron-down"></i></a>
 </section>
 
-<!-- ===== PROPERTIES ===== -->
+<!-- PROPERTIES -->
 <section id="properties" class="properties-section">
     <div class="container">
         <div class="section-header">
             <span class="section-eyebrow">Available Now</span>
             <h2 class="section-title">Properties for Sale</h2>
             <div class="gold-divider"></div>
-            <p class="section-desc">All listings are verified and ready for purchase. Browse by type or use filters to narrow your search.</p>
+            <p class="section-desc">All listings are verified and ready for purchase. Filter by type to find exactly what you need.</p>
         </div>
 
-        <!-- Filter Tabs -->
+        <!-- Filter Tabs — all property types -->
         <div class="filter-wrap">
-            <button class="filter-tab active" data-filter="all"><i class="fas fa-th"></i> All Properties</button>
-            <button class="filter-tab" data-filter="Self Contain"><i class="fas fa-home"></i> Self Contain</button>
-            <button class="filter-tab" data-filter="Plots of Land"><i class="fas fa-mountain"></i> Plots of Land</button>
-            <button class="filter-tab" data-filter="Duplex/Bangalow/Storey building"><i class="fas fa-building"></i> Duplex / Bungalow</button>
+            <button class="filter-tab active" data-filter="all"><i class="fas fa-th"></i> All</button>
+            <button class="filter-tab" data-filter="Duplex"><i class="fas fa-building"></i> Duplex</button>
+            <button class="filter-tab" data-filter="Bungalow"><i class="fas fa-home"></i> Bungalow</button>
+            <button class="filter-tab" data-filter="Storey Building"><i class="fas fa-city"></i> Storey Building</button>
+            <button class="filter-tab" data-filter="Flat"><i class="fas fa-door-open"></i> Flat</button>
+            <button class="filter-tab" data-filter="Apartment"><i class="fas fa-building"></i> Apartment</button>
+            <button class="filter-tab" data-filter="Mini Flat"><i class="fas fa-couch"></i> Mini Flat</button>
+            <button class="filter-tab" data-filter="Self Contain"><i class="fas fa-house-user"></i> Self Contain</button>
+            <button class="filter-tab" data-filter="Single Room"><i class="fas fa-bed"></i> Single Room</button>
+            <button class="filter-tab" data-filter="Detached House"><i class="fas fa-home"></i> Detached House</button>
+            <button class="filter-tab" data-filter="Semi-Detached House"><i class="fas fa-home"></i> Semi-Detached</button>
+            <button class="filter-tab" data-filter="Terrace House"><i class="fas fa-building"></i> Terrace House</button>
+            <button class="filter-tab" data-filter="Commercial Building"><i class="fas fa-store"></i> Commercial</button>
+            <button class="filter-tab" data-filter="Warehouse"><i class="fas fa-warehouse"></i> Warehouse</button>
+            <button class="filter-tab" data-filter="Plots of Land"><i class="fas fa-map"></i> Land</button>
+            <button class="filter-tab" data-filter="Land and Building"><i class="fas fa-landmark"></i> Land &amp; Building</button>
         </div>
 
         <!-- Results bar -->
@@ -630,12 +365,12 @@
         <div class="property-grid" id="property-grid">
             <% if (card && card.length > 0) { %>
                 <% card.forEach(cardItem => { %>
-                <div class="property-card" data-type="<%= cardItem['property-type'] || 'Unknown' %>">
+                <div class="property-card" data-type="<%= cardItem['property-type'] || 'Unknown' %>" data-amount="<%= cardItem.amount || 0 %>" data-created="<%= cardItem.id || 0 %>">
                     <div class="card-img-wrap">
                         <% if (cardItem.image_filename) { %>
-                            <img src="<%= '/img/' + cardItem.image_filename %>" alt="<%= cardItem.title || 'Property' %>" onerror="this.parentElement.innerHTML='<div class=\'card-img-placeholder\'><i class=\'fas fa-image\'></i></div>'">
+                            <img src="<%= '/img/' + cardItem.image_filename %>" alt="<%= cardItem.title || 'Property' %>" loading="lazy" onerror="this.parentElement.innerHTML='<div class=\'card-img-placeholder\'><i class=\'fas fa-image\' style=\'font-size:2rem;\'></i></div>'">
                         <% } else if (cardItem.image_data) { %>
-                            <img src="<%= cardItem.image_data %>" alt="<%= cardItem.title || 'Property' %>">
+                            <img src="<%= cardItem.image_data.split(',')[0] %>" alt="<%= cardItem.title || 'Property' %>" loading="lazy">
                         <% } else { %>
                             <div class="card-img-placeholder"><i class="fas fa-image" style="font-size:2rem;"></i></div>
                         <% } %>
@@ -653,18 +388,21 @@
                         <div class="card-meta">
                             <%
                                 const pType = (cardItem['property-type'] || '').toLowerCase();
-                                const isLand = pType.includes('land') || pType.includes('plot');
+                                const isLand = pType.includes('land') || pType.includes('plot') || pType === 'chattels' || pType.includes('machinery') || pType.includes('warehouse');
                             %>
-                            <% if (!isLand) { %>
-                                <span><i class="fas fa-bed"></i> <%= cardItem.bedrooms || 'N/A' %> Beds</span>
-                                <span><i class="fas fa-bath"></i> <%= cardItem.bathrooms || 'N/A' %> Baths</span>
+                            <% if (!isLand && cardItem.bedrooms) { %>
+                                <span><i class="fas fa-bed"></i> <%= cardItem.bedrooms %> Beds</span>
                             <% } %>
-                            <span><i class="fas fa-ruler-combined"></i> <%= cardItem.sqft || 'N/A' %> sqft</span>
+                            <% if (!isLand && cardItem.bathrooms) { %>
+                                <span><i class="fas fa-bath"></i> <%= cardItem.bathrooms %> Baths</span>
+                            <% } %>
+                            <% if (cardItem.sqft) { %><span><i class="fas fa-ruler-combined"></i> <%= cardItem.sqft %> sqm</span><% } %>
+                            <% if (cardItem.num_flats) { %><span><i class="fas fa-layer-group"></i> <%= cardItem.num_flats %> Flats</span><% } %>
                         </div>
                         <div class="card-footer">
                             <div>
                                 <span class="card-price-label">Asking Price</span>
-                                <div class="card-price">₦<%= cardItem.amount || 'N/A' %></div>
+                                <div class="card-price">₦<%= cardItem.amount ? Number(cardItem.amount).toLocaleString() : 'N/A' %></div>
                             </div>
                             <a href="property-detail?id=<%= cardItem.id %>" class="card-btn requires-login">
                                 View <i class="fas fa-arrow-right" style="font-size:0.7rem;"></i>
@@ -684,18 +422,14 @@
 
         <!-- Pagination -->
         <div class="pagination">
-            <button class="page-btn" id="prev-btn" disabled>
-                <i class="fas fa-arrow-left" style="font-size:0.75rem;"></i> Previous
-            </button>
+            <button class="page-btn" id="prev-btn" disabled><i class="fas fa-arrow-left" style="font-size:0.75rem;"></i> Previous</button>
             <span class="page-indicator" id="page-indicator">Page 1 of 1</span>
-            <button class="page-btn" id="next-btn">
-                Next <i class="fas fa-arrow-right" style="font-size:0.75rem;"></i>
-            </button>
+            <button class="page-btn" id="next-btn">Next <i class="fas fa-arrow-right" style="font-size:0.75rem;"></i></button>
         </div>
     </div>
 </section>
 
-<!-- ===== CTA STRIP ===== -->
+<!-- CTA -->
 <div class="cta-strip">
     <div class="cta-inner">
         <div>
@@ -709,7 +443,7 @@
     </div>
 </div>
 
-<!-- ===== QUICK CONTACT ===== -->
+<!-- QUICK CONTACT -->
 <section class="quick-contact" id="contact">
     <div class="container">
         <div class="section-header">
@@ -719,31 +453,15 @@
             <p class="section-desc">Our agents are experts in the local market and ready to help you find the perfect property.</p>
         </div>
         <div class="contact-cards">
-            <div class="contact-card">
-                <div class="contact-icon-wrap"><i class="fas fa-phone-alt"></i></div>
-                <h3>Call Us</h3>
-                <p>+234060604122</p>
-            </div>
-            <div class="contact-card">
-                <div class="contact-icon-wrap"><i class="fas fa-envelope"></i></div>
-                <h3>Email Us</h3>
-                <p>esvgoddey@gmail.com</p>
-            </div>
-            <div class="contact-card">
-                <div class="contact-icon-wrap"><i class="fas fa-comments"></i></div>
-                <h3>Live Chat</h3>
-                <p><a href="/chat" style="color:var(--navy-light);font-weight:600;">Message an agent →</a></p>
-            </div>
-            <div class="contact-card">
-                <div class="contact-icon-wrap"><i class="fas fa-clock"></i></div>
-                <h3>Office Hours</h3>
-                <p>Mon – Fri: 9am – 6pm</p>
-            </div>
+            <div class="contact-card"><div class="contact-icon-wrap"><i class="fas fa-phone-alt"></i></div><h3>Call Us</h3><p>+234060604122</p></div>
+            <div class="contact-card"><div class="contact-icon-wrap"><i class="fas fa-envelope"></i></div><h3>Email Us</h3><p>esvgoddey@gmail.com</p></div>
+            <div class="contact-card"><div class="contact-icon-wrap"><i class="fas fa-comments"></i></div><h3>Live Chat</h3><p><a href="/chat" style="color:var(--navy-light);font-weight:600;">Message an agent →</a></p></div>
+            <div class="contact-card"><div class="contact-icon-wrap"><i class="fas fa-clock"></i></div><h3>Office Hours</h3><p>Mon – Fri: 9am – 6pm</p></div>
         </div>
     </div>
 </section>
 
-<!-- ===== FOOTER ===== -->
+<!-- FOOTER -->
 <footer>
     <div class="footer-top">
         <div class="container">
@@ -751,7 +469,7 @@
                 <div>
                     <div class="footer-brand">
                         <div class="footer-logo"><img src="/img/OGA AYO COM CARDXS.jpg" alt="Logo"></div>
-                        <div class="footer-brand-name">G.O AREGHAN<br><span style="font-size:0.65rem;opacity:0.5;font-family:'DM Sans',sans-serif;letter-spacing:0.06em;text-transform:uppercase;font-weight:400;">Real Estate Firm</span></div>
+                        <div class="footer-brand-name">G.O AREGHAN<br><span style="font-size:0.65rem;opacity:0.5;font-family:'DM Sans',sans-serif;letter-spacing:0.06em;text-transform:uppercase;font-weight:400;">Real Estate Firm & Consultant</span></div>
                     </div>
                     <p class="footer-desc">Your trusted partner in Nigerian real estate. Connecting people with properties that elevate their lives across Edo and Lagos State.</p>
                     <div class="footer-socials">
@@ -764,26 +482,15 @@
                 </div>
                 <div>
                     <div class="footer-col-title">Quick Links</div>
-                    <ul class="footer-links">
-                        <li><a href="/">Home</a></li>
-                        <li><a href="#properties">Properties</a></li>
-                        <li><a href="/property-valuation">Valuation</a></li>
-                        <li><a href="/chat">Messages</a></li>
-                        <li><a href="/gallery">Portfolio</a></li>
-                    </ul>
+                    <ul class="footer-links"><li><a href="/">Home</a></li><li><a href="#properties">Properties</a></li><li><a href="/property-valuation">Valuation</a></li><li><a href="/chat">Messages</a></li><li><a href="/gallery">Portfolio</a></li></ul>
                 </div>
                 <div>
                     <div class="footer-col-title">Services</div>
-                    <ul class="footer-links">
-                        <li><a href="/customer-buy-page.html">Buy Property</a></li>
-                        <li><a href="/customer-rent-page.html">Rent Property</a></li>
-                        <li><a href="/property-valuation">Free Valuation</a></li>
-                        <li><a href="/chat">Chat with Agent</a></li>
-                    </ul>
+                    <ul class="footer-links"><li><a href="/customer-buy-page.html">Buy Property</a></li><li><a href="/customer-rent-page.html">Rent Property</a></li><li><a href="/property-valuation">Free Valuation</a></li><li><a href="/chat">Chat with Agent</a></li></ul>
                 </div>
                 <div>
                     <div class="footer-col-title">Contact Info</div>
-                    <div class="footer-contact-item"><i class="fas fa-map-marker-alt"></i><span>226,M.M Way , imaro House,Left Wing</span></div>
+                    <div class="footer-contact-item"><i class="fas fa-map-marker-alt"></i><span>226, M.M Way, Imaro House, Left Wing</span></div>
                     <div class="footer-contact-item"><i class="fas fa-phone-alt"></i><span>+234060604122</span></div>
                     <div class="footer-contact-item"><i class="fas fa-envelope"></i><span>esvgoddey@gmail.com</span></div>
                     <div class="footer-contact-item"><i class="fas fa-clock"></i><span>Mon–Fri: 9am–6pm</span></div>
@@ -793,12 +500,8 @@
     </div>
     <div class="container">
         <div class="footer-bottom">
-            <p class="footer-bottom-text">© 2025 G.O AREGHAN REAL ESTATE FIRM. All rights reserved.</p>
-            <div class="footer-bottom-links">
-                <a href="#">Privacy Policy</a>
-                <a href="#">Terms of Service</a>
-                <a href="#">Sitemap</a>
-            </div>
+            <p class="footer-bottom-text">© 2025 G.O AREGHAN REAL ESTATE FIRM & CONSULTANT. All rights reserved.</p>
+            <div class="footer-bottom-links"><a href="#">Privacy Policy</a><a href="#">Terms of Service</a><a href="#">Sitemap</a></div>
         </div>
     </div>
 </footer>
@@ -820,66 +523,90 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Services dropdown
+    // Dropdown
     const st = document.getElementById('service-toggle'), sm = document.getElementById('service-menu');
     if (st && sm) {
         st.addEventListener('click', e => { e.stopPropagation(); sm.classList.toggle('show'); st.setAttribute('aria-expanded', sm.classList.contains('show')); });
-        document.addEventListener('click', () => { sm.classList.remove('show'); st.setAttribute('aria-expanded', 'false'); });
+        document.addEventListener('click', () => sm.classList.remove('show'));
         document.addEventListener('keydown', e => { if (e.key === 'Escape') sm.classList.remove('show'); });
     }
 
     // Login check
-    const dc = document.getElementById('desktop-login-container');
-    const ms = document.getElementById('mobile-login-section');
-    fetch('/api/check-login', { credentials: 'include' })
-        .then(r => r.json())
-        .then(data => {
-            if (data.loggedIn) {
-                if (dc) dc.innerHTML = `<a href="/logout" class="btn-logout" id="logout-btn-desktop"><i class="fas fa-sign-out-alt" style="margin-right:5px;"></i>Logout</a>`;
-                if (ms) ms.innerHTML = `<a href="/logout" class="btn-logout" id="logout-btn-mobile" style="display:block;text-align:center;width:100%;padding:13px;border-radius:10px;"><i class="fas fa-sign-out-alt" style="margin-right:5px;"></i>Logout</a>`;
-                document.addEventListener('click', e => {
-                    if (e.target.closest('#logout-btn-desktop') || e.target.closest('#logout-btn-mobile')) {
-                        if (confirm('Are you sure you want to log out?')) {
-                            fetch('/logout', { method: 'POST', credentials: 'include' }).finally(() => { window.location.href = '/'; });
-                        }
-                        e.preventDefault();
-                    }
-                });
-            }
-        }).catch(() => {});
+    const dc = document.getElementById('desktop-login-container'), ms = document.getElementById('mobile-login-section');
+    fetch('/api/check-login', { credentials: 'include' }).then(r => r.json()).then(data => {
+        if (data.loggedIn) {
+            if (dc) dc.innerHTML = `<a href="/logout" class="btn-logout" id="logout-btn-desktop"><i class="fas fa-sign-out-alt" style="margin-right:5px;"></i>Logout</a>`;
+            if (ms) ms.innerHTML = `<a href="/logout" class="btn-logout" id="logout-btn-mobile" style="display:block;text-align:center;width:100%;padding:13px;border-radius:10px;"><i class="fas fa-sign-out-alt" style="margin-right:5px;"></i>Logout</a>`;
+            document.addEventListener('click', e => {
+                if (e.target.closest('#logout-btn-desktop') || e.target.closest('#logout-btn-mobile')) {
+                    if (confirm('Are you sure you want to log out?')) fetch('/logout', { method: 'POST', credentials: 'include' }).finally(() => window.location.href = '/');
+                    e.preventDefault();
+                }
+            });
+        }
+    }).catch(() => {});
 
     // Requires login
     document.querySelectorAll('.requires-login').forEach(el => {
         el.addEventListener('click', e => {
             e.preventDefault();
             fetch('/api/check-login', { credentials: 'include' }).then(r => r.json()).then(data => {
-                if (!data.loggedIn) { alert('Please log in to view details.'); window.location.href = '/login'; }
+                if (!data.loggedIn) { alert('Please log in to view property details.'); window.location.href = '/login'; }
                 else if (el.tagName === 'A') window.location.href = el.href;
-            }).catch(() => { window.location.href = '/login'; });
+            }).catch(() => window.location.href = '/login');
         });
     });
 
-    // Filter + Pagination
+    // Hero search button — scrolls to properties and applies type filter
+    const heroSearchBtn = document.getElementById('hero-search-btn');
+    if (heroSearchBtn) {
+        heroSearchBtn.addEventListener('click', () => {
+            const selectedType = document.getElementById('search-property-type').value;
+            const propertiesSection = document.getElementById('properties');
+            if (propertiesSection) window.scrollTo({ top: propertiesSection.offsetTop - 70, behavior: 'smooth' });
+            if (selectedType) {
+                setTimeout(() => {
+                    const matchingTab = document.querySelector(`.filter-tab[data-filter="${selectedType}"]`);
+                    if (matchingTab) matchingTab.click();
+                    else applyFilter(selectedType);
+                }, 600);
+            }
+        });
+    }
+
+    // Filter + Pagination + Sort
     const filterTabs = document.querySelectorAll('.filter-tab');
-    const propertyCards = document.querySelectorAll('.property-card');
+    const propertyCards = Array.from(document.querySelectorAll('.property-card'));
     const prevBtn = document.getElementById('prev-btn');
     const nextBtn = document.getElementById('next-btn');
     const pageIndicator = document.getElementById('page-indicator');
     const resultsCount = document.getElementById('results-count');
+    const sortSelect = document.getElementById('sort-select');
 
     let currentPage = 1;
     const itemsPerPage = 9;
-    let filteredCards = Array.from(propertyCards);
+    let filteredCards = [...propertyCards];
+    let currentFilter = 'all';
 
     const urlParams = new URLSearchParams(window.location.search);
     const initialFilter = urlParams.get('property_type') || 'all';
 
+    function sortCards(cards) {
+        const val = sortSelect ? sortSelect.value : 'Latest First';
+        return [...cards].sort((a, b) => {
+            if (val === 'Price: Low to High') return Number(a.dataset.amount) - Number(b.dataset.amount);
+            if (val === 'Price: High to Low') return Number(b.dataset.amount) - Number(a.dataset.amount);
+            return Number(b.dataset.created) - Number(a.dataset.created); // Latest First
+        });
+    }
+
     function showPage(page) {
-        const totalPages = Math.ceil(filteredCards.length / itemsPerPage) || 1;
+        const sorted = sortCards(filteredCards);
+        const totalPages = Math.ceil(sorted.length / itemsPerPage) || 1;
         currentPage = Math.max(1, Math.min(page, totalPages));
         propertyCards.forEach(c => c.style.display = 'none');
         const start = (currentPage - 1) * itemsPerPage;
-        filteredCards.slice(start, start + itemsPerPage).forEach((card, i) => {
+        sorted.slice(start, start + itemsPerPage).forEach((card, i) => {
             card.style.display = '';
             card.style.opacity = '0'; card.style.transform = 'translateY(16px)';
             setTimeout(() => { card.style.transition = 'all 0.3s ease'; card.style.opacity = '1'; card.style.transform = 'translateY(0)'; }, i * 50);
@@ -891,10 +618,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function applyFilter(filterType) {
-        filteredCards = Array.from(propertyCards).filter(card => {
-            if (filterType === 'all') return true;
-            return (card.getAttribute('data-type') || '') === filterType;
-        });
+        currentFilter = filterType;
+        filteredCards = propertyCards.filter(card =>
+            filterType === 'all' || (card.getAttribute('data-type') || '') === filterType
+        );
         showPage(1);
     }
 
@@ -917,6 +644,7 @@ document.addEventListener('DOMContentLoaded', () => {
         else tab.classList.remove('active');
     });
 
+    if (sortSelect) sortSelect.addEventListener('change', () => showPage(currentPage));
     if (prevBtn) prevBtn.addEventListener('click', () => showPage(currentPage - 1));
     if (nextBtn) nextBtn.addEventListener('click', () => showPage(currentPage + 1));
 
@@ -934,5 +662,3 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
-
-
