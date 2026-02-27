@@ -29,10 +29,29 @@ newapp2.use(express.json());
 newapp2.use(express.urlencoded({ extended: true }));
 
 // ==================== ADMIN EMAILS ====================
-const ADMIN_EMAILS = ['esvgoddey@gmail.com' || 'ibarealestate2023@gmail.com'];
+const ADMIN_EMAILS = ['esvgoddey@gmail.com', 'ibarealestate2023@gmail.com'];
 
 function isAdminEmail(email) {
     return ADMIN_EMAILS.includes(email);
+}
+
+// ==================== IMAGE PATH HELPER ====================
+// Multer saves paths as "uploads/images/xxx.jpg" (no leading slash).
+// The static route serves them at "/uploads/...".
+// This normalises stored paths so <img src="..."> always works.
+function normalizeImagePaths(paths) {
+    if (!paths) return '';
+    return paths.split(',')
+        .map(p => {
+            p = p.trim();
+            if (!p) return '';
+            // Already an absolute URL or data URI — leave alone
+            if (p.startsWith('http') || p.startsWith('data:')) return p;
+            // Add leading slash if missing
+            return p.startsWith('/') ? p : '/' + p;
+        })
+        .filter(Boolean)
+        .join(',');
 }
 
 // ==================== MULTER CONFIG ====================
@@ -529,7 +548,7 @@ newapp2.post('/upload', (req, res, next) => {
         if (results.length === 0) return res.status(404).json({ success: false, message: 'User not found' });
 
         const files         = req.files || {};
-        const imagePaths    = files.image     ? files.image.map(f => f.path).join(',')     : '';
+        const imagePaths    = normalizeImagePaths(files.image     ? files.image.map(f => f.path).join(',')     : '');
         const videoPaths    = files.video     ? files.video.map(f => f.path).join(',')     : '';
         const documentPaths = files.documents ? files.documents.map(f => f.path).join(',') : '';
 
@@ -720,7 +739,7 @@ newapp2.get('/approve', ensureAuthenticated, async (req, res) => {
                 p.ownerName, p.ownerEmail, p.ownerPhone, p.propertyAddress,
                 p.bedrooms, p.bathrooms, p.sqft,
                 p.land_size || null, p.building_size || null, p.num_flats || null,
-                p.image_data, p.video, p.documents || '',
+                normalizeImagePaths(p.image_data), p.video, p.documents || '',
                 p.description, p.title, p.rentSell, p.agentId, p.amount, p.property_type
             ]
         );
@@ -991,7 +1010,7 @@ newapp2.get('/sold', ensureAuthenticated, async (req, res) => {
                 p.propertyAddress || '', p.bedrooms || null, p.bathrooms || null,
                 p.description || '', p.sqft || null,
                 p.land_size || null, p.building_size || null, p.num_flats || null,
-                p.image_data, p.video, p.documents || '',
+                normalizeImagePaths(p.image_data), p.video, p.documents || '',
                 p.amount || null, p.title || null, p.rentSell || null,
                 p.agentId, p['property-type'] || null
             ]
@@ -1068,7 +1087,7 @@ newapp2.post('/unsold', ensureAuthenticated, async (req, res) => {
                 p.propertyAddress || '', p.bedrooms || null, p.bathrooms || null,
                 p.description || '', p.sqft || null,
                 p.land_size || null, p.building_size || null, p.num_flats || null,
-                p.image_data, p.video, p.documents || '',
+                normalizeImagePaths(p.image_data), p.video, p.documents || '',
                 p.amount || null, p.title || null, p.rentSell || null,
                 p['property-type'] || null, p.agentId
             ]
@@ -1169,7 +1188,7 @@ newapp2.post('/properties/approve/:id', ensureAuthenticated, async (req, res) =>
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'approved')`,
             [p.ownerName, p.ownerEmail, p.ownerPhone, p.propertyAddress, p.bedrooms || null, p.bathrooms || null,
              p.description, p.sqft || null, p.land_size || null, p.building_size || null, p.num_flats || null,
-             p.image_data, p.video, p.documents || '', p.amount, p.title, p.rentSell,
+             normalizeImagePaths(p.image_data), p.video, p.documents || '', p.amount, p.title, p.rentSell,
              p.property_type, p.agentId]
         );
         await db.query('DELETE FROM sales_approval WHERE id = ?', [id]);
@@ -1191,7 +1210,7 @@ newapp2.post('/properties/sell/:id', ensureAuthenticated, async (req, res) => {
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'sold')`,
             [p.ownerName, p.ownerEmail, p.ownerPhone, p.propertyAddress, p.bedrooms || null, p.bathrooms || null,
              p.description, p.sqft || null, p.land_size || null, p.building_size || null, p.num_flats || null,
-             p.image_data, p.video, p.documents || '', p.amount, p.title, p.rentSell,
+             normalizeImagePaths(p.image_data), p.video, p.documents || '', p.amount, p.title, p.rentSell,
              p['property-type'], p.agentId]
         );
         await db.query('DELETE FROM all_properties WHERE id = ?', [id]);
@@ -1571,5 +1590,3 @@ connectWithRetry().then(() => {
 }).catch(() => {
     server.listen(PORT, '0.0.0.0', () => console.log(`Server started (DB may be unavailable)`));
 });
-
-
