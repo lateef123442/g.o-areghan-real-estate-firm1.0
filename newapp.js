@@ -1499,47 +1499,147 @@ newapp2.post('/agent-chat/send', ensureAuthenticated, async (req, res) => {
     } catch (err) { console.error(err); res.status(500).json({ error: 'Error saving message' }); }
 });
 
+
+// ==================== ADMIN CHAT ROUTES ====================
+
+// GET /admin-chat — main page: loads all threads + admin's own chats
 newapp2.get('/admin-chat', ensureAuthenticated, async (req, res) => {
-    if (!req.user) return res.status(401).send('Unauthorized');
-    const userId = req.user.id;
-    const receiverId = req.query.receiverId;
+    if (!req.user) return res.redirect('/login');
+    const adminId = req.user.id;
+    const adminName = `${req.user.firstName || ''} ${req.user.lastName || ''}`.trim() || 'Admin';
+
     try {
-        if (receiverId) {
-            const [receiverResults] = await db.query("SELECT firstName, lastName, role FROM signin WHERE id = ?", [receiverId]);
-            let receiverName = 'Client', isClient = false;
-            if (receiverResults.length > 0) {
-                const r = receiverResults[0];
-                receiverName = `${r.firstName || ''} ${r.lastName || ''}`.trim() || 'Client';
-                isClient = r.role === 'user';
-            }
-            const [messages] = await db.query(
-                'SELECT * FROM chat_messages WHERE (sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?) ORDER BY timestamp ASC',
-                [userId, receiverId, receiverId, userId]
-            );
-            res.render('admin-chat', { messages, userId, receiverId, receiverName, isClient, chatList: null });
-        } else {
-            const [chatList] = await db.query(`
-                SELECT DISTINCT
-                    CASE WHEN cm.sender_id = ? THEN cm.receiver_id ELSE cm.sender_id END AS receiverId,
-                    s.firstName, s.lastName, s.role,
-                    (SELECT message FROM chat_messages WHERE (sender_id = ? AND receiver_id = CASE WHEN cm.sender_id = ? THEN cm.receiver_id ELSE cm.sender_id END) OR (sender_id = CASE WHEN cm.sender_id = ? THEN cm.receiver_id ELSE cm.sender_id END AND receiver_id = ?) ORDER BY timestamp DESC LIMIT 1) AS lastMessage,
-                    (SELECT timestamp FROM chat_messages WHERE (sender_id = ? AND receiver_id = CASE WHEN cm.sender_id = ? THEN cm.receiver_id ELSE cm.sender_id END) OR (sender_id = CASE WHEN cm.sender_id = ? THEN cm.receiver_id ELSE cm.sender_id END AND receiver_id = ?) ORDER BY timestamp DESC LIMIT 1) AS lastMessageTime
-                FROM chat_messages cm
-                JOIN signin s ON s.id = CASE WHEN cm.sender_id = ? THEN cm.receiver_id ELSE cm.sender_id END
-                WHERE cm.receiver_id = ?
-                ORDER BY lastMessageTime DESC`,
-                [userId, userId, userId, userId, userId, userId, userId, userId, userId, userId, userId, userId]
-            );
-            const processedChatList = chatList.map(chat => ({
-                receiverId: chat.receiverId,
-                receiverName: `${chat.firstName || ''} ${chat.lastName || ''}`.trim() || 'Client',
-                isClient: chat.role === 'user',
-                lastMessage: chat.lastMessage,
-                lastMessageTime: chat.lastMessageTime
-            }));
-            res.render('admin-chat', { messages: null, userId, receiverId: null, receiverName: null, isClient: null, chatList: processedChatList });
-        }
-    } catch (err) { console.error(err); res.status(500).send('Error loading chats'); }
+        // 1. All unique conversation threads (between any two non-admin users)
+        const [threadRows] = await db.query(`
+            SELECT
+                LEAST(cm.sender_id, cm.receiver_id) AS user1Id,
+                GREATEST(cm.sender_id, cm.receiver_id) AS user2Id,
+                MAX(cm.timestamp) AS lastTime,
+                (SELECT message FROM chat_messages
+                 WHERE (sender_id = LEAST(cm.sender_id, cm.receiver_id) AND receiver_id = GREATEST(cm.sender_id, cm.receiver_id))
+                    OR (sender_id = GREATEST(cm.sender_id, cm.receiver_id) AND receiver_id = LEAST(cm.sender_id, cm.receiver_id))
+                 ORDER BY timestamp DESC LIMIT 1) AS lastMessage
+            FROM chat_messages cm
+            WHERE cm.sender_id != ? AND cm.receiver_id != ?
+            GROUP BY LEAST(cm.sender_id, cm.receiver_id), GREATEST(cm.sender_id, cm.receiver_id)
+            ORDER BY lastTime DESC
+        `, [adminId, adminId]);
+
+        // Enrich threads with user names and roles
+        const allThreads = await Promise.all(threadRows.map(async (t) => {
+            const [u1] = await db.query('SELECT firstName, lastName, role FROM signin WHERE id = ?', [t.user1Id]);
+            const [u2] = await db.query('SELECT firstName, lastName, role FROM signin WHERE id = ?', [t.user2Id]);
+            const u1name = u1.length ? `${u1[0].firstName || ''} ${u1[0].lastName || ''}`.trim() : `User ${t.user1Id}`;
+            const u2name = u2.length ? `${u2[0].firstName || ''} ${u2[0].lastName || ''}`.trim() : `User ${t.user2Id}`;
+            return {
+                user1Id: t.user1Id, user2Id: t.user2Id,
+                user1Name: u1name, user2Name: u2name,
+                user1Role: u1.length ? u1[0].role : 'user',
+                user2Role: u2.length ? u2[0].role : 'user',
+                lastMessage: t.lastMessage || '',
+                lastTime: t.lastTime
+            };
+        }));
+
+        // 2. Admin's own private conversations
+        const [myRows] = await db.query(`
+            SELECT DISTINCT
+                CASE WHEN cm.sender_id = ? THEN cm.receiver_id ELSE cm.sender_id END AS receiverId,
+                s.firstName, s.lastName, s.role,
+                (SELECT message FROM chat_messages
+                 WHERE (sender_id = ? AND receiver_id = CASE WHEN cm.sender_id = ? THEN cm.receiver_id ELSE cm.sender_id END)
+                    OR (sender_id = CASE WHEN cm.sender_id = ? THEN cm.receiver_id ELSE cm.sender_id END AND receiver_id = ?)
+                 ORDER BY timestamp DESC LIMIT 1) AS lastMessage,
+                (SELECT timestamp FROM chat_messages
+                 WHERE (sender_id = ? AND receiver_id = CASE WHEN cm.sender_id = ? THEN cm.receiver_id ELSE cm.sender_id END)
+                    OR (sender_id = CASE WHEN cm.sender_id = ? THEN cm.receiver_id ELSE cm.sender_id END AND receiver_id = ?)
+                 ORDER BY timestamp DESC LIMIT 1) AS lastTime
+            FROM chat_messages cm
+            JOIN signin s ON s.id = CASE WHEN cm.sender_id = ? THEN cm.receiver_id ELSE cm.sender_id END
+            WHERE cm.sender_id = ? OR cm.receiver_id = ?
+            ORDER BY lastTime DESC
+        `, [adminId, adminId, adminId, adminId, adminId, adminId, adminId, adminId, adminId, adminId, adminId, adminId]);
+
+        const myChats = myRows.map(c => ({
+            receiverId: c.receiverId,
+            receiverName: `${c.firstName || ''} ${c.lastName || ''}`.trim() || 'Unknown',
+            role: c.role,
+            lastMessage: c.lastMessage || '',
+            lastTime: c.lastTime
+        }));
+
+        // 3. All users (agents + customers) for new chat modal
+        const [allUsers] = await db.query(
+            "SELECT id, firstName, lastName, email, role FROM signin WHERE role IN ('agent','user') AND id != ? ORDER BY role, firstName",
+            [adminId]
+        );
+
+        res.render('admin-chat', {
+            adminId, adminName,
+            allThreads,
+            myChats,
+            allUsers,
+            isAdmin: isAdminEmail(req.user.email)
+        });
+    } catch (err) { console.error('Admin chat load error:', err); res.status(500).send('Server error'); }
+});
+
+// GET /admin-chat/thread — fetch messages between any two users
+newapp2.get('/admin-chat/thread', ensureAuthenticated, async (req, res) => {
+    if (!isAdminEmail(req.user.email)) return res.status(403).json({ error: 'Forbidden' });
+    const { user1, user2 } = req.query;
+    if (!user1 || !user2) return res.status(400).json({ error: 'user1 and user2 required' });
+    try {
+        const [messages] = await db.query(
+            'SELECT * FROM chat_messages WHERE (sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?) ORDER BY timestamp ASC',
+            [user1, user2, user2, user1]
+        );
+        res.json(messages);
+    } catch (err) { console.error(err); res.status(500).json({ error: 'DB error' }); }
+});
+
+// GET /admin-chat/private — fetch admin's private messages with a specific user
+newapp2.get('/admin-chat/private', ensureAuthenticated, async (req, res) => {
+    if (!isAdminEmail(req.user.email)) return res.status(403).json({ error: 'Forbidden' });
+    const adminId = req.user.id;
+    const { receiverId } = req.query;
+    if (!receiverId) return res.status(400).json({ error: 'receiverId required' });
+    try {
+        const [messages] = await db.query(
+            'SELECT * FROM chat_messages WHERE (sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?) ORDER BY timestamp ASC',
+            [adminId, receiverId, receiverId, adminId]
+        );
+        res.json(messages);
+    } catch (err) { console.error(err); res.status(500).json({ error: 'DB error' }); }
+});
+
+// POST /admin-chat/send — admin sends a private message to any user
+newapp2.post('/admin-chat/send', ensureAuthenticated, async (req, res) => {
+    if (!isAdminEmail(req.user.email)) return res.status(403).json({ error: 'Forbidden' });
+    const adminId = req.user.id;
+    const { receiverId, message } = req.body;
+    if (!receiverId || !message) return res.status(400).json({ error: 'receiverId and message required' });
+    try {
+        const [result] = await db.query(
+            'INSERT INTO chat_messages (sender_id, receiver_id, message, timestamp) VALUES (?, ?, ?, NOW())',
+            [adminId, receiverId, message]
+        );
+        // Real-time: emit to receiver via socket
+        io.to(String(receiverId)).emit('receiveMessage', { message, senderId: adminId, timestamp: new Date() });
+        res.json({ success: true, messageId: result.insertId });
+    } catch (err) { console.error(err); res.status(500).json({ error: 'DB error' }); }
+});
+
+// GET /admin-chat/users — all agents + customers (for new chat modal refresh)
+newapp2.get('/admin-chat/users', ensureAuthenticated, async (req, res) => {
+    if (!isAdminEmail(req.user.email)) return res.status(403).json({ error: 'Forbidden' });
+    try {
+        const [users] = await db.query(
+            "SELECT id, firstName, lastName, email, role FROM signin WHERE role IN ('agent','user') AND id != ? ORDER BY role, firstName",
+            [req.user.id]
+        );
+        res.json(users);
+    } catch (err) { console.error(err); res.status(500).json({ error: 'DB error' }); }
 });
 
 // ==================== MISC ROUTES ====================
