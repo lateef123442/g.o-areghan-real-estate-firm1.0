@@ -29,7 +29,7 @@ newapp2.use(express.json());
 newapp2.use(express.urlencoded({ extended: true }));
 
 // ==================== ADMIN EMAILS ====================
-const ADMIN_EMAILS = ['esvgoddey@gmail.com'];
+const ADMIN_EMAILS = ['esvgoddey@gmail.com' || ibarealestate2023@gmail.com];
 
 function isAdminEmail(email) {
     return ADMIN_EMAILS.includes(email);
@@ -1571,3 +1571,4 @@ connectWithRetry().then(() => {
 }).catch(() => {
     server.listen(PORT, '0.0.0.0', () => console.log(`Server started (DB may be unavailable)`));
 });
+
