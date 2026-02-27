@@ -29,7 +29,7 @@ newapp2.use(express.json());
 newapp2.use(express.urlencoded({ extended: true }));
 
 // ==================== ADMIN EMAILS ====================
-const ADMIN_EMAILS = ['esvgoddey@gmail.com', 'ibarealestate2023@gmail.com'];
+const ADMIN_EMAILS = ['esvgoddey@gmail.com'];
 
 function isAdminEmail(email) {
     return ADMIN_EMAILS.includes(email);
@@ -115,7 +115,7 @@ passport.deserializeUser(async (id, done) => {
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: process.env.EMAIL_USER || 'ibarealestate2023@gmail.com',
+        user: process.env.EMAIL_USER || 'esvgoddey@gmail.com',
         pass: process.env.EMAIL_PASS || 'gwps gwod slos pjsl'
     }
 });
@@ -236,14 +236,14 @@ newapp2.post('/submit', async (req, res) => {
         );
 
         const mailOptions = {
-            from: process.env.EMAIL_USER || 'ibarealestate2023@gmail.com',
+            from: process.env.EMAIL_USER || 'esvgoddey@gmail.com',
             to: email,
-            subject: 'Welcome to G.O AREGBAN Real Estate',
+            subject: 'Welcome to G.O AREGHAN Real Estate Firm & Consultant',
             html: `
-                <h1>Welcome to G.O AREGBAN Real Estate!</h1>
+                <h1>Welcome to G.O AREGHAN Real Estate Firm & Consultant!</h1>
                 <p>Dear ${firstName} ${lastName},</p>
-                <p>Thank you for creating an account with G.O AREGBAN Real Estate. We're excited to help you find your dream property!</p>
-                <p>Best regards,<br>The G.O AREGBAN Real Estate Team</p>
+                <p>Thank you for creating an account with G.O AREGHAN Real Estate Firm & Consultant. We're excited to help you find your dream property!</p>
+                <p>Best regards,<br>The G.O AREGHAN Real Estate Firm & Consultant Team</p>
             `
         };
         transporter.sendMail(mailOptions, (error, info) => {
@@ -325,7 +325,7 @@ newapp2.post('/dashboard', async (req, res) => {
                         db.query(`SELECT s.id, s.title, s.status, u.firstName AS agentName FROM sales_approval s JOIN signin u ON s.agentId = u.id WHERE s.agentId = ? AND s.status = 'pending'`, [agentId]),
                         db.query(`SELECT firstName, lastName, email, phone, role FROM signin WHERE role = 'user' LIMIT 10`),
                         db.query(`SELECT s.title, u.firstName AS agentName, s.amount, s.created_at AS soldDate FROM sold_properties s JOIN signin u ON s.agentId = u.id WHERE s.agentId = ?`, [agentId]),
-                        db.query(`SELECT 'G.O AREGBAN Real Estate' AS siteTitle, 'esvgoddey@gmail.com' AS adminEmail`)
+                        db.query(`SELECT 'G.O AREGHAN Real Estate Firm & Consultant' AS siteTitle, 'esvgoddey@gmail.com' AS adminEmail`)
                     ]);
 
                     return res.render('agent-dashboard', {
@@ -570,7 +570,7 @@ newapp2.post('/upload', (req, res, next) => {
 
         const notifyAdmins = ADMIN_EMAILS.map(adminEmail => {
             const mailOptions = {
-                from: process.env.EMAIL_USER || 'ibarealestate2023@gmail.com',
+                from: process.env.EMAIL_USER || 'esvgoddey@gmail.com',
                 to: adminEmail,
                 subject: 'New Property Listing Submitted for Approval',
                 html: `
@@ -759,10 +759,10 @@ newapp2.get('/approve-tour', ensureAuthenticated, async (req, res) => {
         if (results.length === 0) return res.status(404).send('Tour not found.');
         const tour = results[0];
         transporter.sendMail({
-            from: process.env.EMAIL_USER || 'ibarealestate2023@gmail.com',
+            from: process.env.EMAIL_USER || 'esvgoddey@gmail.com',
             to: tour.email,
             subject: 'Tour Request Approved',
-            text: `Dear ${tour.name},\n\nYour tour request has been approved.\n\nBest regards,\nG.O AREGBAN Real Estate`
+            text: `Dear ${tour.name},\n\nYour tour request has been approved.\n\nBest regards,\nG.O AREGHAN Real Estate Firm & Consultant`
         }, async (error) => {
             if (error) { console.error(error); return res.status(500).send('Error sending email.'); }
             await db.query('DELETE FROM request_tour WHERE id = ?', [tourId]);
@@ -778,10 +778,10 @@ newapp2.get('/decline-tour', ensureAuthenticated, async (req, res) => {
         if (results.length === 0) return res.status(404).send('Tour not found.');
         const tour = results[0];
         transporter.sendMail({
-            from: process.env.EMAIL_USER || 'ibarealestate2023@gmail.com',
+            from: process.env.EMAIL_USER || 'esvgoddey@gmail.com',
             to: tour.email,
             subject: 'Tour Request Declined',
-            text: `Dear ${tour.name},\n\nYour tour request has been declined.\n\nBest regards,\nG.O AREGBAN Real Estate`
+            text: `Dear ${tour.name},\n\nYour tour request has been declined.\n\nBest regards,\nG.O AREGHAN Real Estate Firm & Consultant`
         }, async (error) => {
             if (error) { console.error(error); return res.status(500).send('Error sending email.'); }
             await db.query('DELETE FROM request_tour WHERE id = ?', [tourId]);
@@ -904,7 +904,7 @@ newapp2.post('/contact', ensureAuthenticated, (req, res) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) return res.status(400).json({ success: false, message: 'Please enter a valid email address' });
     transporter.sendMail({
-        from: `"G.O AREGBAN Real Estate" <${process.env.EMAIL_USER || 'ibarealestate2023@gmail.com'}>`,
+        from: `"G.O AREGHAN Real Estate Firm & Consultant" <${process.env.EMAIL_USER || 'esvgoddey@gmail.com'}>`,
         to: ADMIN_EMAILS.join(','),
         subject: `Contact Form: ${subject || 'New Inquiry'}`,
         html: `<h2>New Contact Message</h2><p><strong>Name:</strong> ${name}</p><p><strong>Email:</strong> ${email}</p><p><strong>Phone:</strong> ${phone}</p><p><strong>Subject:</strong> ${subject || 'N/A'}</p><p>${message.replace(/\n/g, '<br>')}</p>`
@@ -933,13 +933,13 @@ newapp2.post('/detail-contact', ensureAuthenticated, async (req, res) => {
         if (!receiverId) {
             const [adminResults] = await db.query("SELECT id FROM signin WHERE email = 'esvgoddey@gmail.com' LIMIT 1");
             if (adminResults.length === 0) {
-                const [adminResults2] = await db.query("SELECT id FROM signin WHERE email = 'ibarealestate2023@gmail.com' LIMIT 1");
+                const [adminResults2] = await db.query("SELECT id FROM signin WHERE email = 'esvgoddey@gmail.com' LIMIT 1");
                 if (adminResults2.length === 0) return res.status(500).json({ success: false, message: 'Admin not found' });
                 receiverId = adminResults2[0].id;
             } else { receiverId = adminResults[0].id; }
         }
         transporter.sendMail({
-            from: `"G.O AREGBAN Real Estate" <${process.env.EMAIL_USER || 'ibarealestate2023@gmail.com'}>`,
+            from: `"G.O AREGHAN Real Estate Firm & Consultant" <${process.env.EMAIL_USER || 'esvgoddey@gmail.com'}>`,
             to: recipientEmail,
             subject: 'New Contact Message from Property Detail Page',
             html: `<h2>New Contact Message</h2><p><strong>Name:</strong> ${name}</p><p><strong>Email:</strong> ${email}</p><p><strong>Phone:</strong> ${phone}</p><p>${message.replace(/\n/g, '<br>')}</p>`
@@ -1128,9 +1128,9 @@ newapp2.post('/manage/agent', ensureAuthenticated, async (req, res) => {
             [firstName, middleName || null, lastName, email, phone || null, hashedPassword, 'agent']
         );
         transporter.sendMail({
-            from: process.env.EMAIL_USER || 'ibarealestate2023@gmail.com',
+            from: process.env.EMAIL_USER || 'esvgoddey@gmail.com',
             to: email,
-            subject: 'Welcome to G.O AREGBAN Real Estate - Agent Account Created',
+            subject: 'Welcome to G.O AREGHAN Real Estate Firm & Consultant - Agent Account Created',
             html: `<h1>Welcome!</h1><p>Dear ${firstName} ${lastName},</p><p><strong>Email:</strong> ${email}<br><strong>Temporary Password:</strong> ${tempPassword}</p><p>Please change your password after logging in.</p>`
         }, (error) => { if (error) console.error('Email error:', error); });
         res.json({ success: true, message: 'Agent added successfully! Email sent with login details.' });
@@ -1225,7 +1225,7 @@ newapp2.get('/submit-listing', ensureAuthenticated, async (req, res) => {
             db.query(`SELECT s.id, s.title, s.status, u.firstName AS agentName FROM sales_approval s JOIN signin u ON s.agentId = u.id WHERE s.agentId = ? AND s.status = 'pending'`, [agentId]),
             db.query(`SELECT firstName, lastName, email, phone, role FROM signin WHERE role = 'user' LIMIT 10`),
             db.query(`SELECT s.title, u.firstName AS agentName, s.amount, s.created_at AS soldDate FROM sold_properties s JOIN signin u ON s.agentId = u.id WHERE s.agentId = ?`, [agentId]),
-            db.query(`SELECT 'G.O AREGBAN Real Estate' AS siteTitle, 'esvgoddey@gmail.com' AS adminEmail`)
+            db.query(`SELECT 'G.O AREGHAN Real Estate Firm & Consultant' AS siteTitle, 'esvgoddey@gmail.com' AS adminEmail`)
         ]);
         res.render('agent-dashboard', {
             totalProperties: totalPropsRows[0].totalProperties,
