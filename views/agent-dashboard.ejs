@@ -3,1290 +3,917 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Agent Dashboard - G.O AREGBAN REAL ESTATE FIRM</title>
-  <!-- Google Material Icons -->
+  <title>Agent Dashboard - G.O AREGHAN Real Estate Firm & Consultant</title>
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
   <link rel="stylesheet" href="/css/styles.css">
-  
+
   <style>
-    /* Add styles for dropdown menu */
-    .admin-dropdown {
-      position: relative;
-    }
+    /* ===== DROPDOWN ===== */
+    .admin-dropdown { position: relative; }
     .dropdown-menu {
-      display: none; /* Hide by default */
-      position: absolute;
-      background: white;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      z-index: 1000;
-      margin-top: 8px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-      opacity: 0; /* Start with opacity 0 */
-      transition: opacity 0.3s ease, visibility 0.3s ease; /* Transition for opacity and visibility */
-      visibility: hidden; /* Hide the dropdown initially */
+      display: none; position: absolute; background: white;
+      border: 1px solid #ccc; border-radius: 4px; z-index: 1000;
+      margin-top: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      opacity: 0; transition: opacity 0.3s ease, visibility 0.3s ease;
+      visibility: hidden;
     }
-    .dropdown-menu.show {
-      display: block; /* Show when toggled */
-      opacity: 1; /* Set opacity to 1 when shown */
-      visibility: visible; /* Make it visible */
-      color: yellow;
-    }
+    .dropdown-menu.show { display: block; opacity: 1; visibility: visible; }
 
-    .status-active {
-      background-color: #d1fae5;
-      color: #0f523f;
-      position: absolute;
-      top: 0;
-      right: 0;
-      margin: 0.5rem;
-      padding: 0.25rem 0.5rem;
-      border-radius: 9999px;
-      font-size: 0.75rem;
-    }
-
-    /* Toast Styles (for success/error messages) */
-    #toast-container {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      z-index: 10000;
-    }
+    /* ===== TOAST ===== */
+    #toast-container { position: fixed; top: 20px; right: 20px; z-index: 10000; }
     .toast {
-      padding: 12px 20px;
-      border-radius: 8px;
-      color: white;
-      font-weight: 500;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      max-width: 350px;
-      margin-bottom: 10px;
-      animation: slideIn 0.3s ease-out;
+      padding: 12px 20px; border-radius: 8px; color: white; font-weight: 500;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15); max-width: 350px;
+      margin-bottom: 10px; animation: slideIn 0.3s ease-out;
     }
-    .toast.success {
-      background-color: #10b981; /* Green */
-    }
-    .toast.error {
-      background-color: #ef4444; /* Red */
-    }
-    @keyframes slideIn {
-      from { transform: translateX(100%); opacity: 0; }
-      to { transform: translateX(0); opacity: 1; }
-    }
+    .toast.success { background: #10b981; }
+    .toast.error   { background: #ef4444; }
+    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    @keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
 
-    /* Agent Dashboard Styles */
+    /* ===== DASHBOARD SECTIONS ===== */
     .dashboard-section {
       display: none;
-      background: rgba(255, 255, 255, 0.95);
+      background: rgba(255,255,255,0.95);
       backdrop-filter: blur(10px);
       border-radius: 15px;
       padding: 2rem;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
       margin-bottom: 2rem;
     }
-    .dashboard-section.active {
-      display: block;
+    .dashboard-section.active { display: block; }
+    .dashboard-section h1 { color: #0d3a66; margin-bottom: 1.5rem; border-bottom: 2px solid #e8f1fb; padding-bottom: 0.75rem; }
+
+    /* ===== WIZARD PROGRESS ===== */
+    .wizard-progress { text-align: center; margin-bottom: 20px; font-size: 1rem; color: #1761a0; }
+    .wizard-steps-bar {
+      display: flex; border-radius: 8px; overflow: hidden;
+      border: 1px solid #d1dce8; margin-bottom: 10px;
     }
-    .form-group {
-      margin-bottom: 1rem;
+    .wizard-step-pill {
+      flex: 1; padding: 8px 4px; text-align: center; font-size: 0.72rem;
+      font-weight: 600; color: #6b7280; background: #f9fafb;
+      border-right: 1px solid #d1dce8; transition: all 0.3s;
+      display: flex; align-items: center; justify-content: center; gap: 3px;
     }
-    .form-group label {
-      display: block;
-      margin-bottom: 0.5rem;
-      font-weight: 600;
+    .wizard-step-pill:last-child { border-right: none; }
+    .wizard-step-pill .material-icons { font-size: 14px; }
+    .wizard-step-pill.active { background: #1761a0; color: white; }
+    .wizard-step-pill.done   { background: #10b981; color: white; }
+    .progress-bar-container {
+      width: 100%; background: #e0e0e0; border-radius: 6px;
+      overflow: hidden; height: 8px; margin-top: 6px;
     }
+    .progress-bar { height: 100%; background: #1761a0; transition: width 0.3s ease; }
+
+    /* ===== FORM ===== */
+    .form-group { margin-bottom: 1rem; }
+    .form-row   { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
+    @media (max-width: 640px) { .form-row, .form-row-3 { grid-template-columns: 1fr; } }
+    .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.9rem; }
     .form-group input, .form-group textarea, .form-group select {
-      width: 100%;
-      padding: 0.75rem;
-      border: 2px solid #e1e8ed;
-      border-radius: 8px;
-      font-size: 1rem;
+      width: 100%; padding: 0.7rem 0.9rem;
+      border: 2px solid #e1e8ed; border-radius: 8px;
+      font-size: 0.95rem; box-sizing: border-box;
+      transition: border-color 0.2s;
     }
     .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
-      border-color: #3498db;
-      outline: none;
+      border-color: #1761a0; outline: none;
+      box-shadow: 0 0 0 3px rgba(23,97,160,0.1);
     }
-    .btn {
-      padding: 0.75rem 1.5rem;
-      border: none;
-      border-radius: 8px;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
+    .form-group textarea { min-height: 100px; resize: vertical; }
+    .error-message { color: #e03e2f; font-size: 0.85rem; margin-top: 4px; }
+    .field-hint { color: #6b7280; font-size: 0.78rem; margin-top: 3px; }
+    .optional-tag {
+      font-size: 0.7rem; background: #f3f4f6; color: #6b7280;
+      padding: 1px 6px; border-radius: 4px; margin-left: 5px;
+      font-weight: 500; vertical-align: middle;
     }
-    .btn-primary {
-      background: #3498db;
-      color: white;
-    }
-    .btn-primary:hover {
-      background: #2980b9;
-    }
-    .btn-secondary {
-      background: #95a5a6;
-      color: white;
-    }
-    .btn-secondary:hover {
-      background: #7f8c8d;
-    }
-    .table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 1rem;
-    }
-    .table th, .table td {
-      padding: 0.75rem;
-      border: 1px solid #e1e8ed;
-      text-align: left;
-    }
-    .table th {
-      background: #f8f9fa;
-      font-weight: 600;
-    }
-    .chat-messages {
-      height: 300px;
-      overflow-y: auto;
-      border: 1px solid #ccc;
-      padding: 0.5rem;
-      margin-bottom: 1rem;
-    }
-    .performance-chart {
-      height: 200px;
-      background: #eee;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 1rem;
-    }
-    .file-upload {
-      border: 2px dashed #ccc;
-      padding: 1rem;
-      text-align: center;
-      border-radius: 8px;
-      margin-bottom: 1rem;
-    }
-    .wizard-progress {
-      text-align: center;
-      margin-bottom: 20px;
-      font-size: 1.1rem;
-      color: #1761a0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .progress-bar-container {
-      width: 100%;
-      background-color: #e0e0e0;
-      border-radius: 6px;
-      overflow: hidden;
-      height: 10px;
-      margin-top: 10px;
-      display: flex;
-    }
-    .progress-bar {
-      height: 100%;
-      background-color: #1761a0;
-      transition: width 0.3s ease;
-    }
-    .step {
-      display: none;
-      opacity: 0;
-      transition: opacity 0.5s ease-in-out;
-    }
-    .step.active {
-      display: block;
-      opacity: 1;
-      border: 1px solid #ddd;
-      border-radius: 10px;
-      padding: 20px;
-      background: #fff;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    }
-    .navigation-buttons {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 20px;
-    }
-    .prev-btn {
-      width: 48%;
-      background: #6c757d;
-    }
-    .next-btn, .submit-btn {
-      width: 48%;
-    }
-    .naira-input {
-      display: inline;
-      position: relative;
-      width: 100%;
-    }
+
+    /* ===== NAIRA INPUT ===== */
+    .naira-input { position: relative; width: 100%; }
     .naira-input span.symbol {
-      position: absolute;
-      left: 15px;
-      top: 50%;
-      transform: translateY(-50%);
-      font-weight: 700;
-      color: #444;
+      position: absolute; left: 12px; top: 50%;
+      transform: translateY(-50%); font-weight: 700; color: #444;
     }
-    .naira-input input {
-      padding: 12px 15px 12px 40px;
+    .naira-input input { padding-left: 30px !important; }
+
+    /* ===== OPTGROUP STYLING ===== */
+    select optgroup { font-weight: 700; background: #e8f1fb; color: #0d3a66; }
+
+    /* ===== STEP ===== */
+    .step { display: none; opacity: 0; transition: opacity 0.4s; }
+    .step.active {
+      display: block; opacity: 1;
+      border: 1px solid #ddd; border-radius: 10px;
+      padding: 20px; background: #fff;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     }
-    .image-preview-container {
-      margin-top: 10px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-    .preview-item {
-      position: relative;
-      width: 100px;
-      height: 100px;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      overflow: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .preview-item img, .preview-item video {
-      max-width: 100%;
-      max-height: 100%;
-      object-fit: cover;
-    }
-    .preview-item .remove-btn {
-      position: absolute;
-      top: 2px;
-      right: 2px;
-      background: rgba(255, 0, 0, 0.8);
-      color: white;
-      border: none;
-      border-radius: 50%;
-      width: 20px;
-      height: 20px;
-      cursor: pointer;
-      font-size: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .error-message {
-      color: #e03e2f;
-      font-size: 0.9rem;
-      margin-top: 5px;
-    }
-    /* Wizard-specific styles */
     .wizard-step-header {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 20px;
-      color: #1761a0;
-      font-size: 1.3rem;
-      font-weight: 700;
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 18px; color: #1761a0;
+      font-size: 1.2rem; font-weight: 700;
+      border-bottom: 2px solid #e8f1fb; padding-bottom: 12px;
     }
-    .wizard-step-header .material-icons {
-      font-size: 28px;
+    .wizard-step-header .material-icons { font-size: 26px; }
+
+    /* ===== FILE UPLOAD ZONES ===== */
+    .file-upload-zone {
+      border: 2px dashed #c7d9ed; border-radius: 10px;
+      padding: 1.1rem; text-align: center;
+      background: #f8fbff; cursor: pointer;
+      transition: border-color 0.2s, background 0.2s; margin-bottom: 8px;
+    }
+    .file-upload-zone:hover { border-color: #1761a0; background: #e8f1fb; }
+    .file-upload-zone .material-icons { font-size: 32px; color: #1761a0; margin-bottom: 4px; display: block; }
+    .file-upload-zone p { margin: 0; font-size: 0.85rem; color: #6b7280; }
+    .file-upload-zone input[type="file"] { display: none; }
+
+    /* ===== IMAGE / VIDEO PREVIEW ===== */
+    .image-preview-container { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 10px; }
+    .preview-item {
+      position: relative; width: 95px; height: 95px;
+      border: 1px solid #ddd; border-radius: 8px;
+      overflow: hidden; display: flex; align-items: center; justify-content: center;
+      background: #f5f5f5;
+    }
+    .preview-item img, .preview-item video { max-width: 100%; max-height: 100%; object-fit: cover; }
+    .preview-item .remove-btn {
+      position: absolute; top: 3px; right: 3px;
+      background: rgba(220,38,38,0.85); color: white;
+      border: none; border-radius: 50%; width: 20px; height: 20px;
+      cursor: pointer; font-size: 13px;
+      display: flex; align-items: center; justify-content: center;
     }
 
-    /* Review Summary Styles */
-    #summary {
-      background: #f8f9fa;
-      padding: 20px;
-      border-radius: 10px;
-      border: 1px solid #e0e0e0;
+    /* ===== DOC LIST ===== */
+    .doc-list { margin-top: 8px; }
+    .doc-item {
+      display: flex; align-items: center; gap: 6px;
+      padding: 5px 8px; background: #f0f4f8; border-radius: 6px;
+      margin-bottom: 4px; font-size: 0.82rem;
     }
-    #summary p {
-      margin: 10px 0;
-      font-size: 1rem;
-      line-height: 1.6;
-    }
-    #summary strong {
-      color: #0d3a66;
-      display: inline-block;
-      min-width: 150px;
-    }
+    .doc-item .material-icons { font-size: 16px; color: #1761a0; }
 
-    /* Upload Overlay Styles */
+    /* ===== NAVIGATION BUTTONS ===== */
+    .navigation-buttons { display: flex; justify-content: space-between; margin-top: 20px; gap: 1rem; }
+    .btn {
+      padding: 0.7rem 1.4rem; border: none; border-radius: 8px;
+      font-size: 0.95rem; font-weight: 600; cursor: pointer;
+      transition: all 0.3s; display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn-primary   { background: #1761a0; color: white; }
+    .btn-primary:hover { background: #0d3a66; }
+    .btn-secondary { background: #6c757d; color: white; }
+    .btn-secondary:hover { background: #5a6268; }
+    .btn-success   { background: #10b981; color: white; }
+    .btn-success:hover { background: #059669; }
+    .prev-btn { width: 48%; justify-content: flex-start; }
+    .next-btn { width: 48%; justify-content: flex-end; }
+
+    /* ===== REVIEW SUMMARY ===== */
+    #summary { background: #f8f9fa; padding: 18px; border-radius: 10px; border: 1px solid #e0e0e0; }
+    .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+    @media (max-width: 600px) { .summary-grid { grid-template-columns: 1fr; } }
+    .summary-item { padding: 8px 10px; background: white; border-radius: 7px; border: 1px solid #e1e8ed; }
+    .summary-item strong { display: block; font-size: 0.72rem; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px; }
+    .summary-item span { font-size: 0.9rem; color: #1a2332; font-weight: 500; }
+
+    /* ===== UPLOAD OVERLAY ===== */
     .upload-overlay {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.8);
-      z-index: 9999;
-      justify-content: center;
-      align-items: center;
+      display: none; position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%; background: rgba(0,0,0,0.8);
+      z-index: 9999; justify-content: center; align-items: center;
       backdrop-filter: blur(5px);
     }
-    .upload-overlay.active {
-      display: flex;
-    }
+    .upload-overlay.active { display: flex; }
     .upload-content {
-      background: white;
-      padding: 40px;
-      border-radius: 20px;
-      text-align: center;
-      max-width: 400px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+      background: white; padding: 40px; border-radius: 20px;
+      text-align: center; max-width: 400px; width: 90%;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
     }
     .spinner {
-      border: 4px solid #f3f3f3;
-      border-top: 4px solid #1761a0;
-      border-radius: 50%;
-      width: 60px;
-      height: 60px;
-      animation: spin 1s linear infinite;
-      margin: 0 auto 20px;
+      border: 4px solid #f3f3f3; border-top: 4px solid #1761a0;
+      border-radius: 50%; width: 60px; height: 60px;
+      animation: spin 1s linear infinite; margin: 0 auto 20px;
     }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    .upload-text {
-      font-size: 1.2rem;
-      font-weight: 600;
-      color: #0d3a66;
-      margin-bottom: 10px;
-    }
-    .upload-subtext {
-      font-size: 0.95rem;
-      color: #666;
-    }
-    .upload-progress {
-      width: 100%;
-      height: 8px;
-      background: #e0e0e0;
-      border-radius: 4px;
-      margin-top: 20px;
-      overflow: hidden;
-    }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .upload-text    { font-size: 1.2rem; font-weight: 600; color: #0d3a66; margin-bottom: 10px; }
+    .upload-subtext { font-size: 0.95rem; color: #666; }
+    .upload-progress { width: 100%; height: 8px; background: #e0e0e0; border-radius: 4px; margin-top: 20px; overflow: hidden; }
     .upload-progress-bar {
-      height: 100%;
-      background: linear-gradient(90deg, #1761a0, #004080);
-      width: 0%;
-      transition: width 0.3s ease;
+      height: 100%; background: linear-gradient(90deg, #1761a0, #4f9fe0);
+      width: 0%; transition: width 0.3s ease;
       animation: progressPulse 1.5s ease-in-out infinite;
     }
-    @keyframes progressPulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.7; }
-    }
+    @keyframes progressPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.7; } }
 
-    /* Success Animation */
-    .success-checkmark {
-      width: 80px;
-      height: 80px;
-      margin: 0 auto 20px;
-    }
+    /* ===== SUCCESS CHECKMARK ===== */
+    .success-checkmark { width: 80px; height: 80px; margin: 0 auto 20px; }
     .success-checkmark .check-icon {
-      width: 80px;
-      height: 80px;
-      position: relative;
-      border-radius: 50%;
-      box-sizing: content-box;
-      border: 4px solid #4CAF50;
-    }
-    .success-checkmark .check-icon::before {
-      top: 3px;
-      left: -2px;
-      width: 30px;
-      transform-origin: 100% 50%;
-      border-radius: 100px 0 0 100px;
-    }
-    .success-checkmark .check-icon::after {
-      top: 0;
-      left: 30px;
-      width: 60px;
-      transform-origin: 0 50%;
-      border-radius: 0 100px 100px 0;
-      animation: rotate-circle 4.25s ease-in;
+      width: 80px; height: 80px; position: relative;
+      border-radius: 50%; border: 4px solid #4CAF50;
     }
     .success-checkmark .check-icon::before,
     .success-checkmark .check-icon::after {
-      content: '';
-      height: 100px;
-      position: absolute;
-      background: #FFFFFF;
-      transform: rotate(-45deg);
+      content: ''; height: 100px; position: absolute;
+      background: #fff; transform: rotate(-45deg);
     }
-    .success-checkmark .icon-line {
-      height: 5px;
-      background-color: #4CAF50;
-      display: block;
-      border-radius: 2px;
-      position: absolute;
-      z-index: 10;
+    .success-checkmark .check-icon::before { top: 3px; left: -2px; width: 30px; transform-origin: 100% 50%; border-radius: 100px 0 0 100px; }
+    .success-checkmark .check-icon::after  { top: 0; left: 30px; width: 60px; transform-origin: 0 50%; border-radius: 0 100px 100px 0; animation: rotate-circle 4.25s ease-in; }
+    .success-checkmark .icon-line { height: 5px; background: #4CAF50; display: block; border-radius: 2px; position: absolute; z-index: 10; }
+    .success-checkmark .icon-line.line-tip  { top: 46px; left: 14px; width: 25px; transform: rotate(45deg); animation: icon-line-tip 0.75s; }
+    .success-checkmark .icon-line.line-long { top: 38px; right: 8px; width: 47px; transform: rotate(-45deg); animation: icon-line-long 0.75s; }
+    @keyframes icon-line-tip  { 0% { width:0;left:1px;top:19px; } 54% { width:0;left:1px;top:19px; } 70% { width:50px;left:-8px;top:37px; } 84% { width:17px;left:21px;top:48px; } 100% { width:25px;left:14px;top:45px; } }
+    @keyframes icon-line-long { 0% { width:0;right:46px;top:54px; } 65% { width:0;right:46px;top:54px; } 84% { width:55px;right:0;top:35px; } 100% { width:47px;right:8px;top:38px; } }
+
+    /* ===== LISTING TABS ===== */
+    .tabs { display: flex; gap: 0; border-bottom: 2px solid #e1e8ed; margin-bottom: 1rem; }
+    .tab-button {
+      padding: 0.55rem 1.1rem; border: none; background: none;
+      font-size: 0.9rem; font-weight: 600; color: #6b7280;
+      cursor: pointer; border-bottom: 3px solid transparent;
+      margin-bottom: -2px; transition: all 0.2s;
     }
-    .success-checkmark .icon-line.line-tip {
-      top: 46px;
-      left: 14px;
-      width: 25px;
-      transform: rotate(45deg);
-      animation: icon-line-tip 0.75s;
+    .tab-button.active { color: #1761a0; border-bottom-color: #1761a0; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-top: 0.5rem; }
+    .table th, .table td { padding: 0.7rem 0.9rem; border: 1px solid #e1e8ed; text-align: left; }
+    .table th { background: #e8f1fb; font-weight: 700; color: #0d3a66; font-size: 0.8rem; text-transform: uppercase; }
+    .table tr:hover td { background: #f8fbff; }
+    .badge { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+    .badge-pending  { background: #fef3c7; color: #92400e; }
+    .badge-approved { background: #d1fae5; color: #065f46; }
+    .badge-sold     { background: #fee2e2; color: #991b1b; }
+
+    /* ===== CONFIRMATION ===== */
+    #confirmation {
+      display: none; text-align: center; padding: 2rem;
+      background: #f0fdf4; border: 1px solid #86efac;
+      border-radius: 12px; margin-top: 1.5rem;
     }
-    .success-checkmark .icon-line.line-long {
-      top: 38px;
-      right: 8px;
-      width: 47px;
-      transform: rotate(-45deg);
-      animation: icon-line-long 0.75s;
-    }
-    @keyframes icon-line-tip {
-      0% {
-        width: 0;
-        left: 1px;
-        top: 19px;
-      }
-      54% {
-        width: 0;
-        left: 1px;
-        top: 19px;
-      }
-      70% {
-        width: 50px;
-        left: -8px;
-        top: 37px;
-      }
-      84% {
-        width: 17px;
-        left: 21px;
-        top: 48px;
-      }
-      100% {
-        width: 25px;
-        left: 14px;
-        top: 45px;
-      }
-    }
-    @keyframes icon-line-long {
-      0% {
-        width: 0;
-        right: 46px;
-        top: 54px;
-      }
-      65% {
-        width: 0;
-        right: 46px;
-        top: 54px;
-      }
-      84% {
-        width: 55px;
-        right: 0px;
-        top: 35px;
-      }
-      100% {
-        width: 47px;
-        right: 8px;
-        top: 38px;
-      }
-    }
+    #confirmation .material-icons { font-size: 48px; color: #10b981; display: block; margin-bottom: 0.5rem; }
+    #confirmation h3 { color: #065f46; }
+    #confirmation p  { color: #6b7280; }
   </style>
 </head>
 <body>
-  <div id="app" role="application">
-    <aside class="sidebar" aria-label="Main navigation">
-      <nav aria-label="Primary navigation">
-        <a href="/submit-listing" tabindex="0" aria-label="Submit Listing" class="active">
-          <span class="material-icons" aria-hidden="true">add_circle</span>Submit Listing
-        </a>
-        <a href="/manage-listings" tabindex="0" aria-label="Manage Listings">
-          <span class="material-icons" aria-hidden="true">edit</span>Manage Listings
-        </a>
-        <!--<a href="/track-performance" tabindex="0" aria-label="Track Performance">
-          <span class="material-icons" aria-hidden="true">bar_chart</span>Track Performance
-        </a>-->
-        <!--<a href="#manage-leads" tabindex="0" aria-label="Manage Leads">
-          <span class="material-icons" aria-hidden="true">people</span>Manage Leads
-        </a>-->
-      
-        <a href="/agent-chat" tabindex="0" aria-label="Client Chat">
-          <span class="material-icons" aria-hidden="true">chat</span>Client Chat
-        </a>
-        <!--<a href="#export" tabindex="0" aria-label="Export Data">
-          <span class="material-icons" aria-hidden="true">download</span>Export Data
-        </a>-->
-        <!--<a href="#marketing" tabindex="0" aria-label="Marketing Tools">
-          <span class="material-icons" aria-hidden="true">campaign</span>Marketing Tools
-        </a>-->
-      </nav>
-      <footer>
-        &copy; 2025 G.O AREGBAN REAL ESTATE FIRM. All rights reserved.
-      </footer>
-    </aside>
+<div id="app" role="application">
 
-    <header role="banner" aria-label="Primary header">
-      <div class="header-left">
-        <button class="sidebar-toggle-btn material-icons" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="sidebar">menu</button>
-        <a href="#" class="logo" aria-label="G.O AREGBAN REAL ESTATE FIRM Home">
-          <span class="material-icons" aria-hidden="true">apartment</span>G.O AREGBAN REAL ESTATE FIRM And Consultant
-        </a>
-        
-      </div>
-      
-    </header>
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar" aria-label="Main navigation">
+    <nav aria-label="Primary navigation">
+      <a href="/submit-listing" class="active" tabindex="0" aria-label="Submit Listing">
+        <span class="material-icons" aria-hidden="true">add_circle</span>Submit Listing
+      </a>
+      <a href="/manage-listings" tabindex="0" aria-label="Manage Listings">
+        <span class="material-icons" aria-hidden="true">edit</span>Manage Listings
+      </a>
+      <a href="/agent-chat" tabindex="0" aria-label="Client Chat">
+        <span class="material-icons" aria-hidden="true">chat</span>Client Chat
+      </a>
+    </nav>
+    <footer style="font-size:0.75rem;color:#aaa;padding:1rem;">
+      &copy; 2025 G.O AREGHAN Real Estate Firm &amp; Consultant. All rights reserved.
+    </footer>
+  </aside>
 
-    <main role="main" aria-label="Agent Dashboard">
-      <!-- Submit Property Listing Wizard -->
-      <section id="submit-listing" class="dashboard-section active">
-        <h1>Submit Property Listing</h1>
-        <div class="wizard-progress">
-          <div id="progress">Step 1 of 5: <span class="material-icons">person</span> Personal Information</div>
-          <div class="progress-bar-container">
-            <div class="progress-bar"        id="progressBar"></div>
-      </div>
+  <!-- ===== HEADER ===== -->
+  <header role="banner" aria-label="Primary header">
+    <div class="header-left">
+      <button class="sidebar-toggle-btn material-icons" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="sidebar">menu</button>
+      <a href="#" class="logo" aria-label="G.O AREGHAN Real Estate Home">
+        <span class="material-icons" aria-hidden="true">apartment</span>G.O AREGHAN Real Estate Firm &amp; Consultant
+      </a>
     </div>
-    <form id="sell-form" method="POST" action="/upload" enctype="multipart/form-data">
-      <div class="step active" id="step1">
-        <div class="wizard-step-header"><span class="material-icons">person</span> Step 1: Personal Information</div>
-        <div id="form-desc" style="margin-bottom: 20px; color:#666;">* Required fields</div>
-        <div class="form-group">
-          <label for="ownerName">Your Full Name *</label>
-          <input type="text" id="ownerName" name="ownerName" required autocomplete="name" />
-          <div class="error-message" id="errorOwnerName"></div>
+  </header>
+
+  <main role="main" aria-label="Agent Dashboard">
+
+    <!-- ==================== SUBMIT LISTING ==================== -->
+    <section id="submit-listing" class="dashboard-section active">
+      <h1><span class="material-icons" style="vertical-align:middle;margin-right:6px;color:#1761a0">add_home</span>Submit Property Listing</h1>
+
+      <!-- Step Progress Bar -->
+      <div class="wizard-progress">
+        <div class="wizard-steps-bar">
+          <div class="wizard-step-pill active" id="pill0"><span class="material-icons">person</span><span class="pill-label">Owner</span></div>
+          <div class="wizard-step-pill"          id="pill1"><span class="material-icons">home</span><span class="pill-label">Property</span></div>
+          <div class="wizard-step-pill"          id="pill2"><span class="material-icons">description</span><span class="pill-label">Details</span></div>
+          <div class="wizard-step-pill"          id="pill3"><span class="material-icons">upload</span><span class="pill-label">Media</span></div>
+          <div class="wizard-step-pill"          id="pill4"><span class="material-icons">checklist</span><span class="pill-label">Review</span></div>
         </div>
-        <div class="form-group">
-          <label for="ownerEmail">Email Address *</label>
-          <input type="email" id="ownerEmail" name="ownerEmail" required autocomplete="email" />
-          <div class="error-message" id="errorOwnerEmail"></div>
-        </div>
-        <div class="form-group">
-          <label for="ownerPhone">Phone Number *</label>
-          <input type="tel" id="ownerPhone" name="ownerPhone" required autocomplete="tel" />
-          <div class="error-message" id="errorOwnerPhone"></div>
-        </div>
-      </div>
-      
-      <div class="step" id="step2">
-        <div class="wizard-step-header"><span class="material-icons">home</span> Step 2: Property Details</div>
-        <div class="form-group">
-          <label for="propertyAddress">Property Address *</label>
-          <input type="text" id="propertyAddress" name="propertyAddress" required placeholder="Street, City, State, ZIP" autocomplete="street-address" />
-          <div class="error-message" id="errorPropertyAddress"></div>
-        </div>
-        <div class="form-group">
-          <label for="bedrooms">Bedrooms *</label>
-          <select id="bedrooms" name="bedrooms" required>
-            <option value="" disabled selected>Select number</option>
-            <option>0</option>
-            <option>1</option>
-            <option>2</option>
-            <option>3</option>
-            <option>4</option>
-            <option>5+</option>
-          </select>
-          <div class="error-message" id="errorBedrooms"></div>
-        </div>
-        <div class="form-group">
-          <label for="bathrooms">Bathrooms *</label>
-          <select id="bathrooms" name="bathrooms" required>
-            <option value="" disabled selected>Select number</option>
-            <option>0</option>
-            <option>1</option>
-            <option>2</option>
-            <option>3</option>
-            <option>4+</option>
-          </select>
-          <div class="error-message" id="errorBathrooms"></div>
-        </div>
-        <div class="form-group">
-          <label for="sqft">Square Footage *</label>
-          <input type="number" id="sqft" name="sqft" min="100" max="100000" required />
-          <div class="error-message" id="errorSqft"></div>
+        <div class="progress-bar-container">
+          <div class="progress-bar" id="progressBar" style="width:20%"></div>
         </div>
       </div>
-      
-      <div class="step" id="step3">
-        <div class="wizard-step-header"><span class="material-icons">description</span> Step 3: Property Info</div>
-        <div class="form-group">
-          <label for="title">Title *</label>
-          <input type="text" id="title" name="title" placeholder="e.g., Beautiful modern home with spacious backyard" required />
-          <div class="error-message" id="errorTitle"></div>
-        </div>
-        <div class="form-group">
-          <label for="description">Description *</label>
-          <textarea id="description" name="description" placeholder="Provide a detailed description of the property" required></textarea>
-          <div class="error-message" id="errorDescription"></div>
-        </div>
-        <div class="form-group">
-          <label for="rentSell">Rent/Sell *</label>
-          <select id="rentSell" name="rentSell" required>
-            <option value="" disabled selected>Rent/Sell</option>
-            <option>Rent</option>
-            <option>Sell</option>
-          </select>
-          <div class="error-message" id="errorRentSell"></div>
-        </div>
-        <div class="form-group">
-          <label for="property-type">Property Type *</label>
-          <select id="property-type" name="property_type" required>
-            <option value="" disabled selected>Property Type</option>
-            <option>Self Contain</option>
-            <option>Plots of Land</option>
-            <option>Duplex/Bungalow/Storey Building</option>
-          </select>
-          <div class="error-message" id="errorPropertyType"></div>
-        </div>
-        <div class="form-group">
-          <label for="amount">Enter Amount in Naira *</label>
-          <div class="naira-input">
-            <span class="symbol">₦</span>
-            <input type="text" id="amount" name="amount" placeholder="Enter amount" autocomplete="off" required />
+
+      <form id="sell-form" method="POST" action="/upload" enctype="multipart/form-data">
+
+        <!-- ===== STEP 1: Owner Info ===== -->
+        <div class="step active" id="step1">
+          <div class="wizard-step-header"><span class="material-icons">person</span>Step 1: Property Owner Information</div>
+          <p style="color:#666;margin-bottom:16px;font-size:0.875rem;">* All fields in this step are required</p>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="ownerName">Full Name *</label>
+              <input type="text" id="ownerName" name="ownerName" required autocomplete="name" placeholder="Owner's full name" />
+              <div class="error-message" id="errorOwnerName"></div>
+            </div>
+            <div class="form-group">
+              <label for="ownerPhone">Phone Number *</label>
+              <input type="tel" id="ownerPhone" name="ownerPhone" required autocomplete="tel" placeholder="e.g. 08012345678" />
+              <div class="error-message" id="errorOwnerPhone"></div>
+            </div>
           </div>
-          <div class="error-message" id="errorAmount"></div>
-        </div>
-      </div>
-      
-      <div class="step" id="step4">
-        <div class="wizard-step-header"><span class="material-icons">upload</span> Step 4: Upload Media</div>
-        <div class="form-group">
-          <label for="image">Upload Images *</label>
-          <input type="file" id="image" name="image" accept="image/*" required multiple />
-          <div id="image-preview" class="image-preview-container"></div>
-          <div class="error-message" id="errorImage"></div>
-        </div>
-        <div class="form-group">
-          <label for="video">Upload Video *</label>
-          <input type="file" id="video" name="video" accept="video/*" required multiple />
-          <div id="video-preview" class="image-preview-container" style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 10px;"></div>
-          <div class="error-message" id="errorVideo"></div>
-        </div>
-      </div>
-      
-      <div class="step" id="step5">
-        <div class="wizard-step-header"><span class="material-icons">checklist</span> Step 5: Review & Submit</div>
-        <h2 style="color: #0d3a66; margin-bottom: 15px;">Review Your Information</h2>
-        <p style="color: #666; margin-bottom: 25px;">Please review the details below before submitting:</p>
-        <div id="summary">
-          <p><strong>Name:</strong> <span id="summaryOwnerName"></span></p>
-          <p><strong>Email:</strong> <span id="summaryOwnerEmail"></span></p>
-          <p><strong>Phone:</strong> <span id="summaryOwnerPhone"></span></p>
-          <p><strong>Property Address:</strong> <span id="summaryPropertyAddress"></span></p>
-          <p><strong>Bedrooms:</strong> <span id="summaryBedrooms"></span></p>
-          <p><strong>Bathrooms:</strong> <span id="summaryBathrooms"></span></p>
-          <p><strong>Square Footage:</strong> <span id="summarySqft"></span></p>
-          <p><strong>Title:</strong> <span id="summaryTitle"></span></p>
-          <p><strong>Description:</strong> <span id="summaryDescription"></span></p>
-          <p><strong>Rent/Sell:</strong> <span id="summaryRentSell"></span></p>
-          <p><strong>Property Type:</strong> <span id="summaryPropertyType"></span></p>
-          <p><strong>Amount:</strong> ₦<span id="summaryAmount"></span></p>
-          <p><strong>Images:</strong> <span id="summaryImage"></span></p>
-          <p><strong>Video:</strong> <span id="summaryVideo"></span></p>
-        </div>
-      </div>
-      
-      <!-- Navigation Buttons -->
-      <div class="navigation-buttons">
-        <button id="prevBtn" class="btn btn-secondary prev-btn" type="button" style="display: none;">
-          <span class="material-icons">arrow_back</span> Previous
-        </button>
-        <button id="nextBtn" class="btn btn-primary next-btn" type="button">
-          Next <span class="material-icons">arrow_forward</span>
-        </button>
-      </div>
-    </form>
-  </section>
-
-  <!-- Manage Listings -->
-<section id="manage-listings" class="dashboard-section">
-  <h1>Manage Listings</h1>
-  <div class="tabs">
-    <button class="tab-button active" data-tab="pending">Pending</button>
-    <button class="tab-button" data-tab="approved">Approved</button>
-    <button class="tab-button" data-tab="sold">Sold</button>
-  </div>
-  <div class="tab-content active" id="pending-tab">
-    <table class="table">
-      <thead>
-        <tr>
-          <th>Title</th>
-          <th>Status</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody id="pending-table">
-        <!-- Populated by JS -->
-      </tbody>
-    </table>
-  </div>
-  <div class="tab-content" id="approved-tab">
-    <table class="table">
-      <thead>
-        <tr>
-          <th>Title</th>
-          <th>Status</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody id="approved-table">
-        <!-- Populated by JS -->
-      </tbody>
-    </table>
-  </div>
-  <div class="tab-content" id="sold-tab">
-    <table class="table">
-      <thead>
-        <tr>
-          <th>Title</th>
-          <th>Status</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody id="sold-table">
-        <!-- Populated by JS -->
-      </tbody>
-    </table>
-  </div>
-</section>
-
-  <!-- Track Performance -->
-  <section id="track-performance" class="dashboard-section">
-    <h1>Track Listing Performance</h1>
-    <div class="performance-chart">
-      <p>Performance Chart (Integrate Chart.js for views/inquiries)</p>
-    </div>
-    <div id="performance-data">
-      <!-- Populated by JS -->
-    </div>
-  </section>
-
-  <!-- Manage Leads -->
-  <section id="manage-leads" class="dashboard-section">
-    <h1>Manage Leads</h1>
-    <table class="table">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Email</th>
-          <th>Interest</th>
-        </tr>
-      </thead>
-      <tbody id="leads-table">
-        <!-- Populated by JS -->
-      </tbody>
-    </table>
-  </section>
-
-  <!-- Inquiries -->
-  <section id="inquiries" class="dashboard-section">
-    <h1>Manage Inquiries</h1>
-    <table class="table">
-      <thead>
-        <tr>
-          <th>Client</th>
-          <th>Message</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody id="inquiries-table">
-        <!-- Populated by JS -->
-      </tbody>
-    </table>
-  </section>
-
-  <!-- Client Chat -->
-  <section id="chat" class="dashboard-section">
-    <h1>Client Chat</h1>
-    <div class="chat-messages" id="chat-messages"></div>
-    <input type="text" id="chat-input" placeholder="Type message..." />
-    <button class="btn btn-primary" onclick="sendMessage()">Send</button>
-  </section>
-
-  <!-- Export Data -->
-  <section id="export" class="dashboard-section">
-    <h1>Export Lead Data</h1>
-    <button class="btn btn-primary" onclick="exportLeads()">Export to CSV</button>
-  </section>
-
-  <!-- Marketing Tools -->
-  <section id="marketing" class="dashboard-section">
-    <h1>Marketing Tools</h1>
-    <form id="marketing-form">
-      <div class="form-group">
-        <label>Listing ID</label>
-        <input type="text" name="listingId" required />
-      </div>
-      <div class="form-group">
-        <label>Marketing Action</label>
-        <select name="action">
-          <option>Promote on Social Media</option>
-          <option>Send Email Campaign</option>
-          <option>Boost Listing</option>
-        </select>
-      </div>
-      <button type="submit" class="btn btn-primary">Apply</button>
-    </form>
-  </section>
-</main>
-
-<footer role="contentinfo" aria-label="Website footer">
-  <div>© 2025 G.O AREGBAN REAL ESTATE FIRM. All rights reserved.</div>
-  <div class="social-links" aria-label="Social media links">
-    <a href="#" target="_blank" rel="noopener" aria-label="Facebook">
-      <span class="material-icons">facebook</span>
-    </a>
-    <a href="#" target="_blank" rel="noopener" aria-label="Twitter">
-      <span class="material-icons">twitter</span>
-    </a>
-    <a href="#" target="_blank" rel="noopener" aria-label="Instagram">
-      <span class="material-icons">camera_alt</span>
-    </a>
-    <a href="#" target="_blank" rel="noopener" aria-label="LinkedIn">
-      <span class="material-icons">linkedin</span>
-    </a>
-  </div>
-</footer>
-  </div> <!-- End of main -->
-
-  <!-- Upload Overlay -->
-  <div class="upload-overlay" id="uploadOverlay">
-    <div class="upload-content">
-      <div id="uploadSpinner" class="spinner"></div>
-      <div id="uploadSuccess" style="display: none;">
-        <div class="success-checkmark">
-          <div class="check-icon">
-            <span class="icon-line line-tip"></span>
-            <span class="icon-line line-long"></span>
+          <div class="form-group">
+            <label for="ownerEmail">Email Address *</label>
+            <input type="email" id="ownerEmail" name="ownerEmail" required autocomplete="email" placeholder="owner@example.com" />
+            <div class="error-message" id="errorOwnerEmail"></div>
           </div>
         </div>
+
+        <!-- ===== STEP 2: Property Details ===== -->
+        <div class="step" id="step2">
+          <div class="wizard-step-header"><span class="material-icons">home</span>Step 2: Property Details</div>
+          <div class="form-group">
+            <label for="propertyAddress">Property Address *</label>
+            <input type="text" id="propertyAddress" name="propertyAddress" required placeholder="Street, Area, City, State" autocomplete="street-address" />
+            <div class="error-message" id="errorPropertyAddress"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="bedrooms">Bedrooms *</label>
+              <select id="bedrooms" name="bedrooms" required>
+                <option value="" disabled selected>Select number</option>
+                <option value="0">0 (Studio/Open Plan)</option>
+                <option value="1">1 Bedroom</option>
+                <option value="2">2 Bedrooms</option>
+                <option value="3">3 Bedrooms</option>
+                <option value="4">4 Bedrooms</option>
+                <option value="5">5 Bedrooms</option>
+                <option value="6+">6+ Bedrooms</option>
+              </select>
+              <div class="error-message" id="errorBedrooms"></div>
+            </div>
+            <div class="form-group">
+              <label for="bathrooms">Bathrooms *</label>
+              <select id="bathrooms" name="bathrooms" required>
+                <option value="" disabled selected>Select number</option>
+                <option value="1">1 Bathroom</option>
+                <option value="2">2 Bathrooms</option>
+                <option value="3">3 Bathrooms</option>
+                <option value="4+">4+ Bathrooms</option>
+              </select>
+              <div class="error-message" id="errorBathrooms"></div>
+            </div>
+          </div>
+          <!-- NEW: land_size, building_size, sqm in a row -->
+          <div class="form-row-3">
+            <div class="form-group">
+              <label for="sqft">Floor Area (sqm) *</label>
+              <input type="number" id="sqft" name="sqft" min="1" placeholder="e.g. 120" required />
+              <div class="field-hint">Internal floor area in square metres</div>
+              <div class="error-message" id="errorSqft"></div>
+            </div>
+            <div class="form-group">
+              <label for="land_size">Land Size <span class="optional-tag">optional</span></label>
+              <input type="text" id="land_size" name="land_size" placeholder="e.g. 600sqm, 2 plots" />
+              <div class="field-hint">Total land/plot area</div>
+            </div>
+            <div class="form-group">
+              <label for="building_size">Building Size <span class="optional-tag">optional</span></label>
+              <input type="text" id="building_size" name="building_size" placeholder="e.g. 350sqm" />
+              <div class="field-hint">Total built-up area</div>
+            </div>
+          </div>
+          <!-- NEW: num_flats -->
+          <div class="form-group">
+            <label for="num_flats">Number of Flats / Units <span class="optional-tag">optional</span></label>
+            <input type="number" id="num_flats" name="num_flats" min="1" placeholder="e.g. 4 — only for multi-unit properties" />
+            <div class="field-hint">Leave blank for single-unit properties (house, duplex, land, etc.)</div>
+          </div>
+        </div>
+
+        <!-- ===== STEP 3: Listing Info & Pricing ===== -->
+        <div class="step" id="step3">
+          <div class="wizard-step-header"><span class="material-icons">description</span>Step 3: Listing Info &amp; Pricing</div>
+          <div class="form-group">
+            <label for="title">Listing Title *</label>
+            <input type="text" id="title" name="title" placeholder="e.g. Spacious 3-Bedroom Duplex in Lekki Phase 1" required />
+            <div class="error-message" id="errorTitle"></div>
+          </div>
+          <div class="form-group">
+            <label for="description">Description *</label>
+            <textarea id="description" name="description" placeholder="Detailed description — highlights, features, nearby amenities, condition, finishes, etc." required></textarea>
+            <div class="error-message" id="errorDescription"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="rentSell">Listing Type *</label>
+              <select id="rentSell" name="rentSell" required>
+                <option value="" disabled selected>For Rent or For Sale?</option>
+                <option value="Rent">For Rent</option>
+                <option value="Sell">For Sale</option>
+              </select>
+              <div class="error-message" id="errorRentSell"></div>
+            </div>
+            <div class="form-group">
+              <!-- ALL 16+ property types matching admin sell page -->
+              <label for="property-type">Property Type *</label>
+              <select id="property-type" name="property_type" required>
+                <option value="" disabled selected>Select property type</option>
+                <optgroup label="🏠 Residential">
+                  <option value="Duplex">Duplex</option>
+                  <option value="Bungalow">Bungalow</option>
+                  <option value="Storey Building">Storey Building</option>
+                  <option value="Flat">Flat</option>
+                  <option value="Apartment">Apartment</option>
+                  <option value="Mini Flat">Mini Flat</option>
+                  <option value="Self Contain">Self Contain</option>
+                  <option value="Single Room">Single Room</option>
+                  <option value="Detached House">Detached House</option>
+                  <option value="Semi-Detached House">Semi-Detached House</option>
+                  <option value="Terrace House">Terrace House</option>
+                </optgroup>
+                <optgroup label="🏢 Commercial / Industrial">
+                  <option value="Commercial Building">Commercial Building</option>
+                  <option value="Warehouse">Warehouse</option>
+                  <option value="Land and Building">Land and Building</option>
+                  <option value="Building and Machinery">Building and Machinery</option>
+                  <option value="Plant and Machinery">Plant and Machinery</option>
+                  <option value="Chattels">Chattels</option>
+                </optgroup>
+                <optgroup label="🌿 Land">
+                  <option value="Plots of Land">Plots of Land</option>
+                </optgroup>
+              </select>
+              <div class="error-message" id="errorPropertyType"></div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="amount">Asking Price (₦) *</label>
+            <div class="naira-input">
+              <span class="symbol">₦</span>
+              <input type="text" id="amount" name="amount" placeholder="e.g. 15000000" autocomplete="off" required />
+            </div>
+            <div class="field-hint">Numbers only — no commas or spaces</div>
+            <div class="error-message" id="errorAmount"></div>
+          </div>
+        </div>
+
+        <!-- ===== STEP 4: Media & Documents ===== -->
+        <div class="step" id="step4">
+          <div class="wizard-step-header"><span class="material-icons">upload</span>Step 4: Photos, Video &amp; Documents</div>
+
+          <!-- Images (required) -->
+          <div class="form-group">
+            <label for="image">Property Photos * <span style="font-weight:400;color:#6b7280">(up to 10 images)</span></label>
+            <div class="file-upload-zone" onclick="document.getElementById('image').click()">
+              <span class="material-icons">add_photo_alternate</span>
+              <p>Click to select photos &mdash; JPG, PNG, WEBP, GIF supported</p>
+            </div>
+            <input type="file" id="image" name="image" accept="image/*" required multiple />
+            <div id="image-preview" class="image-preview-container"></div>
+            <div class="error-message" id="errorImage"></div>
+          </div>
+
+          <!-- Video (OPTIONAL — matches server: not required) -->
+          <div class="form-group">
+            <label for="video">Property Video <span class="optional-tag">optional</span> <span style="font-weight:400;color:#6b7280">(up to 5 videos, 20MB each)</span></label>
+            <div class="file-upload-zone" onclick="document.getElementById('video').click()">
+              <span class="material-icons">videocam</span>
+              <p>Click to select videos &mdash; MP4, MOV, AVI, WEBM supported</p>
+            </div>
+            <input type="file" id="video" name="video" accept="video/*" multiple />
+            <div id="video-preview" class="image-preview-container"></div>
+          </div>
+
+          <!-- Documents (OPTIONAL — new field matching server) -->
+          <div class="form-group">
+            <label for="documents">Supporting Documents <span class="optional-tag">optional</span> <span style="font-weight:400;color:#6b7280">(up to 10 files)</span></label>
+            <div class="file-upload-zone" onclick="document.getElementById('documents').click()">
+              <span class="material-icons">description</span>
+              <p>Click to upload documents &mdash; PDF, Word, Excel, PPT, TXT supported</p>
+            </div>
+            <input type="file" id="documents" name="documents" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt" multiple />
+            <div id="doc-list" class="doc-list"></div>
+          </div>
+        </div>
+
+        <!-- ===== STEP 5: Review & Submit ===== -->
+        <div class="step" id="step5">
+          <div class="wizard-step-header"><span class="material-icons">checklist</span>Step 5: Review &amp; Submit</div>
+          <p style="color:#666;margin-bottom:18px;font-size:0.875rem;">Please review all details before submitting. Your listing will be sent to admin for approval.</p>
+          <div id="summary">
+            <div class="summary-grid">
+              <div class="summary-item"><strong>Owner Name</strong><span id="summaryOwnerName">—</span></div>
+              <div class="summary-item"><strong>Email</strong><span id="summaryOwnerEmail">—</span></div>
+              <div class="summary-item"><strong>Phone</strong><span id="summaryOwnerPhone">—</span></div>
+              <div class="summary-item"><strong>Property Address</strong><span id="summaryPropertyAddress">—</span></div>
+              <div class="summary-item"><strong>Bedrooms</strong><span id="summaryBedrooms">—</span></div>
+              <div class="summary-item"><strong>Bathrooms</strong><span id="summaryBathrooms">—</span></div>
+              <div class="summary-item"><strong>Floor Area (sqm)</strong><span id="summarySqft">—</span></div>
+              <div class="summary-item"><strong>Land Size</strong><span id="summaryLandSize">—</span></div>
+              <div class="summary-item"><strong>Building Size</strong><span id="summaryBuildingSize">—</span></div>
+              <div class="summary-item"><strong>No. of Flats/Units</strong><span id="summaryNumFlats">—</span></div>
+              <div class="summary-item"><strong>Listing Type</strong><span id="summaryRentSell">—</span></div>
+              <div class="summary-item"><strong>Property Type</strong><span id="summaryPropertyType">—</span></div>
+              <div class="summary-item" style="grid-column:1/-1"><strong>Title</strong><span id="summaryTitle">—</span></div>
+              <div class="summary-item" style="grid-column:1/-1"><strong>Description</strong><span id="summaryDescription" style="white-space:pre-wrap">—</span></div>
+              <div class="summary-item"><strong>Asking Price</strong><span id="summaryAmount">—</span></div>
+              <div class="summary-item"><strong>Photos</strong><span id="summaryImage">—</span></div>
+              <div class="summary-item"><strong>Videos</strong><span id="summaryVideo">—</span></div>
+              <div class="summary-item"><strong>Documents</strong><span id="summaryDocuments">—</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="navigation-buttons">
+          <button id="prevBtn" class="btn btn-secondary prev-btn" type="button" style="display:none;">
+            <span class="material-icons">arrow_back</span> Previous
+          </button>
+          <button id="nextBtn" class="btn btn-primary next-btn" type="button">
+            Next <span class="material-icons">arrow_forward</span>
+          </button>
+        </div>
+      </form>
+
+      <!-- Post-submit confirmation -->
+      <div id="confirmation">
+        <span class="material-icons">check_circle</span>
+        <h3>Listing Submitted Successfully!</h3>
+        <p>Your property has been sent to the admin for review. You'll receive a notification once it's approved.</p>
       </div>
-      <div class="upload-text" id="uploadText">Uploading Your Property...</div>
-      <div class="upload-subtext" id="uploadSubtext">Please wait while we process your listing</div>
-      <div class="upload-progress">
-        <div class="upload-progress-bar" id="uploadProgressBar"></div>
+    </section>
+
+    <!-- ==================== MANAGE LISTINGS ==================== -->
+    <section id="manage-listings" class="dashboard-section">
+      <h1><span class="material-icons" style="vertical-align:middle;margin-right:6px;color:#1761a0">edit_note</span>Manage My Listings</h1>
+      <div class="tabs">
+        <button class="tab-button active" data-tab="pending">⏳ Pending</button>
+        <button class="tab-button" data-tab="approved">✅ Approved</button>
+        <button class="tab-button" data-tab="sold">🏷️ Sold</button>
+      </div>
+      <div class="tab-content active" id="pending-tab">
+        <table class="table">
+          <thead><tr><th>Title</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="pending-table"><tr><td colspan="3" style="text-align:center;color:#6b7280;padding:2rem">Loading...</td></tr></tbody>
+        </table>
+      </div>
+      <div class="tab-content" id="approved-tab">
+        <table class="table">
+          <thead><tr><th>Title</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="approved-table"><tr><td colspan="3" style="text-align:center;color:#6b7280;padding:2rem">Loading...</td></tr></tbody>
+        </table>
+      </div>
+      <div class="tab-content" id="sold-tab">
+        <table class="table">
+          <thead><tr><th>Title</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="sold-table"><tr><td colspan="3" style="text-align:center;color:#6b7280;padding:2rem">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ==================== TRACK PERFORMANCE ==================== -->
+    <section id="track-performance" class="dashboard-section">
+      <h1>Track Listing Performance</h1>
+      <div id="performance-data"><p style="color:#6b7280">Performance data will appear here.</p></div>
+    </section>
+
+    <!-- ==================== MANAGE LEADS ==================== -->
+    <section id="manage-leads" class="dashboard-section">
+      <h1>Manage Leads</h1>
+      <table class="table">
+        <thead><tr><th>Name</th><th>Email</th><th>Interest</th></tr></thead>
+        <tbody id="leads-table"></tbody>
+      </table>
+    </section>
+
+    <!-- ==================== INQUIRIES ==================== -->
+    <section id="inquiries" class="dashboard-section">
+      <h1>Manage Inquiries</h1>
+      <table class="table">
+        <thead><tr><th>Client</th><th>Message</th><th>Actions</th></tr></thead>
+        <tbody id="inquiries-table"></tbody>
+      </table>
+    </section>
+
+    <!-- ==================== CHAT ==================== -->
+    <section id="chat" class="dashboard-section">
+      <h1>Client Chat</h1>
+      <div style="height:300px;overflow-y:auto;border:1px solid #e1e8ed;border-radius:8px;padding:1rem;" id="chat-messages"></div>
+      <div style="display:flex;gap:8px;margin-top:1rem;">
+        <input type="text" id="chat-input" placeholder="Type message..." style="flex:1;padding:0.65rem 1rem;border:2px solid #e1e8ed;border-radius:8px;" />
+        <button class="btn btn-primary" onclick="sendMessage()"><span class="material-icons">send</span></button>
+      </div>
+    </section>
+
+  </main>
+
+  <footer role="contentinfo" aria-label="Website footer">
+    <div>&copy; 2025 G.O AREGHAN Real Estate Firm &amp; Consultant. All rights reserved.</div>
+    <div class="social-links" aria-label="Social media links">
+      <a href="#" target="_blank" rel="noopener" aria-label="Facebook"><span class="material-icons">facebook</span></a>
+      <a href="#" target="_blank" rel="noopener" aria-label="Twitter"><span class="material-icons">twitter</span></a>
+      <a href="#" target="_blank" rel="noopener" aria-label="Instagram"><span class="material-icons">camera_alt</span></a>
+    </div>
+  </footer>
+</div>
+
+<!-- Upload Overlay -->
+<div class="upload-overlay" id="uploadOverlay">
+  <div class="upload-content">
+    <div id="uploadSpinner" class="spinner"></div>
+    <div id="uploadSuccess" style="display:none;">
+      <div class="success-checkmark">
+        <div class="check-icon">
+          <span class="icon-line line-tip"></span>
+          <span class="icon-line line-long"></span>
+        </div>
       </div>
     </div>
+    <div class="upload-text" id="uploadText">Uploading Your Property...</div>
+    <div class="upload-subtext" id="uploadSubtext">Please wait while we process your listing</div>
+    <div class="upload-progress"><div class="upload-progress-bar" id="uploadProgressBar"></div></div>
   </div>
+</div>
 
-  <!-- Toast notifications container -->
-  <div id="toast-container" aria-live="assertive" role="alert"></div>
+<div id="toast-container" aria-live="assertive" role="alert"></div>
 
-  <script src="/js/script.js"></script>
-  <script>
-   
+<script src="/js/script.js"></script>
+<script>
+  // ==================== WIZARD STATE ====================
+  const steps = document.querySelectorAll('.step');
+  const pills  = document.querySelectorAll('.wizard-step-pill');
+  const progressBar = document.getElementById('progressBar');
+  let currentStep = 0;
 
-    // Wizard Variables
-    const steps = document.querySelectorAll('.step');
-    const progressBar = document.getElementById('progressBar');
-    const progressText = document.getElementById('progress');
-    let currentStep = 0;
+  function showStep(idx) {
+    steps.forEach((s, i) => s.classList.toggle('active', i === idx));
+    pills.forEach((p, i) => {
+      p.classList.remove('active', 'done');
+      if (i < idx) p.classList.add('done');
+      else if (i === idx) p.classList.add('active');
+    });
+    progressBar.style.width = (((idx + 1) / steps.length) * 100) + '%';
+    document.getElementById('prevBtn').style.display = idx > 0 ? 'flex' : 'none';
+    const nextBtn = document.getElementById('nextBtn');
+    if (idx < steps.length - 1) {
+      nextBtn.innerHTML = 'Next <span class="material-icons">arrow_forward</span>';
+      nextBtn.className = 'btn btn-primary next-btn';
+      nextBtn.type = 'button';
+    } else {
+      nextBtn.innerHTML = '<span class="material-icons">check_circle</span> Submit Listing';
+      nextBtn.className = 'btn btn-success next-btn';
+      nextBtn.type = 'button';
+      populateSummary();
+    }
+  }
 
-    // Show Step Function
-    function showStep(stepIndex) {
-      console.log('Showing step:', stepIndex);
-      steps.forEach((step, index) => {
-        step.classList.toggle('active', index === stepIndex);
-      });
+  // ==================== SUMMARY ====================
+  function populateSummary() {
+    const g = id => document.getElementById(id)?.value || '';
+    const f = v => v || '—';
+    const fmtFiles = id => {
+      const files = document.getElementById(id)?.files;
+      return files && files.length > 0 ? `${files.length} file(s) selected` : 'None';
+    };
+    document.getElementById('summaryOwnerName').textContent     = f(g('ownerName'));
+    document.getElementById('summaryOwnerEmail').textContent    = f(g('ownerEmail'));
+    document.getElementById('summaryOwnerPhone').textContent    = f(g('ownerPhone'));
+    document.getElementById('summaryPropertyAddress').textContent = f(g('propertyAddress'));
+    document.getElementById('summaryBedrooms').textContent      = f(g('bedrooms'));
+    document.getElementById('summaryBathrooms').textContent     = f(g('bathrooms'));
+    document.getElementById('summarySqft').textContent          = g('sqft') ? g('sqft') + ' sqm' : '—';
+    document.getElementById('summaryLandSize').textContent      = f(g('land_size'));
+    document.getElementById('summaryBuildingSize').textContent  = f(g('building_size'));
+    document.getElementById('summaryNumFlats').textContent      = f(g('num_flats'));
+    document.getElementById('summaryTitle').textContent         = f(g('title'));
+    document.getElementById('summaryDescription').textContent   = f(g('description'));
+    document.getElementById('summaryRentSell').textContent      = f(g('rentSell'));
+    document.getElementById('summaryPropertyType').textContent  = f(g('property_type'));
+    const amt = g('amount');
+    document.getElementById('summaryAmount').textContent = amt ? '₦' + Number(amt.replace(/,/g,'')).toLocaleString() : '—';
+    document.getElementById('summaryImage').textContent     = fmtFiles('image');
+    document.getElementById('summaryVideo').textContent     = fmtFiles('video');
+    document.getElementById('summaryDocuments').textContent = fmtFiles('documents');
+  }
 
-      const progressPercentage = ((stepIndex + 1) / steps.length) * 100;
-      progressBar.style.width = progressPercentage + '%';
-      progressText.innerHTML = `Step ${stepIndex + 1} of ${steps.length}: <span class="material-icons">${getStepIcon(stepIndex)}</span> ${getStepLabel(stepIndex)}`;
+  // ==================== VALIDATION ====================
+  function validateStep(idx) {
+    let valid = true;
+    const required = steps[idx].querySelectorAll('[required]');
+    required.forEach(field => {
+      // Build error element ID from field ID
+      const errId = 'error' + field.id.split('-').map(w => w[0].toUpperCase() + w.slice(1)).join('');
+      const errEl = document.getElementById(errId);
+      if (errEl) errEl.textContent = '';
 
-      document.getElementById('prevBtn').style.display = stepIndex > 0 ? 'block' : 'none';
-      const nextBtn = document.getElementById('nextBtn');
-      
-      if (stepIndex < steps.length - 1) {
-        nextBtn.innerHTML = 'Next <span class="material-icons">arrow_forward</span>';
-        nextBtn.type = 'button';
+      if (field.type === 'file') {
+        if (field.files.length === 0) {
+          if (errEl) errEl.textContent = 'Please select at least one file.';
+          valid = false;
+        }
+      } else if (field.tagName === 'SELECT') {
+        if (!field.value) {
+          if (errEl) errEl.textContent = 'Please select an option.';
+          valid = false;
+        }
+      } else if (field.id === 'amount') {
+        const v = field.value.replace(/,/g,'').trim();
+        if (!v) { if (errEl) errEl.textContent = 'Amount is required.'; valid = false; }
+        else if (isNaN(v) || parseFloat(v) <= 0) { if (errEl) errEl.textContent = 'Enter a valid positive number.'; valid = false; }
       } else {
-        nextBtn.innerHTML = '<span class="material-icons">check_circle</span> Submit';
-        nextBtn.type = 'button'; // Changed to button to handle submission manually
-        // Populate summary when reaching the last step
-        populateSummary();
-      }
-    }
-
-    // Get Step Icon
-    function getStepIcon(stepIndex) {
-      const icons = ['person', 'home', 'description', 'upload', 'checklist'];
-      return icons[stepIndex] || 'help';
-    }
-
-    // Get Step Label
-    function getStepLabel(stepIndex) {
-      const labels = ['Personal Information', 'Property Details', 'Property Info', 'Upload Media', 'Review & Submit'];
-      return labels[stepIndex] || 'Unknown';
-    }
-
-    // Populate Summary
-    function populateSummary() {
-      document.getElementById('summaryOwnerName').textContent = document.getElementById('ownerName').value || 'N/A';
-      document.getElementById('summaryOwnerEmail').textContent = document.getElementById('ownerEmail').value || 'N/A';
-      document.getElementById('summaryOwnerPhone').textContent = document.getElementById('ownerPhone').value || 'N/A';
-      document.getElementById('summaryPropertyAddress').textContent = document.getElementById('propertyAddress').value || 'N/A';
-      document.getElementById('summaryBedrooms').textContent = document.getElementById('bedrooms').value || 'N/A';
-      document.getElementById('summaryBathrooms').textContent = document.getElementById('bathrooms').value || 'N/A';
-      document.getElementById('summarySqft').textContent = document.getElementById('sqft').value || 'N/A';
-      document.getElementById('summaryTitle').textContent = document.getElementById('title').value || 'N/A';
-      document.getElementById('summaryDescription').textContent = document.getElementById('description').value || 'N/A';
-      document.getElementById('summaryRentSell').textContent = document.getElementById('rentSell').value || 'N/A';
-      document.getElementById('summaryPropertyType').textContent = document.getElementById('property-type').value || 'N/A';
-      document.getElementById('summaryAmount').textContent = document.getElementById('amount').value || 'N/A';
-      
-      const imageFiles = document.getElementById('image').files;
-      const videoFiles = document.getElementById('video').files;
-      document.getElementById('summaryImage').textContent = imageFiles.length > 0 ? `${imageFiles.length} file(s) selected` : 'No files selected';
-      document.getElementById('summaryVideo').textContent = videoFiles.length > 0 ? `${videoFiles.length} file(s) selected` : 'No files selected';
-    }
-
-    // Next Button Click
-    document.getElementById('nextBtn').addEventListener('click', () => {
-      console.log('Next button clicked. Current step:', currentStep);
-      if (currentStep < steps.length - 1) {
-        if (validateStep(currentStep)) {
-          currentStep++;
-          showStep(currentStep);
-        } else {
-          console.log('Validation failed for step:', currentStep);
-          alert('Please fill in all required fields correctly before proceeding.');
-        }
-      } else {
-        // Last step - submit the form
-        if (validateStep(currentStep)) {
-          submitForm();
-        } else {
-          alert('Please review all information before submitting.');
+        if (!field.value.trim()) {
+          if (errEl) errEl.textContent = 'This field is required.';
+          valid = false;
         }
       }
     });
+    return valid;
+  }
 
-    // Previous Button Click
-    document.getElementById('prevBtn').addEventListener('click', () => {
-      console.log('Previous button clicked. Current step:', currentStep);
-      if (currentStep > 0) {
-        currentStep--;
-        showStep(currentStep);
-      }
-    });
-
-    // Validate Step Function
-    function validateStep(stepIndex) {
-      console.log('Validating step:', stepIndex);
-      let isValid = true;
-      const requiredFields = steps[stepIndex].querySelectorAll('[required]');
-      const stepErrors = [];
-
-      requiredFields.forEach(field => {
-        console.log('Checking field:', field.id, 'Value:', field.value);
-        const errorId = getErrorId(field.id);
-        const errorElement = document.getElementById(errorId);
-
-        if (!errorElement) {
-          console.error('Error element not found for field:', field.id, 'Expected ID:', errorId);
-          return;
-        }
-
-        errorElement.textContent = '';
-
-        if (field.type === 'file') {
-          if (field.files.length === 0) {
-            errorElement.textContent = 'Please select at least one file.';
-            isValid = false;
-            stepErrors.push(field.id);
-          }
-        } else if (field.tagName === 'SELECT') {
-          if (!field.value || field.value === field.options[0].value) {
-            errorElement.textContent = 'Please select a valid option.';
-            isValid = false;
-            stepErrors.push(field.id);
-          }
-        } else if (field.id === 'amount') {
-          const value = field.value.trim();
-          if (!value) {
-            errorElement.textContent = 'This field is required.';
-            isValid = false;
-            stepErrors.push(field.id);
-          } else if (isNaN(value) || parseFloat(value) <= 0) {
-            errorElement.textContent = 'Please enter a valid positive number.';
-            isValid = false;
-            stepErrors.push(field.id);
-          }
-        } else {
-          if (!field.value || !field.value.trim()) {
-            errorElement.textContent = 'This field is required.';
-            isValid = false;
-            stepErrors.push(field.id);
-          }
-        }
-      });
-
-      console.log('Validation result for step', stepIndex, ':', isValid, 'Errors:', stepErrors);
-      return isValid;
+  // ==================== NAVIGATION ====================
+  document.getElementById('nextBtn').addEventListener('click', () => {
+    if (currentStep < steps.length - 1) {
+      if (validateStep(currentStep)) { currentStep++; showStep(currentStep); }
+      else showToast('Please fill in all required fields before continuing.', 'error');
+    } else {
+      if (validateStep(currentStep)) submitForm();
+      else showToast('Please review all fields before submitting.', 'error');
     }
+  });
 
-    // Get Error ID
-    function getErrorId(fieldId) {
-      return 'error' + fieldId.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join('');
-    }
+  document.getElementById('prevBtn').addEventListener('click', () => {
+    if (currentStep > 0) { currentStep--; showStep(currentStep); }
+  });
 
-    // Image Preview Functionality
-    document.getElementById('image').addEventListener('change', function(e) {
-      const previewContainer = document.getElementById('image-preview');
-      previewContainer.innerHTML = '';
-      Array.from(e.target.files).forEach((file, index) => {
-        if (file.type.startsWith('image/')) {
-          const reader = new FileReader();
-          reader.onload = function(e) {
-            const div = document.createElement('div');
-            div.className = 'preview-item';
-            const img = document.createElement('img');
-            img.src = e.target.result;
-            const removeBtn = document.createElement('button');
-            removeBtn.className = 'remove-btn';
-            removeBtn.textContent = '×';
-            removeBtn.type = 'button';
-            removeBtn.onclick = function() {
-              div.remove();
-            };
-            div.appendChild(img);
-            div.appendChild(removeBtn);
-            previewContainer.appendChild(div);
-          };
-          reader.readAsDataURL(file);
-        }
-      });
+  // ==================== FILE PREVIEWS ====================
+  document.getElementById('image').addEventListener('change', function() {
+    const container = document.getElementById('image-preview');
+    container.innerHTML = '';
+    Array.from(this.files).forEach(file => {
+      if (!file.type.startsWith('image/')) return;
+      const reader = new FileReader();
+      reader.onload = e => {
+        const div = document.createElement('div'); div.className = 'preview-item';
+        const img = document.createElement('img'); img.src = e.target.result;
+        const btn = document.createElement('button'); btn.className = 'remove-btn'; btn.textContent = '×'; btn.type = 'button';
+        btn.onclick = () => div.remove();
+        div.appendChild(img); div.appendChild(btn); container.appendChild(div);
+      };
+      reader.readAsDataURL(file);
     });
+  });
 
-    // Video Preview Functionality
-    document.getElementById('video').addEventListener('change', function(e) {
-      const previewContainer = document.getElementById('video-preview');
-      previewContainer.innerHTML = '';
-      Array.from(e.target.files).forEach((file, index) => {
-        if (file.type.startsWith('video/')) {
-          const reader = new FileReader();
-          reader.onload = function(e) {
-            const div = document.createElement('div');
-            div.className = 'preview-item';
-            const video = document.createElement('video');
-            video.src = e.target.result;
-            video.controls = true;
-            const removeBtn = document.createElement('button');
-            removeBtn.className = 'remove-btn';
-            removeBtn.textContent = '×';
-            removeBtn.type = 'button';
-            removeBtn.onclick = function() {
-              div.remove();
-            };
-            div.appendChild(video);
-            div.appendChild(removeBtn);
-            previewContainer.appendChild(div);
-          };
-          reader.readAsDataURL(file);
-        }
-      });
+  document.getElementById('video').addEventListener('change', function() {
+    const container = document.getElementById('video-preview');
+    container.innerHTML = '';
+    Array.from(this.files).forEach(file => {
+      if (!file.type.startsWith('video/')) return;
+      const reader = new FileReader();
+      reader.onload = e => {
+        const div = document.createElement('div'); div.className = 'preview-item';
+        const vid = document.createElement('video'); vid.src = e.target.result; vid.controls = true;
+        const btn = document.createElement('button'); btn.className = 'remove-btn'; btn.textContent = '×'; btn.type = 'button';
+        btn.onclick = () => div.remove();
+        div.appendChild(vid); div.appendChild(btn); container.appendChild(div);
+      };
+      reader.readAsDataURL(file);
     });
+  });
 
-    // Submit Form Function
-    function submitForm() {
-      const form = document.getElementById('sell-form');
-      const formData = new FormData(form);
-      const overlay = document.getElementById('uploadOverlay');
-      const spinner = document.getElementById('uploadSpinner');
-      const success = document.getElementById('uploadSuccess');
-      const uploadText = document.getElementById('uploadText');
-      const uploadSubtext = document.getElementById('uploadSubtext');
-      const uploadProgressBar = document.getElementById('uploadProgressBar');
+  document.getElementById('documents').addEventListener('change', function() {
+    const list = document.getElementById('doc-list');
+    list.innerHTML = '';
+    Array.from(this.files).forEach(file => {
+      const div = document.createElement('div'); div.className = 'doc-item';
+      const icon = document.createElement('span'); icon.className = 'material-icons'; icon.textContent = 'insert_drive_file';
+      const name = document.createElement('span'); name.textContent = file.name;
+      div.appendChild(icon); div.appendChild(name); list.appendChild(div);
+    });
+  });
 
-      // Show upload overlay
-      overlay.classList.add('active');
-      spinner.style.display = 'block';
-      success.style.display = 'none';
-      uploadText.textContent = 'Uploading Your Property...';
-      uploadSubtext.textContent = 'Please wait while we process your listing';
+  // ==================== SUBMIT FORM ====================
+  function submitForm() {
+    const form = document.getElementById('sell-form');
+    const formData = new FormData(form);
+    const overlay   = document.getElementById('uploadOverlay');
+    const spinner   = document.getElementById('uploadSpinner');
+    const successEl = document.getElementById('uploadSuccess');
+    const textEl    = document.getElementById('uploadText');
+    const subtextEl = document.getElementById('uploadSubtext');
+    const barEl     = document.getElementById('uploadProgressBar');
 
-      // Simulate progress (you can replace this with actual upload progress)
-      let progress = 0;
-      const progressInterval = setInterval(() => {
-        progress += 10;
-        uploadProgressBar.style.width = progress + '%';
-        if (progress >= 90) {
-          clearInterval(progressInterval);
-        }
-      }, 200);
+    overlay.classList.add('active');
+    spinner.style.display = 'block';
+    successEl.style.display = 'none';
+    textEl.textContent = 'Uploading Your Property...';
+    subtextEl.textContent = 'Please wait while we process your listing';
 
-      // Submit form via AJAX
-      fetch('/upload', {
-        method: 'POST',
-        body: formData
-      })
-      .then(response => {
-        clearInterval(progressInterval);
-        uploadProgressBar.style.width = '100%';
-        
-        if (response.ok) {
-          return response.json();
-        } else {
-          return response.json().then(err => { throw new Error(err.message || 'Upload failed'); });
-        }
-      })
+    let progress = 0;
+    const interval = setInterval(() => {
+      progress += 8;
+      barEl.style.width = Math.min(progress, 90) + '%';
+      if (progress >= 90) clearInterval(interval);
+    }, 200);
+
+    fetch('/upload', { method: 'POST', body: formData })
+      .then(r => r.ok ? r.json() : r.json().then(e => { throw new Error(e.message || 'Upload failed'); }))
       .then(data => {
+        clearInterval(interval);
+        barEl.style.width = '100%';
         if (data.success) {
-          // Show success animation
           setTimeout(() => {
             spinner.style.display = 'none';
-            success.style.display = 'block';
-            uploadText.textContent = 'Upload Successful!';
-            uploadSubtext.textContent = data.message;
-            
-            // Redirect or hide overlay after 3 seconds
+            successEl.style.display = 'block';
+            textEl.textContent = 'Submitted Successfully!';
+            subtextEl.textContent = data.message;
             setTimeout(() => {
               overlay.classList.remove('active');
-              // Optional: redirect to success page
-              // window.location.href = '/success';
-              // Or show confirmation message
               document.getElementById('confirmation').style.display = 'block';
               form.reset();
-              currentStep = 0;
-              showStep(currentStep);
+              ['image-preview','video-preview'].forEach(id => { document.getElementById(id).innerHTML = ''; });
+              document.getElementById('doc-list').innerHTML = '';
+              currentStep = 0; showStep(currentStep);
             }, 3000);
           }, 500);
-        } else {
-          throw new Error(data.message);
-        }
+        } else { throw new Error(data.message); }
       })
-      .catch(error => {
-        console.error('Error:', error);
-        clearInterval(progressInterval);
+      .catch(err => {
+        clearInterval(interval);
         spinner.style.display = 'none';
-        uploadText.textContent = 'Upload Failed';
-        uploadSubtext.textContent = error.message || 'Please try again or contact support';
-        uploadProgressBar.style.width = '0%';
-        
+        textEl.textContent = 'Upload Failed';
+        subtextEl.textContent = err.message || 'Please try again.';
+        barEl.style.width = '0%';
         setTimeout(() => {
           overlay.classList.remove('active');
-          alert('There was an error uploading your property. Please try again.');
-        }, 3000);
+          showToast(err.message || 'Upload failed. Please try again.', 'error');
+        }, 2500);
       });
-    }
+  }
 
-    // Load Listings
-    async function loadListings() {
-      const response = await fetch('/agent/listings');
-      const listings = await response.json();
-      const table = document.getElementById('listings-table');
-      table.innerHTML = listings.map(l => `
-        <tr>
-          <td>${l.title}</td>
-          <td>${l.status}</td>
-          <td><button onclick="editListing(${l.id})">Edit</button></td>
-        </tr>
-      `).join('');
-    }
-    loadListings();
-
-    // Edit Listing (Placeholder)
-    function editListing(id) {
-      alert('Edit functionality - implement modal');
-    }
-
-    // Load Performance
-    async function loadPerformance() {
-      const response = await fetch('/agent/performance');
-      const data = await response.json();
-      document.getElementById('performance-data').innerHTML = `<p>Views: ${data.views}, Inquiries: ${data.inquiries}</p>`;
-    }
-    loadPerformance();
-
-    // Load Leads
-    async function loadLeads() {
-      const response = await fetch('/agent/leads');
-      const leads = await response.json();
-      const table = document.getElementById('leads-table');
-      table.innerHTML = leads.map(l => `
-        <tr>
-          <td>${l.name}</td>
-          <td>${l.email}</td>
-          <td>${l.interest}</td>
-        </tr>
-      `).join('');
-    }
-    loadLeads();
-
-    // Load Inquiries
-    async function loadInquiries() {
-      const response = await fetch('/agent/inquiries');
-      const inquiries = await response.json();
-      const table = document.getElementById('inquiries-table');
-      table.innerHTML = inquiries.map(i => `
-        <tr>
-          <td>${i.client}</td>
-          <td>${i.message}</td>
-          <td><button onclick="respondInquiry(${i.id})">Respond</button></td>
-        </tr>
-      `).join('');
-    }
-    loadInquiries();
-
-    // Respond to Inquiry (Placeholder)
-    function respondInquiry(id) {
-      alert('Respond functionality - implement modal');
-    }
-
-    // Chat
-    async function loadChat() {
-      const response = await fetch('/agent/chat');
-      const messages = await response.json();
-      const chatDiv = document.getElementById('chat-messages');
-      chatDiv.innerHTML = messages.map(m => `<p>${m.sender}: ${m.message}</p>`).join('');
-    }
-    loadChat();
-
-    async function sendMessage() {
-      const message = document.getElementById('chat-input').value;
-      await fetch('/agent/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message }) });
-      document.getElementById('chat-input').value = '';
-      loadChat();
-    }
-
-    // Export Leads
-    async function exportLeads() {
-      const response = await fetch('/agent/leads/export');
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'leads.csv';
-      a.click();
-    }
-
-    // Marketing
-    document.getElementById('marketing-form').addEventListener('submit', async () => {
-      
-      const formData = new FormData(e.target);
-      const response = await fetch('/agent/marketing', { method: 'POST', body: formData });
-      if (response.ok) {
-        showToast('Marketing action applied!', 'success');
-      } else {
-        showToast('Error applying marketing action', 'error');
-      }
+  // ==================== MANAGE LISTINGS TABS ====================
+  document.querySelectorAll('.tab-button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.tab + '-tab').classList.add('active');
     });
+  });
 
-    // Toast Function
-    function showToast(message, type) {
-      const toastContainer = document.getElementById('toast-container');
-      const toast = document.createElement('div');
-      toast.className = `toast ${type}`;
-      toast.textContent = message;
-      toast.setAttribute('role', 'alert');
-      toast.setAttribute('aria-live', 'assertive');
-      toastContainer.appendChild(toast);
-      setTimeout(() => {
-        toast.style.animation = 'slideOut 0.3s ease-in';
-        setTimeout(() => toast.remove(), 300);
-      }, 5000);
-    }
-
-    // Add slide-out animation to CSS if not present
-    const style = document.createElement('style');
-    style.textContent = `
-      @keyframes slideOut {
-        from { transform: translateX(0); opacity: 1; }
-        to { transform: translateX(100%); opacity: 0; }
+  async function loadListings() {
+    const map = {
+      pending:  { endpoint: '/agent/listings/pending',  tableId: 'pending-table',  badgeClass: 'badge-pending' },
+      approved: { endpoint: '/agent/listings/approved', tableId: 'approved-table', badgeClass: 'badge-approved' },
+      sold:     { endpoint: '/agent/listings/sold',     tableId: 'sold-table',     badgeClass: 'badge-sold' }
+    };
+    for (const [type, cfg] of Object.entries(map)) {
+      try {
+        const res   = await fetch(cfg.endpoint);
+        const items = await res.json();
+        const tbody = document.getElementById(cfg.tableId);
+        if (!Array.isArray(items) || items.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="3" style="text-align:center;color:#6b7280;padding:1.5rem">No ${type} listings</td></tr>`;
+        } else {
+          tbody.innerHTML = items.map(l => `
+            <tr>
+              <td style="font-weight:600">${l.title || 'Untitled'}</td>
+              <td><span class="badge ${cfg.badgeClass}">${l.status || type}</span></td>
+              <td>
+                <a href="/property-detail?id=${l.id}" style="color:#1761a0;text-decoration:none;font-weight:600;display:inline-flex;align-items:center;gap:3px">
+                  <span class="material-icons" style="font-size:15px">visibility</span> View
+                </a>
+              </td>
+            </tr>`).join('');
+        }
+      } catch(e) {
+        document.getElementById(cfg.tableId).innerHTML = `<tr><td colspan="3" style="text-align:center;color:#ef4444">Failed to load ${type} listings</td></tr>`;
       }
-    `;
-    document.head.appendChild(style);
+    }
+  }
+  loadListings();
 
-    // Initialize Wizard
-    showStep(currentStep);
-  </script>
+  // ==================== TOAST ====================
+  function showToast(message, type = 'success') {
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.textContent = message;
+    container.appendChild(toast);
+    setTimeout(() => {
+      toast.style.animation = 'slideOut 0.3s ease-in';
+      setTimeout(() => toast.remove(), 300);
+    }, 5000);
+  }
+
+  // ==================== INIT ====================
+  showStep(0);
+</script>
 </body>
 </html>
