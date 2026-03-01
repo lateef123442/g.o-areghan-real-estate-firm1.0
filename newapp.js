@@ -403,7 +403,7 @@ newapp2.get('/buy-page.html', ensureAuthenticated, async (req, res) => {
     if (!req.user) return res.status(401).send('Unauthorized');
     const isAdmin = isAdminEmail(req.user.email);
     try {
-        const [card] = await db.query("SELECT * FROM all_properties WHERE rentSell = 'sell'");
+        const [card] = await db.query("SELECT * FROM all_properties WHERE LOWER(rentSell) = 'sell'");
         res.render('buy-page', { card, isAdmin });
     } catch (err) { console.error(err.message); res.status(500).send('Server error'); }
 });
@@ -426,7 +426,7 @@ newapp2.get('/rent-page.html', ensureAuthenticated, async (req, res) => {
     if (!req.user) return res.status(401).send('Unauthorized');
     const isAdmin = isAdminEmail(req.user.email);
     try {
-        const [card] = await db.query("SELECT * FROM all_properties WHERE rentSell = 'rent'");
+        const [card] = await db.query("SELECT * FROM all_properties WHERE LOWER(rentSell) = 'rent'");
         res.render('rent-page', { card, isAdmin });
     } catch (err) { console.error(err.message); res.status(500).send('Server error'); }
 });
@@ -496,7 +496,7 @@ newapp2.get('/track-sales.html', ensureAuthenticated, async (req, res) => {
             db.query("SELECT COUNT(*) as count FROM sold_properties"),
             db.query("SELECT COUNT(DISTINCT email) as count FROM signin"),
             db.query("SELECT COUNT(*) as count FROM sold_properties WHERE MONTH(created_at) = MONTH(CURDATE()) AND YEAR(created_at) = YEAR(CURDATE())"),
-            db.query("SELECT `property-type` as type, COUNT(*) as count FROM all_properties WHERE `property-type` IN ('Plots of Land', 'Duplex', 'Bungalow', 'Storey Building', 'Self Contain', 'Flat', 'Apartment') GROUP BY `property-type`"),
+            db.query("SELECT `property-type` as type, COUNT(*) as count FROM all_properties WHERE `property-type` IN ('Duplex','Bungalow','Storey Building','Flat','Apartment','Mini Flat','Self Contain','Single Room','Detached House','Semi-Detached House','Terrace House','Commercial Building','Warehouse','Land and Building','Building and Machinery','Plant and Machinery','Chattels','Plots of Land') GROUP BY `property-type`"),
             db.query(
                 "SELECT DATE_FORMAT(created_at, '%b %Y') as month, COUNT(*) as count " +
                 "FROM sold_properties WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH) " +
@@ -849,7 +849,7 @@ newapp2.get('/buy-search-form', ensureAuthenticated, async (req, res) => {
     if (!req.user) return res.status(401).send('Unauthorized');
     const isAdmin = isAdminEmail(req.user.email);
     const { location, min_price, max_price, min_beds, min_baths } = req.query;
-    let query = "SELECT * FROM all_properties WHERE rentSell = 'sell'";
+    let query = "SELECT * FROM all_properties WHERE LOWER(rentSell) = 'sell'";
     let queryParams = [];
     if (location && location.trim())     { query += " AND propertyAddress LIKE ?"; queryParams.push(`%${location}%`); }
     if (min_price && !isNaN(min_price))  { query += " AND amount >= ?"; queryParams.push(parseInt(min_price)); }
@@ -864,7 +864,7 @@ newapp2.get('/buy-search-form', ensureAuthenticated, async (req, res) => {
 
 // ==================== CUSTOMER-FACING PAGES ====================
 newapp2.get('/customer-buy-page.html', async (req, res) => {
-    let query = "SELECT * FROM all_properties WHERE rentSell = 'sell'";
+    let query = "SELECT * FROM all_properties WHERE LOWER(rentSell) = 'sell'";
     let params = [];
     if (req.query.property_type && req.query.property_type !== 'all') { query += " AND `property-type` = ?"; params.push(req.query.property_type); }
     try {
@@ -874,7 +874,7 @@ newapp2.get('/customer-buy-page.html', async (req, res) => {
 });
 
 newapp2.get('/costumer-sell-page.html', async (req, res) => {
-    let query = "SELECT * FROM all_properties WHERE rentSell = 'Rent'";
+    let query = "SELECT * FROM all_properties WHERE LOWER(rentSell) = 'rent'";
     let params = [];
     if (req.query.property_type && req.query.property_type !== 'all') { query += " AND `property-type` = ?"; params.push(req.query.property_type); }
     try {
@@ -884,7 +884,7 @@ newapp2.get('/costumer-sell-page.html', async (req, res) => {
 });
 
 newapp2.get('/customer-rent-page.html', async (req, res) => {
-    let query = "SELECT * FROM all_properties WHERE rentSell = 'Rent'";
+    let query = "SELECT * FROM all_properties WHERE LOWER(rentSell) = 'rent'";
     let params = [];
     if (req.query.property_type && req.query.property_type !== 'all') { query += " AND `property-type` = ?"; params.push(req.query.property_type); }
     try {
@@ -1392,31 +1392,33 @@ newapp2.get('/chat', ensureAuthenticated, async (req, res) => {
             );
             res.render('chat', { messages, userId, receiverId, success: successMessage, receiverName, isAgent, chatList: null });
         } else {
-            const [chatList] = await db.query(`
+            // Get distinct conversation partners + last message via simple JOIN
+            const [partnerRows] = await db.query(`
                 SELECT DISTINCT
-                    CASE WHEN cm.sender_id = ? THEN cm.receiver_id ELSE cm.sender_id END AS receiverId,
-                    s.firstName, s.lastName, s.role,
-                    (SELECT message FROM chat_messages
-                     WHERE (sender_id = ? AND receiver_id = CASE WHEN cm.sender_id = ? THEN cm.receiver_id ELSE cm.sender_id END)
-                        OR (sender_id = CASE WHEN cm.sender_id = ? THEN cm.receiver_id ELSE cm.sender_id END AND receiver_id = ?)
-                     ORDER BY timestamp DESC LIMIT 1) AS lastMessage,
-                    (SELECT timestamp FROM chat_messages
-                     WHERE (sender_id = ? AND receiver_id = CASE WHEN cm.sender_id = ? THEN cm.receiver_id ELSE cm.sender_id END)
-                        OR (sender_id = CASE WHEN cm.sender_id = ? THEN cm.receiver_id ELSE cm.sender_id END AND receiver_id = ?)
-                     ORDER BY timestamp DESC LIMIT 1) AS lastMessageTime
-                FROM chat_messages cm
-                JOIN signin s ON s.id = CASE WHEN cm.sender_id = ? THEN cm.receiver_id ELSE cm.sender_id END
-                WHERE cm.sender_id = ? OR cm.receiver_id = ?
-                ORDER BY lastMessageTime DESC`,
-                [userId, userId, userId, userId, userId, userId, userId, userId, userId, userId, userId, userId]
-            );
-            const processedChatList = chatList.map(chat => ({
-                receiverId: chat.receiverId,
-                receiverName: `${chat.firstName || ''} ${chat.lastName || ''}`.trim() || 'Unknown',
-                isAgent: chat.role === 'agent',
-                lastMessage: chat.lastMessage,
-                lastMessageTime: chat.lastMessageTime
-            }));
+                    CASE WHEN sender_id = ? THEN receiver_id ELSE sender_id END AS receiverId
+                FROM chat_messages
+                WHERE sender_id = ? OR receiver_id = ?
+            `, [userId, userId, userId]);
+
+            const processedChatList = (await Promise.all(partnerRows.map(async (row) => {
+                const partnerId = row.receiverId;
+                const [[uRows], [msgRows]] = await Promise.all([
+                    db.query('SELECT firstName, lastName, role FROM signin WHERE id = ?', [partnerId]),
+                    db.query(`SELECT message, timestamp FROM chat_messages
+                        WHERE (sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?)
+                        ORDER BY timestamp DESC LIMIT 1`, [userId, partnerId, partnerId, userId])
+                ]);
+                const u   = uRows[0]   || {};
+                const msg = msgRows[0] || {};
+                return {
+                    receiverId: partnerId,
+                    receiverName: `${u.firstName || ''} ${u.lastName || ''}`.trim() || 'Unknown',
+                    isAgent: u.role === 'agent',
+                    lastMessage: msg.message || '',
+                    lastMessageTime: msg.timestamp || null
+                };
+            }))).sort((a, b) => (b.lastMessageTime || 0) > (a.lastMessageTime || 0) ? 1 : -1);
+
             res.render('chat', { messages: null, userId, receiverId: null, success: successMessage, receiverName: null, isAgent: null, chatList: processedChatList });
         }
     } catch (err) { console.error(err); res.status(500).send('Error loading chat'); }
@@ -1466,25 +1468,34 @@ newapp2.get('/agent-chat', ensureAuthenticated, async (req, res) => {
             );
             res.render('agent-chat', { messages, userId, receiverId, receiverName, isClient, chatList: null });
         } else {
-            const [chatList] = await db.query(`
+            // Step 1: get distinct partner IDs (sent OR received)
+            const [partnerRows] = await db.query(`
                 SELECT DISTINCT
-                    CASE WHEN cm.sender_id = ? THEN cm.receiver_id ELSE cm.sender_id END AS receiverId,
-                    s.firstName, s.lastName, s.role,
-                    (SELECT message FROM chat_messages WHERE (sender_id = ? AND receiver_id = CASE WHEN cm.sender_id = ? THEN cm.receiver_id ELSE cm.sender_id END) OR (sender_id = CASE WHEN cm.sender_id = ? THEN cm.receiver_id ELSE cm.sender_id END AND receiver_id = ?) ORDER BY timestamp DESC LIMIT 1) AS lastMessage,
-                    (SELECT timestamp FROM chat_messages WHERE (sender_id = ? AND receiver_id = CASE WHEN cm.sender_id = ? THEN cm.receiver_id ELSE cm.sender_id END) OR (sender_id = CASE WHEN cm.sender_id = ? THEN cm.receiver_id ELSE cm.sender_id END AND receiver_id = ?) ORDER BY timestamp DESC LIMIT 1) AS lastMessageTime
-                FROM chat_messages cm
-                JOIN signin s ON s.id = CASE WHEN cm.sender_id = ? THEN cm.receiver_id ELSE cm.sender_id END
-                WHERE cm.receiver_id = ?
-                ORDER BY lastMessageTime DESC`,
-                [userId, userId, userId, userId, userId, userId, userId, userId, userId, userId, userId, userId]
-            );
-            const processedChatList = chatList.map(chat => ({
-                receiverId: chat.receiverId,
-                receiverName: `${chat.firstName || ''} ${chat.lastName || ''}`.trim() || 'Client',
-                isClient: chat.role === 'user',
-                lastMessage: chat.lastMessage,
-                lastMessageTime: chat.lastMessageTime
-            }));
+                    CASE WHEN sender_id = ? THEN receiver_id ELSE sender_id END AS partnerId
+                FROM chat_messages
+                WHERE sender_id = ? OR receiver_id = ?
+            `, [userId, userId, userId]);
+
+            // Step 2: fetch user info + last message per partner in JS
+            const processedChatList = (await Promise.all(partnerRows.map(async (row) => {
+                const partnerId = row.partnerId;
+                const [[uRows], [msgRows]] = await Promise.all([
+                    db.query('SELECT firstName, lastName, role FROM signin WHERE id = ?', [partnerId]),
+                    db.query(`SELECT message, timestamp FROM chat_messages
+                        WHERE (sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?)
+                        ORDER BY timestamp DESC LIMIT 1`, [userId, partnerId, partnerId, userId])
+                ]);
+                const u   = uRows[0]   || {};
+                const msg = msgRows[0] || {};
+                return {
+                    receiverId:      partnerId,
+                    receiverName:    `${u.firstName || ''} ${u.lastName || ''}`.trim() || 'Client',
+                    isClient:        u.role === 'user',
+                    lastMessage:     msg.message   || '',
+                    lastMessageTime: msg.timestamp || null
+                };
+            }))).sort((a, b) => (b.lastMessageTime || 0) > (a.lastMessageTime || 0) ? 1 : -1);
+
             res.render('agent-chat', { messages: null, userId, receiverId: null, receiverName: null, isClient: null, chatList: processedChatList });
         }
     } catch (err) { console.error(err); res.status(500).send('Error loading chats'); }
@@ -1508,80 +1519,122 @@ newapp2.get('/admin-chat', ensureAuthenticated, async (req, res) => {
     const adminId = req.user.id;
     const adminName = `${req.user.firstName || ''} ${req.user.lastName || ''}`.trim() || 'Admin';
 
+    let allThreads = [];
+    let myChats    = [];
+    let allUsers   = [];
+
     try {
-        // 1. All unique conversation threads (between any two non-admin users)
-        const [threadRows] = await db.query(`
+        // ── 1. All unique pairs (excluding admin) ──────────────────────────
+        // Simple: get all distinct pairs + the id of the latest message
+        const [pairRows] = await db.query(`
             SELECT
-                LEAST(cm.sender_id, cm.receiver_id) AS user1Id,
-                GREATEST(cm.sender_id, cm.receiver_id) AS user2Id,
-                MAX(cm.timestamp) AS lastTime,
-                (SELECT message FROM chat_messages
-                 WHERE (sender_id = LEAST(cm.sender_id, cm.receiver_id) AND receiver_id = GREATEST(cm.sender_id, cm.receiver_id))
-                    OR (sender_id = GREATEST(cm.sender_id, cm.receiver_id) AND receiver_id = LEAST(cm.sender_id, cm.receiver_id))
-                 ORDER BY timestamp DESC LIMIT 1) AS lastMessage
-            FROM chat_messages cm
-            WHERE cm.sender_id != ? AND cm.receiver_id != ?
-            GROUP BY LEAST(cm.sender_id, cm.receiver_id), GREATEST(cm.sender_id, cm.receiver_id)
+                LEAST(sender_id, receiver_id)    AS user1Id,
+                GREATEST(sender_id, receiver_id) AS user2Id,
+                MAX(id)                          AS lastMsgId,
+                MAX(timestamp)                   AS lastTime
+            FROM chat_messages
+            WHERE sender_id != ? AND receiver_id != ?
+            GROUP BY LEAST(sender_id, receiver_id), GREATEST(sender_id, receiver_id)
             ORDER BY lastTime DESC
         `, [adminId, adminId]);
 
-        // Enrich threads with user names and roles
-        const allThreads = await Promise.all(threadRows.map(async (t) => {
-            const [u1] = await db.query('SELECT firstName, lastName, role FROM signin WHERE id = ?', [t.user1Id]);
-            const [u2] = await db.query('SELECT firstName, lastName, role FROM signin WHERE id = ?', [t.user2Id]);
-            const u1name = u1.length ? `${u1[0].firstName || ''} ${u1[0].lastName || ''}`.trim() : `User ${t.user1Id}`;
-            const u2name = u2.length ? `${u2[0].firstName || ''} ${u2[0].lastName || ''}`.trim() : `User ${t.user2Id}`;
-            return {
-                user1Id: t.user1Id, user2Id: t.user2Id,
-                user1Name: u1name, user2Name: u2name,
-                user1Role: u1.length ? u1[0].role : 'user',
-                user2Role: u2.length ? u2[0].role : 'user',
-                lastMessage: t.lastMessage || '',
-                lastTime: t.lastTime
-            };
+        // Fetch last message text + user details in JS (simple, avoids correlated SQL)
+        allThreads = await Promise.all(pairRows.map(async (p) => {
+            try {
+                const [[lastMsg], [u1Rows], [u2Rows]] = await Promise.all([
+                    db.query('SELECT message FROM chat_messages WHERE id = ?', [p.lastMsgId]),
+                    db.query('SELECT firstName, lastName, role FROM signin WHERE id = ?', [p.user1Id]),
+                    db.query('SELECT firstName, lastName, role FROM signin WHERE id = ?', [p.user2Id])
+                ]);
+                const u1 = u1Rows[0] || {};
+                const u2 = u2Rows[0] || {};
+                return {
+                    user1Id:   p.user1Id,
+                    user2Id:   p.user2Id,
+                    user1Name: `${u1.firstName || ''} ${u1.lastName || ''}`.trim() || `User ${p.user1Id}`,
+                    user2Name: `${u2.firstName || ''} ${u2.lastName || ''}`.trim() || `User ${p.user2Id}`,
+                    user1Role: u1.role || 'user',
+                    user2Role: u2.role || 'user',
+                    lastMessage: (lastMsg[0] && lastMsg[0].message) || '',
+                    lastTime:  p.lastTime
+                };
+            } catch (e) {
+                console.error('Thread enrich error:', e.message);
+                return null;
+            }
         }));
+        allThreads = allThreads.filter(Boolean);
 
-        // 2. Admin's own private conversations
-        const [myRows] = await db.query(`
+    } catch (err) {
+        console.error('Admin chat – threads query error:', err.message);
+        // continue with empty allThreads
+    }
+
+    try {
+        // ── 2. Admin's own conversations ──────────────────────────────────
+        // Step A: get distinct partner IDs
+        const [partnerRows] = await db.query(`
             SELECT DISTINCT
-                CASE WHEN cm.sender_id = ? THEN cm.receiver_id ELSE cm.sender_id END AS receiverId,
-                s.firstName, s.lastName, s.role,
-                (SELECT message FROM chat_messages
-                 WHERE (sender_id = ? AND receiver_id = CASE WHEN cm.sender_id = ? THEN cm.receiver_id ELSE cm.sender_id END)
-                    OR (sender_id = CASE WHEN cm.sender_id = ? THEN cm.receiver_id ELSE cm.sender_id END AND receiver_id = ?)
-                 ORDER BY timestamp DESC LIMIT 1) AS lastMessage,
-                (SELECT timestamp FROM chat_messages
-                 WHERE (sender_id = ? AND receiver_id = CASE WHEN cm.sender_id = ? THEN cm.receiver_id ELSE cm.sender_id END)
-                    OR (sender_id = CASE WHEN cm.sender_id = ? THEN cm.receiver_id ELSE cm.sender_id END AND receiver_id = ?)
-                 ORDER BY timestamp DESC LIMIT 1) AS lastTime
-            FROM chat_messages cm
-            JOIN signin s ON s.id = CASE WHEN cm.sender_id = ? THEN cm.receiver_id ELSE cm.sender_id END
-            WHERE cm.sender_id = ? OR cm.receiver_id = ?
-            ORDER BY lastTime DESC
-        `, [adminId, adminId, adminId, adminId, adminId, adminId, adminId, adminId, adminId, adminId, adminId, adminId]);
+                CASE WHEN sender_id = ? THEN receiver_id ELSE sender_id END AS partnerId
+            FROM chat_messages
+            WHERE sender_id = ? OR receiver_id = ?
+        `, [adminId, adminId, adminId]);
 
-        const myChats = myRows.map(c => ({
-            receiverId: c.receiverId,
-            receiverName: `${c.firstName || ''} ${c.lastName || ''}`.trim() || 'Unknown',
-            role: c.role,
-            lastMessage: c.lastMessage || '',
-            lastTime: c.lastTime
+        // Step B: for each partner fetch user info + last message
+        myChats = await Promise.all(partnerRows.map(async (row) => {
+            try {
+                const partnerId = row.partnerId;
+                const [[uRows], [msgRows]] = await Promise.all([
+                    db.query('SELECT firstName, lastName, role FROM signin WHERE id = ?', [partnerId]),
+                    db.query(`
+                        SELECT message, timestamp FROM chat_messages
+                        WHERE (sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?)
+                        ORDER BY timestamp DESC LIMIT 1
+                    `, [adminId, partnerId, partnerId, adminId])
+                ]);
+                const u   = uRows[0]   || {};
+                const msg = msgRows[0] || {};
+                return {
+                    receiverId:   partnerId,
+                    receiverName: `${u.firstName || ''} ${u.lastName || ''}`.trim() || `User ${partnerId}`,
+                    role:         u.role || 'user',
+                    lastMessage:  msg.message   || '',
+                    lastTime:     msg.timestamp || null
+                };
+            } catch (e) {
+                console.error('MyChats enrich error:', e.message);
+                return null;
+            }
         }));
+        myChats = myChats
+            .filter(Boolean)
+            .sort((a, b) => (b.lastTime || 0) > (a.lastTime || 0) ? 1 : -1);
 
-        // 3. All users (agents + customers) for new chat modal
-        const [allUsers] = await db.query(
+    } catch (err) {
+        console.error('Admin chat – myChats query error:', err.message);
+        // continue with empty myChats
+    }
+
+    try {
+        // ── 3. All users for the new-chat modal ───────────────────────────
+        const [rows] = await db.query(
             "SELECT id, firstName, lastName, email, role FROM signin WHERE role IN ('agent','user') AND id != ? ORDER BY role, firstName",
             [adminId]
         );
+        allUsers = rows;
+    } catch (err) {
+        console.error('Admin chat – allUsers query error:', err.message);
+    }
 
-        res.render('admin-chat', {
-            adminId, adminName,
-            allThreads,
-            myChats,
-            allUsers,
-            isAdmin: isAdminEmail(req.user.email)
-        });
-    } catch (err) { console.error('Admin chat load error:', err); res.status(500).send('Server error'); }
+    // Always render — never 500 the whole page
+    res.render('admin-chat', {
+        adminId,
+        adminName,
+        allThreads,
+        myChats,
+        allUsers,
+        isAdmin: isAdminEmail(req.user.email)
+    });
 });
 
 // GET /admin-chat/thread — fetch messages between any two users
