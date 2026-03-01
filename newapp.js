@@ -153,6 +153,7 @@ async function connectWithRetry(retries = 5, delayMs = 3000) {
         try {
             await db.query('SELECT 1');
             console.log('✅ Database Connected!');
+            await ensureChatTable();
             return;
         } catch (err) {
             console.error(`❌ DB connection attempt ${i}/${retries} failed: ${err.message}`);
@@ -165,6 +166,35 @@ async function connectWithRetry(retries = 5, delayMs = 3000) {
         }
     }
 }
+
+// Ensure chat_messages exists with the correct schema
+async function ensureChatTable() {
+    try {
+        await db.query(`
+            CREATE TABLE IF NOT EXISTS chat_messages (
+                id          INT AUTO_INCREMENT PRIMARY KEY,
+                sender_id   INT      NOT NULL,
+                receiver_id INT      NOT NULL,
+                message     TEXT     NOT NULL,
+                timestamp   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                INDEX idx_sender   (sender_id),
+                INDEX idx_receiver (receiver_id),
+                INDEX idx_time     (timestamp)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+        `);
+        console.log('✅ chat_messages table ready');
+    } catch (err) {
+        console.warn('chat_messages table note:', err.message);
+        try {
+            await db.query(
+                'ALTER TABLE chat_messages ADD COLUMN timestamp DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP'
+            );
+            console.log('✅ Added timestamp column to chat_messages');
+        } catch (e) { /* column already exists */ }
+    }
+}
+
+
 
 // ==================== STATIC FILES ====================
 newapp2.set('views', path.join(__dirname, 'views'));
@@ -1525,12 +1555,11 @@ newapp2.get('/admin-chat', ensureAuthenticated, async (req, res) => {
 
     try {
         // ── 1. All unique pairs (excluding admin) ──────────────────────────
-        // Simple: get all distinct pairs + the id of the latest message
+        // Use MAX(timestamp) only — no reliance on 'id' column name
         const [pairRows] = await db.query(`
             SELECT
                 LEAST(sender_id, receiver_id)    AS user1Id,
                 GREATEST(sender_id, receiver_id) AS user2Id,
-                MAX(id)                          AS lastMsgId,
                 MAX(timestamp)                   AS lastTime
             FROM chat_messages
             WHERE sender_id != ? AND receiver_id != ?
@@ -1538,25 +1567,28 @@ newapp2.get('/admin-chat', ensureAuthenticated, async (req, res) => {
             ORDER BY lastTime DESC
         `, [adminId, adminId]);
 
-        // Fetch last message text + user details in JS (simple, avoids correlated SQL)
         allThreads = await Promise.all(pairRows.map(async (p) => {
             try {
-                const [[lastMsg], [u1Rows], [u2Rows]] = await Promise.all([
-                    db.query('SELECT message FROM chat_messages WHERE id = ?', [p.lastMsgId]),
+                const [[u1Rows], [u2Rows], [lastMsgRows]] = await Promise.all([
                     db.query('SELECT firstName, lastName, role FROM signin WHERE id = ?', [p.user1Id]),
-                    db.query('SELECT firstName, lastName, role FROM signin WHERE id = ?', [p.user2Id])
+                    db.query('SELECT firstName, lastName, role FROM signin WHERE id = ?', [p.user2Id]),
+                    db.query(`SELECT message FROM chat_messages
+                        WHERE ((sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?))
+                        ORDER BY timestamp DESC LIMIT 1`,
+                        [p.user1Id, p.user2Id, p.user2Id, p.user1Id])
                 ]);
-                const u1 = u1Rows[0] || {};
-                const u2 = u2Rows[0] || {};
+                const u1  = u1Rows[0]      || {};
+                const u2  = u2Rows[0]      || {};
+                const msg = lastMsgRows[0] || {};
                 return {
-                    user1Id:   p.user1Id,
-                    user2Id:   p.user2Id,
-                    user1Name: `${u1.firstName || ''} ${u1.lastName || ''}`.trim() || `User ${p.user1Id}`,
-                    user2Name: `${u2.firstName || ''} ${u2.lastName || ''}`.trim() || `User ${p.user2Id}`,
-                    user1Role: u1.role || 'user',
-                    user2Role: u2.role || 'user',
-                    lastMessage: (lastMsg[0] && lastMsg[0].message) || '',
-                    lastTime:  p.lastTime
+                    user1Id:     p.user1Id,
+                    user2Id:     p.user2Id,
+                    user1Name:   `${u1.firstName || ''} ${u1.lastName || ''}`.trim() || `User ${p.user1Id}`,
+                    user2Name:   `${u2.firstName || ''} ${u2.lastName || ''}`.trim() || `User ${p.user2Id}`,
+                    user1Role:   u1.role || 'user',
+                    user2Role:   u2.role || 'user',
+                    lastMessage: msg.message || '',
+                    lastTime:    p.lastTime
                 };
             } catch (e) {
                 console.error('Thread enrich error:', e.message);
@@ -1567,7 +1599,6 @@ newapp2.get('/admin-chat', ensureAuthenticated, async (req, res) => {
 
     } catch (err) {
         console.error('Admin chat – threads query error:', err.message);
-        // continue with empty allThreads
     }
 
     try {
