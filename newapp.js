@@ -29,7 +29,8 @@ newapp2.use(express.json());
 newapp2.use(express.urlencoded({ extended: true }));
 
 // ==================== ADMIN EMAILS ====================
-const ADMIN_EMAILS = ['ibarealestate2023@gmail.com', 'esvgoddey@gmail.com'];
+// NOTE: ibarealestate2023@gmail.com removed — all admin notifications go to goareghanconsulting@gmail.com
+const ADMIN_EMAILS = ['goareghanconsulting@gmail.com', 'esvgoddey@gmail.com'];
 
 function isAdminEmail(email) {
     return ADMIN_EMAILS.includes(email);
@@ -1872,10 +1873,10 @@ newapp2.post('/request-evaluation', async (req, res) => {
             console.warn('Could not save evaluation request to DB:', dbErr.message);
         }
 
-        // Send email to admins
+        // ── Send evaluation request email ONLY to goareghanconsulting@gmail.com ──
         await transporter.sendMail({
             from: `"G.O AREGHAN Real Estate Firm & Consultant" <${process.env.EMAIL_USER || 'goareghanconsulting@gmail.com'}>`,
-            to: ADMIN_EMAILS.join(','),
+            to: 'goareghanconsulting@gmail.com',
             subject: `Property Evaluation Request from ${name}`,
             html: `
                 <h2 style="color:#2c3e50;">New Property Evaluation Request</h2>
