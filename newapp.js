@@ -30,7 +30,7 @@ newapp2.use(express.urlencoded({ extended: true }));
 
 // ==================== ADMIN EMAILS ====================
 // NOTE: ibarealestate2023@gmail.com removed — all admin notifications go to goareghanconsulting@gmail.com
-const ADMIN_EMAILS = ['goareghanconsulting@gmail.com', 'esvgoddey@gmail.com'];
+const ADMIN_EMAILS = ['goareghanconsulting@gmail.com', 'esvgoddey@gmail.com', 'ibarealestate2023@gmail.com'];
 
 function isAdminEmail(email) {
     return ADMIN_EMAILS.includes(email);
@@ -1965,3 +1965,4 @@ connectWithRetry().then(() => {
 }).catch(() => {
     server.listen(PORT, '0.0.0.0', () => console.log(`⚠️  Server started (DB may be unavailable)`));
 });
+
