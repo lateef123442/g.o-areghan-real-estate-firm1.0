@@ -985,34 +985,68 @@ newapp2.post('/detail-contact', ensureAuthenticated, async (req, res) => {
     try {
         const [propResults] = await db.query("SELECT agentId FROM all_properties WHERE id = ?", [propertyId]);
         if (propResults.length === 0) return res.status(404).json({ success: false, message: 'Property not found' });
+
         const agentId = propResults[0].agentId;
-        let recipientEmail = ADMIN_EMAILS.join(',');
+        let recipientEmail = 'goareghanconsulting@gmail.com'; // default recipient
         let receiverId = null;
+
+        // 1. Try to find the property's agent
         if (agentId) {
             const [agentResults] = await db.query("SELECT id, email FROM signin WHERE id = ? AND role = 'agent'", [agentId]);
-            if (agentResults.length > 0 && agentResults[0].email) { recipientEmail = agentResults[0].email; receiverId = agentId; }
+            if (agentResults.length > 0 && agentResults[0].email) {
+                recipientEmail = agentResults[0].email;
+                receiverId = agentResults[0].id;
+            }
         }
+
+        // 2. No agent — find any registered admin from ADMIN_EMAILS to use as chat receiver
         if (!receiverId) {
-            const [adminResults] = await db.query("SELECT id FROM signin WHERE email = 'goareghanconsulting@gmail.com' LIMIT 1");
-            if (adminResults.length === 0) {
-                const [adminResults2] = await db.query("SELECT id FROM signin WHERE email = 'goareghanconsulting@gmail.com' LIMIT 1");
-                if (adminResults2.length === 0) return res.status(500).json({ success: false, message: 'Admin not found' });
-                receiverId = adminResults2[0].id;
-            } else { receiverId = adminResults[0].id; }
+            for (const adminEmail of ADMIN_EMAILS) {
+                const [adminRows] = await db.query("SELECT id FROM signin WHERE email = ? LIMIT 1", [adminEmail]);
+                if (adminRows.length > 0) {
+                    receiverId = adminRows[0].id;
+                    break;
+                }
+            }
         }
-        transporter.sendMail({
-            from: `"G.O AREGHAN Real Estate Firm & Consultant" <${process.env.EMAIL_USER || 'goareghanconsulting@gmail.com'}>`,
-            to: recipientEmail,
-            subject: 'New Contact Message from Property Detail Page',
-            html: `<h2>New Contact Message</h2><p><strong>Name:</strong> ${name}</p><p><strong>Email:</strong> ${email}</p><p><strong>Phone:</strong> ${phone}</p><p>${message.replace(/\n/g, '<br>')}</p>`
-        }, async (error) => {
-            if (error) { console.error(error); return res.status(500).json({ success: false, message: 'Failed to send email.' }); }
+
+        // 3. Send email — always CC goareghanconsulting@gmail.com
+        try {
+            await transporter.sendMail({
+                from: `"G.O AREGHAN Real Estate Firm & Consultant" <${process.env.EMAIL_USER || 'goareghanconsulting@gmail.com'}>`,
+                to: recipientEmail,
+                cc: 'goareghanconsulting@gmail.com',
+                subject: 'New Contact Message from Property Detail Page',
+                html: \`<h2>New Contact Inquiry</h2>
+                    <p><strong>Name:</strong> \${name}</p>
+                    <p><strong>Email:</strong> \${email}</p>
+                    <p><strong>Phone:</strong> \${phone}</p>
+                    <p><strong>Property ID:</strong> \${propertyId}</p>
+                    <p><strong>Message:</strong><br>\${message.replace(/\n/g, '<br>')}</p>\`
+            });
+        } catch (mailErr) {
+            console.error('detail-contact email error:', mailErr.message);
+            // Don't block the response — still save chat
+        }
+
+        // 4. Save to chat if we have a valid receiver
+        if (receiverId) {
             try {
-                await db.query('INSERT INTO chat_messages (sender_id, receiver_id, message) VALUES (?, ?, ?)', [userId, receiverId, message]);
-                res.redirect('/chat?success=Message sent! Redirecting to chat...');
-            } catch (insertErr) { console.error(insertErr); res.status(500).json({ success: false, message: 'Message sent via email, but chat save failed.' }); }
-        });
-    } catch (err) { console.error(err); res.status(500).json({ success: false, message: 'Server error' }); }
+                await db.query(
+                    'INSERT INTO chat_messages (sender_id, receiver_id, message) VALUES (?, ?, ?)',
+                    [userId, receiverId, message]
+                );
+            } catch (chatErr) {
+                console.warn('detail-contact chat save failed:', chatErr.message);
+            }
+        }
+
+        res.redirect('/chat?success=Message sent! Redirecting to chat...');
+
+    } catch (err) {
+        console.error('detail-contact error:', err);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
 });
 
 // ==================== LOGOUT ====================
@@ -1774,35 +1808,47 @@ newapp2.post('/valuate', ensureAuthenticated, async (req, res) => {
 
 // ==================== REQUEST PROPERTY EVALUATION ====================
 // POST /request-evaluation — anyone can submit a property evaluation request
-// Sends an email to admins with the requester's details and property info
+// Accepts both plain field names (name, phone, ...) AND the val_ prefixed names
+// from the website homepage form (val_name, val_phone, val_address, val_type, val_purpose)
 newapp2.post('/request-evaluation', async (req, res) => {
-    const {
-        name, email, phone,
-        propertyAddress, propertyType, landSize,
-        buildingSize, bedrooms, bathrooms,
-        additionalInfo
-    } = req.body;
+    const b = req.body;
 
-    if (!name || !email || !phone || !propertyAddress) {
-        return res.status(400).json({ success: false, message: 'Name, email, phone and property address are required.' });
+    // Support both naming conventions from different forms
+    const name            = b.name            || b.val_name    || '';
+    const phone           = b.phone           || b.val_phone   || '';
+    const email           = b.email           || b.val_email   || ''; // optional
+    const propertyAddress = b.propertyAddress || b.val_address || '';
+    const propertyType    = b.propertyType    || b.val_type    || '';
+    const purpose         = b.purpose         || b.val_purpose || '';
+    const landSize        = b.landSize        || '';
+    const buildingSize    = b.buildingSize    || '';
+    const bedrooms        = b.bedrooms        || '';
+    const bathrooms       = b.bathrooms       || '';
+    const additionalInfo  = b.additionalInfo  || '';
+
+    // Only name, phone and address are required — email is optional
+    if (!name || !phone || !propertyAddress) {
+        return res.status(400).json({ success: false, message: 'Name, phone and property address are required.' });
     }
 
+    // Validate email only if one was provided
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
+    if (email && !emailRegex.test(email)) {
         return res.status(400).json({ success: false, message: 'Please enter a valid email address.' });
     }
 
     try {
-        // Save to DB (optional — table may not exist, so wrapped in try-catch)
+        // Save to DB (gracefully skips if table issues)
         try {
             await db.query(`
                 CREATE TABLE IF NOT EXISTS evaluation_requests (
                     id               INT AUTO_INCREMENT PRIMARY KEY,
                     name             VARCHAR(150) NOT NULL,
-                    email            VARCHAR(150) NOT NULL,
+                    email            VARCHAR(150),
                     phone            VARCHAR(50)  NOT NULL,
                     propertyAddress  TEXT         NOT NULL,
                     propertyType     VARCHAR(100),
+                    purpose          VARCHAR(100),
                     landSize         VARCHAR(100),
                     buildingSize     VARCHAR(100),
                     bedrooms         INT,
@@ -1813,10 +1859,11 @@ newapp2.post('/request-evaluation', async (req, res) => {
             `);
             await db.query(
                 `INSERT INTO evaluation_requests
-                 (name, email, phone, propertyAddress, propertyType, landSize, buildingSize, bedrooms, bathrooms, additionalInfo)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                [name, email, phone, propertyAddress,
-                 propertyType || null, landSize || null, buildingSize || null,
+                 (name, email, phone, propertyAddress, propertyType, purpose, landSize, buildingSize, bedrooms, bathrooms, additionalInfo)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                [name, email || null, phone, propertyAddress,
+                 propertyType || null, purpose || null,
+                 landSize || null, buildingSize || null,
                  bedrooms ? parseInt(bedrooms) : null,
                  bathrooms ? parseInt(bathrooms) : null,
                  additionalInfo || null]
@@ -1833,16 +1880,18 @@ newapp2.post('/request-evaluation', async (req, res) => {
             html: `
                 <h2 style="color:#2c3e50;">New Property Evaluation Request</h2>
                 <table style="border-collapse:collapse;width:100%;font-family:Arial,sans-serif;">
-                    <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold;background:#f9f9f9;">Name</td>
+                    <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold;background:#f9f9f9;width:160px;">Name</td>
                         <td style="padding:8px;border:1px solid #ddd;">${name}</td></tr>
-                    <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold;background:#f9f9f9;">Email</td>
-                        <td style="padding:8px;border:1px solid #ddd;"><a href="mailto:${email}">${email}</a></td></tr>
                     <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold;background:#f9f9f9;">Phone</td>
                         <td style="padding:8px;border:1px solid #ddd;">${phone}</td></tr>
+                    <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold;background:#f9f9f9;">Email</td>
+                        <td style="padding:8px;border:1px solid #ddd;">${email ? `<a href="mailto:${email}">${email}</a>` : 'Not provided'}</td></tr>
                     <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold;background:#f9f9f9;">Property Address</td>
                         <td style="padding:8px;border:1px solid #ddd;">${propertyAddress}</td></tr>
                     <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold;background:#f9f9f9;">Property Type</td>
                         <td style="padding:8px;border:1px solid #ddd;">${propertyType || 'Not specified'}</td></tr>
+                    <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold;background:#f9f9f9;">Purpose</td>
+                        <td style="padding:8px;border:1px solid #ddd;">${purpose || 'Not specified'}</td></tr>
                     <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold;background:#f9f9f9;">Land Size</td>
                         <td style="padding:8px;border:1px solid #ddd;">${landSize || 'Not specified'}</td></tr>
                     <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold;background:#f9f9f9;">Building Size</td>
@@ -1860,20 +1909,26 @@ newapp2.post('/request-evaluation', async (req, res) => {
             `
         });
 
-        // Send confirmation email to the requester
-        await transporter.sendMail({
-            from: `"G.O AREGHAN Real Estate Firm & Consultant" <${process.env.EMAIL_USER || 'goareghanconsulting@gmail.com'}>`,
-            to: email,
-            subject: 'Your Property Evaluation Request Has Been Received',
-            html: `
-                <h2>Thank You, ${name}!</h2>
-                <p>We have received your property evaluation request for:</p>
-                <p><strong>${propertyAddress}</strong></p>
-                <p>Our team will review your request and get back to you shortly.</p>
-                <br>
-                <p>Best regards,<br><strong>G.O AREGHAN Real Estate Firm & Consultant</strong></p>
-            `
-        });
+        // Send confirmation email to requester only if they provided one
+        if (email) {
+            try {
+                await transporter.sendMail({
+                    from: `"G.O AREGHAN Real Estate Firm & Consultant" <${process.env.EMAIL_USER || 'goareghanconsulting@gmail.com'}>`,
+                    to: email,
+                    subject: 'Your Property Evaluation Request Has Been Received',
+                    html: `
+                        <h2>Thank You, ${name}!</h2>
+                        <p>We have received your property evaluation request for:</p>
+                        <p><strong>${propertyAddress}</strong></p>
+                        <p>Our team will review your request and get back to you shortly.</p>
+                        <br>
+                        <p>Best regards,<br><strong>G.O AREGHAN Real Estate Firm &amp; Consultant</strong></p>
+                    `
+                });
+            } catch (confirmErr) {
+                console.warn('Could not send confirmation email to requester:', confirmErr.message);
+            }
+        }
 
         res.json({ success: true, message: 'Your evaluation request has been submitted! We will contact you shortly.' });
 
