@@ -29,7 +29,7 @@ newapp2.use(express.json());
 newapp2.use(express.urlencoded({ extended: true }));
 
 // ==================== ADMIN EMAILS ====================
-const ADMIN_EMAILS = ['goareghanconsulting@gmail.com', 'ibarealestate2023@gmail.com'];
+const ADMIN_EMAILS = ['ibarealestate2023@gmail.com', 'esvgoddey@gmail.com'];
 
 function isAdminEmail(email) {
     return ADMIN_EMAILS.includes(email);
@@ -1770,6 +1770,123 @@ newapp2.post('/valuate', ensureAuthenticated, async (req, res) => {
         if (!match) throw new Error('Could not parse AI response');
         res.json(JSON.parse(match[0]));
     } catch (error) { console.error('Groq error:', error.message); res.status(500).json({ error: 'Valuation failed: ' + error.message }); }
+});
+
+// ==================== REQUEST PROPERTY EVALUATION ====================
+// POST /request-evaluation — anyone can submit a property evaluation request
+// Sends an email to admins with the requester's details and property info
+newapp2.post('/request-evaluation', async (req, res) => {
+    const {
+        name, email, phone,
+        propertyAddress, propertyType, landSize,
+        buildingSize, bedrooms, bathrooms,
+        additionalInfo
+    } = req.body;
+
+    if (!name || !email || !phone || !propertyAddress) {
+        return res.status(400).json({ success: false, message: 'Name, email, phone and property address are required.' });
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        return res.status(400).json({ success: false, message: 'Please enter a valid email address.' });
+    }
+
+    try {
+        // Save to DB (optional — table may not exist, so wrapped in try-catch)
+        try {
+            await db.query(`
+                CREATE TABLE IF NOT EXISTS evaluation_requests (
+                    id               INT AUTO_INCREMENT PRIMARY KEY,
+                    name             VARCHAR(150) NOT NULL,
+                    email            VARCHAR(150) NOT NULL,
+                    phone            VARCHAR(50)  NOT NULL,
+                    propertyAddress  TEXT         NOT NULL,
+                    propertyType     VARCHAR(100),
+                    landSize         VARCHAR(100),
+                    buildingSize     VARCHAR(100),
+                    bedrooms         INT,
+                    bathrooms        INT,
+                    additionalInfo   TEXT,
+                    created_at       DATETIME DEFAULT CURRENT_TIMESTAMP
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+            `);
+            await db.query(
+                `INSERT INTO evaluation_requests
+                 (name, email, phone, propertyAddress, propertyType, landSize, buildingSize, bedrooms, bathrooms, additionalInfo)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                [name, email, phone, propertyAddress,
+                 propertyType || null, landSize || null, buildingSize || null,
+                 bedrooms ? parseInt(bedrooms) : null,
+                 bathrooms ? parseInt(bathrooms) : null,
+                 additionalInfo || null]
+            );
+        } catch (dbErr) {
+            console.warn('Could not save evaluation request to DB:', dbErr.message);
+        }
+
+        // Send email to admins
+        await transporter.sendMail({
+            from: `"G.O AREGHAN Real Estate Firm & Consultant" <${process.env.EMAIL_USER || 'goareghanconsulting@gmail.com'}>`,
+            to: ADMIN_EMAILS.join(','),
+            subject: `Property Evaluation Request from ${name}`,
+            html: `
+                <h2 style="color:#2c3e50;">New Property Evaluation Request</h2>
+                <table style="border-collapse:collapse;width:100%;font-family:Arial,sans-serif;">
+                    <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold;background:#f9f9f9;">Name</td>
+                        <td style="padding:8px;border:1px solid #ddd;">${name}</td></tr>
+                    <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold;background:#f9f9f9;">Email</td>
+                        <td style="padding:8px;border:1px solid #ddd;"><a href="mailto:${email}">${email}</a></td></tr>
+                    <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold;background:#f9f9f9;">Phone</td>
+                        <td style="padding:8px;border:1px solid #ddd;">${phone}</td></tr>
+                    <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold;background:#f9f9f9;">Property Address</td>
+                        <td style="padding:8px;border:1px solid #ddd;">${propertyAddress}</td></tr>
+                    <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold;background:#f9f9f9;">Property Type</td>
+                        <td style="padding:8px;border:1px solid #ddd;">${propertyType || 'Not specified'}</td></tr>
+                    <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold;background:#f9f9f9;">Land Size</td>
+                        <td style="padding:8px;border:1px solid #ddd;">${landSize || 'Not specified'}</td></tr>
+                    <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold;background:#f9f9f9;">Building Size</td>
+                        <td style="padding:8px;border:1px solid #ddd;">${buildingSize || 'Not specified'}</td></tr>
+                    <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold;background:#f9f9f9;">Bedrooms</td>
+                        <td style="padding:8px;border:1px solid #ddd;">${bedrooms || 'Not specified'}</td></tr>
+                    <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold;background:#f9f9f9;">Bathrooms</td>
+                        <td style="padding:8px;border:1px solid #ddd;">${bathrooms || 'Not specified'}</td></tr>
+                    <tr><td style="padding:8px;border:1px solid #ddd;font-weight:bold;background:#f9f9f9;">Additional Info</td>
+                        <td style="padding:8px;border:1px solid #ddd;">${additionalInfo ? additionalInfo.replace(/\n/g, '<br>') : 'None'}</td></tr>
+                </table>
+                <p style="margin-top:16px;color:#7f8c8d;font-size:13px;">
+                    Submitted on ${new Date().toLocaleString('en-NG', { timeZone: 'Africa/Lagos' })}
+                </p>
+            `
+        });
+
+        // Send confirmation email to the requester
+        await transporter.sendMail({
+            from: `"G.O AREGHAN Real Estate Firm & Consultant" <${process.env.EMAIL_USER || 'goareghanconsulting@gmail.com'}>`,
+            to: email,
+            subject: 'Your Property Evaluation Request Has Been Received',
+            html: `
+                <h2>Thank You, ${name}!</h2>
+                <p>We have received your property evaluation request for:</p>
+                <p><strong>${propertyAddress}</strong></p>
+                <p>Our team will review your request and get back to you shortly.</p>
+                <br>
+                <p>Best regards,<br><strong>G.O AREGHAN Real Estate Firm & Consultant</strong></p>
+            `
+        });
+
+        res.json({ success: true, message: 'Your evaluation request has been submitted! We will contact you shortly.' });
+
+    } catch (err) {
+        console.error('Evaluation request error:', err);
+        res.status(500).json({ success: false, message: 'Failed to send request. Please try again.' });
+    }
+});
+
+// GET /request-evaluation — render the evaluation request page (no login required)
+newapp2.get('/request-evaluation', (req, res) => {
+    const isAdmin = req.user ? isAdminEmail(req.user.email) : false;
+    res.render('request-evaluation', { isAdmin });
 });
 
 newapp2.get('/gallery', async (req, res) => {
