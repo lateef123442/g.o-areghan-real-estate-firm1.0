@@ -29,7 +29,7 @@ newapp2.use(express.json());
 newapp2.use(express.urlencoded({ extended: true }));
 
 // ==================== ADMIN EMAILS ====================
-const ADMIN_EMAILS = ['goareghanconsulting@gmail.com', 'ibarealestate2023@gmail.com','esvgoddey@gmail.com'];
+const ADMIN_EMAILS = ['goareghanconsulting@gmail.com', 'ibarealestate2023@gmail.com'];
 
 function isAdminEmail(email) {
     return ADMIN_EMAILS.includes(email);
