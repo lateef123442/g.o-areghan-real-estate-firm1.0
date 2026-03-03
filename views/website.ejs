@@ -2454,18 +2454,47 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ---- Valuation Form ----
-    const valForm = document.getElementById('valuation-form');
-    const valMsg = document.getElementById('valuation-msg');
-    if (valForm) {
-        valForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            valMsg.style.cssText = 'padding:12px 16px;border-radius:10px;font-size:0.875rem;font-weight:600;margin-bottom:16px;background:#f0fdf4;border:1px solid #bbf7d0;color:#16a34a;display:block;';
-            valMsg.textContent = '✓ Request received! Our team will contact you within 48 hours.';
-            valForm.reset();
-            setTimeout(() => { valMsg.style.display = 'none'; }, 6000);
-        });
-    }
+  // ---- Valuation Form ----
+// POSTs to /request-evaluation → saves to DB + emails admin
+const valForm   = document.getElementById('valuation-form');
+const valMsg    = document.getElementById('valuation-msg');
+const valSubmit = document.getElementById('val-submit-btn');
+
+if (valForm) {
+    valForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        valSubmit.disabled = true;
+        valSubmit.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right:6px;"></i>Sending...';
+
+        const body = Object.fromEntries(new FormData(valForm));
+
+        try {
+            const res  = await fetch('/request-evaluation', {
+                method:      'POST',
+                headers:     { 'Content-Type': 'application/json' },
+                body:        JSON.stringify(body),
+                credentials: 'include'
+            });
+            const data = await res.json();
+
+            if (res.ok && data.success) {
+                valMsg.style.cssText = 'display:block;padding:12px 16px;border-radius:10px;font-size:0.875rem;font-weight:600;margin-bottom:16px;background:#f0fdf4;border:1px solid #bbf7d0;color:#16a34a;';
+                valMsg.textContent   = '✓ Request received! Our team will contact you within 48 hours.';
+                valForm.reset();
+                setTimeout(() => { valMsg.style.display = 'none'; }, 7000);
+            } else {
+                throw new Error(data.message || 'Submission failed. Please try again.');
+            }
+        } catch (err) {
+            valMsg.style.cssText = 'display:block;padding:12px 16px;border-radius:10px;font-size:0.875rem;font-weight:600;margin-bottom:16px;background:#fef2f2;border:1px solid #fecaca;color:#dc2626;';
+            valMsg.textContent   = '✗ ' + (err.message || 'Failed to send. Please call us directly or try again.');
+        } finally {
+            valSubmit.disabled = false;
+            valSubmit.innerHTML = '<i class="fas fa-paper-plane" style="margin-right:6px;"></i> Request Free Valuation';
+        }
+    });
+}
 
     // ---- Active nav on scroll ----
     const sections = document.querySelectorAll('section[id]');
@@ -2502,6 +2531,7 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
+
 
 
 
