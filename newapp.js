@@ -29,8 +29,7 @@ newapp2.use(express.json());
 newapp2.use(express.urlencoded({ extended: true }));
 
 // ==================== ADMIN EMAILS ====================
-// NOTE: ibarealestate2023@gmail.com removed — all admin notifications go to goareghanconsulting@gmail.com
-const ADMIN_EMAILS = ['goareghanconsulting@gmail.com', 'esvgoddey@gmail.com', 'ibarealestate2023@gmail.com'];
+const ADMIN_EMAILS = ['ibarealestate2023@gmail.com', 'esvgoddey@gmail.com'];
 
 function isAdminEmail(email) {
     return ADMIN_EMAILS.includes(email);
@@ -66,7 +65,9 @@ function normalizeImagePaths(paths) {
 // ==================== MULTER CONFIG ====================
 // IMPORTANT: Use __dirname-based absolute paths so Multer saves to the correct
 // directory on Hostinger, where process.cwd() !== __dirname.
-const UPLOADS_BASE = path.join(__dirname, 'uploads');
+// UPLOADS_BASE — hardcoded to persist across Git auto-deploys on Hostinger.
+// This path is OUTSIDE the app folder so it is never wiped on redeploy.
+const UPLOADS_BASE = '/home/u166499615/uploads';
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -217,7 +218,7 @@ newapp2.use('/plugins',  express.static(path.join(__dirname, 'public', 'plugins'
 newapp2.use('/dist',     express.static(path.join(__dirname, 'public', 'dist')));
 newapp2.use('/js',       express.static(path.join(__dirname, 'public', 'js')));
 newapp2.use('/data',     express.static(path.join(__dirname, 'public', 'data')));
-newapp2.use('/uploads',  express.static(path.join(__dirname, 'uploads')));
+newapp2.use('/uploads',  express.static(UPLOADS_BASE));
 
 newapp2.set('view engine', 'ejs');
 
@@ -1873,10 +1874,10 @@ newapp2.post('/request-evaluation', async (req, res) => {
             console.warn('Could not save evaluation request to DB:', dbErr.message);
         }
 
-        // ── Send evaluation request email ONLY to goareghanconsulting@gmail.com ──
+        // Send email to admins
         await transporter.sendMail({
             from: `"G.O AREGHAN Real Estate Firm & Consultant" <${process.env.EMAIL_USER || 'goareghanconsulting@gmail.com'}>`,
-            to: 'goareghanconsulting@gmail.com',
+            to: ADMIN_EMAILS.join(','),
             subject: `Property Evaluation Request from ${name}`,
             html: `
                 <h2 style="color:#2c3e50;">New Property Evaluation Request</h2>
@@ -1965,4 +1966,3 @@ connectWithRetry().then(() => {
 }).catch(() => {
     server.listen(PORT, '0.0.0.0', () => console.log(`⚠️  Server started (DB may be unavailable)`));
 });
-
