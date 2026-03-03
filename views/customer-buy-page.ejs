@@ -365,7 +365,14 @@
         <div class="property-grid" id="property-grid">
             <% if (card && card.length > 0) { %>
                 <% card.forEach(cardItem => { %>
-                <div class="property-card" data-type="<%= cardItem['property-type'] || 'Unknown' %>" data-amount="<%= cardItem.amount || 0 %>" data-created="<%= cardItem.id || 0 %>">
+                <%
+                    /* ── FIX: strip all non-numeric characters so data-amount is always a plain integer ── */
+                    const rawAmount = cardItem.amount ? String(cardItem.amount).replace(/[^0-9.]/g, '') : '0';
+                %>
+                <div class="property-card"
+                     data-type="<%= cardItem['property-type'] || 'Unknown' %>"
+                     data-amount="<%= rawAmount %>"
+                     data-created="<%= cardItem.id || 0 %>">
                     <div class="card-img-wrap">
                         <% if (cardItem.image_filename) { %>
                             <img src="<%= '/img/' + cardItem.image_filename %>" alt="<%= cardItem.title || 'Property' %>" loading="lazy" onerror="this.parentElement.innerHTML='<div class=\'card-img-placeholder\'><i class=\'fas fa-image\' style=\'font-size:2rem;\'></i></div>'">
@@ -402,7 +409,7 @@
                         <div class="card-footer">
                             <div>
                                 <span class="card-price-label">Asking Price</span>
-                                <div class="card-price">₦<%= cardItem.amount ? Number(cardItem.amount).toLocaleString() : 'N/A' %></div>
+                                <div class="card-price">₦<%= cardItem.amount ? Number(String(cardItem.amount).replace(/[^0-9.]/g, '')).toLocaleString() : 'N/A' %></div>
                             </div>
                             <a href="property-detail?id=<%= cardItem.id %>" class="card-btn requires-login">
                                 View <i class="fas fa-arrow-right" style="font-size:0.7rem;"></i>
@@ -591,12 +598,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
     const initialFilter = urlParams.get('property_type') || 'all';
 
+    // ── FIX: parse amount safely, stripping any currency symbols or commas ──
+    function parseAmount(card) {
+        const raw = (card.dataset.amount || '0').replace(/[^0-9.]/g, '');
+        return parseFloat(raw) || 0;
+    }
+
     function sortCards(cards) {
         const val = sortSelect ? sortSelect.value : 'Latest First';
         return [...cards].sort((a, b) => {
-            if (val === 'Price: Low to High') return Number(a.dataset.amount) - Number(b.dataset.amount);
-            if (val === 'Price: High to Low') return Number(b.dataset.amount) - Number(a.dataset.amount);
-            return Number(b.dataset.created) - Number(a.dataset.created); // Latest First
+            if (val === 'Price: Low to High') return parseAmount(a) - parseAmount(b);
+            if (val === 'Price: High to Low') return parseAmount(b) - parseAmount(a);
+            // Latest First — fall back to 0 if id is missing or non-numeric
+            return (Number(b.dataset.created) || 0) - (Number(a.dataset.created) || 0);
         });
     }
 
