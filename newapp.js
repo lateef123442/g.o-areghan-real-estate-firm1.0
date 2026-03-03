@@ -1017,12 +1017,12 @@ newapp2.post('/detail-contact', ensureAuthenticated, async (req, res) => {
                 to: recipientEmail,
                 cc: 'goareghanconsulting@gmail.com',
                 subject: 'New Contact Message from Property Detail Page',
-                html: \`<h2>New Contact Inquiry</h2>
-                    <p><strong>Name:</strong> \${name}</p>
-                    <p><strong>Email:</strong> \${email}</p>
-                    <p><strong>Phone:</strong> \${phone}</p>
-                    <p><strong>Property ID:</strong> \${propertyId}</p>
-                    <p><strong>Message:</strong><br>\${message.replace(/\n/g, '<br>')}</p>\`
+                html: `<h2>New Contact Inquiry</h2>
+                    <p><strong>Name:</strong> ${name}</p>
+                    <p><strong>Email:</strong> ${email}</p>
+                    <p><strong>Phone:</strong> ${phone}</p>
+                    <p><strong>Property ID:</strong> ${propertyId}</p>
+                    <p><strong>Message:</strong><br>${message.replace(/\n/g, '<br>')}</p>`
             });
         } catch (mailErr) {
             console.error('detail-contact email error:', mailErr.message);
