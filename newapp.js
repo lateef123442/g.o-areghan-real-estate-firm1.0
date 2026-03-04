@@ -1116,8 +1116,17 @@ newapp2.get('/edit-sold', ensureAuthenticated, async (req, res) => {
     } catch (err) { console.error(err); res.redirect('/login'); }
 });
 
-newapp2.post('/update-sold', ensureAuthenticated, async (req, res) => {
+newapp2.post('/update-sold', ensureAuthenticated, (req, res, next) => {
+    upload.fields([
+        { name: 'image', maxCount: 10 },
+        { name: 'video', maxCount: 5 }
+    ])(req, res, (err) => {
+        if (err) return res.redirect('/sold-properties?error=' + encodeURIComponent(err.message));
+        next();
+    });
+}, async (req, res) => {
     const propertyId = req.body.id;
+    if (!propertyId) return res.redirect('/sold-properties?error=Missing property ID.');
     const u = {
         title:           req.body.title           || null,
         description:     req.body.description     || '',
@@ -1135,17 +1144,43 @@ newapp2.post('/update-sold', ensureAuthenticated, async (req, res) => {
         rentSell:        req.body.rentSell         || null,
         property_type:   req.body['property-type'] || null
     };
+
+    // Merge kept existing paths with any newly uploaded files
+    const keepImages = req.body.keep_images
+        ? req.body.keep_images.split(',').map(s => s.trim()).filter(Boolean)
+        : [];
+    const newImages = (req.files && req.files.image)
+        ? req.files.image.map(f => normalizeImagePaths(f.path))
+        : [];
+    const allImages = [...keepImages, ...newImages].join(',');
+
+    const keepVideos = req.body.keep_videos
+        ? req.body.keep_videos.split(',').map(s => s.trim()).filter(Boolean)
+        : [];
+    const newVideos = (req.files && req.files.video)
+        ? req.files.video.map(f => normalizeImagePaths(f.path))
+        : [];
+    const allVideos = [...keepVideos, ...newVideos].join(',');
+
     try {
         await db.query(
-            `UPDATE sold_properties SET title = ?, description = ?, amount = ?, propertyAddress = ?,
-             bedrooms = ?, bathrooms = ?, sqft = ?, land_size = ?, building_size = ?, num_flats = ?,
-             ownerName = ?, ownerEmail = ?, ownerPhone = ?, rentSell = ?, \`property-type\` = ? WHERE id = ?`,
-            [u.title, u.description, u.amount, u.propertyAddress, u.bedrooms, u.bathrooms,
-             u.sqft, u.land_size, u.building_size, u.num_flats,
-             u.ownerName, u.ownerEmail, u.ownerPhone, u.rentSell, u.property_type, propertyId]
+            `UPDATE sold_properties SET
+                title = ?, description = ?, amount = ?, propertyAddress = ?,
+                bedrooms = ?, bathrooms = ?, sqft = ?, land_size = ?, building_size = ?, num_flats = ?,
+                ownerName = ?, ownerEmail = ?, ownerPhone = ?, rentSell = ?, \`property-type\` = ?,
+                image_data = ?, video = ?
+             WHERE id = ?`,
+            [u.title, u.description, u.amount, u.propertyAddress,
+             u.bedrooms, u.bathrooms, u.sqft, u.land_size, u.building_size, u.num_flats,
+             u.ownerName, u.ownerEmail, u.ownerPhone, u.rentSell, u.property_type,
+             allImages, allVideos,
+             propertyId]
         );
         res.redirect('/sold-properties?success=Property updated successfully!');
-    } catch (err) { console.error(err); res.redirect('/sold-properties?error=Failed to update property.'); }
+    } catch (err) {
+        console.error('update-sold error:', err);
+        res.redirect('/sold-properties?error=Failed to update property.');
+    }
 });
 
 newapp2.post('/unsold', ensureAuthenticated, async (req, res) => {
@@ -1382,45 +1417,110 @@ newapp2.get('/agent/listings/sold', ensureAuthenticated, async (req, res) => {
     } catch (err) { res.status(500).json({ error: 'Database error: ' + err.message }); }
 });
 
-newapp2.get('/edit-property/:id', requireAgent, async (req, res) => {
+newapp2.get('/edit-property/:id', ensureAuthenticated, async (req, res) => {
     const propertyId = req.params.id;
-    const agentId = req.session.userId;
+    const userIsAdmin = isAdminEmail(req.user.email);
+    const agentId = req.session.userId || req.user.id;
     try {
-        const [[pending], [approved], [sold]] = await Promise.all([
-            db.query(`SELECT *, 'pending' AS tableName FROM sales_approval WHERE id = ? AND agentId = ?`, [propertyId, agentId]),
-            db.query(`SELECT *, 'approved' AS tableName FROM all_properties WHERE id = ? AND agentId = ?`, [propertyId, agentId]),
-            db.query(`SELECT *, 'sold' AS tableName FROM sold_properties WHERE id = ? AND agentId = ?`, [propertyId, agentId])
-        ]);
+        let pending, approved, sold;
+        if (userIsAdmin) {
+            // Admin can edit any property
+            [[pending], [approved], [sold]] = await Promise.all([
+                db.query(`SELECT *, 'pending' AS tableName FROM sales_approval WHERE id = ?`, [propertyId]),
+                db.query(`SELECT *, 'approved' AS tableName FROM all_properties WHERE id = ?`, [propertyId]),
+                db.query(`SELECT *, 'sold' AS tableName FROM sold_properties WHERE id = ?`, [propertyId])
+            ]);
+        } else {
+            // Agent can only edit their own
+            [[pending], [approved], [sold]] = await Promise.all([
+                db.query(`SELECT *, 'pending' AS tableName FROM sales_approval WHERE id = ? AND agentId = ?`, [propertyId, agentId]),
+                db.query(`SELECT *, 'approved' AS tableName FROM all_properties WHERE id = ? AND agentId = ?`, [propertyId, agentId]),
+                db.query(`SELECT *, 'sold' AS tableName FROM sold_properties WHERE id = ? AND agentId = ?`, [propertyId, agentId])
+            ]);
+        }
         const property = [...pending, ...approved, ...sold][0];
-        if (!property) return res.status(404).json({ error: 'Property not found or not owned by you' });
+        if (!property) return res.status(404).json({ error: 'Property not found' });
         res.json(property);
     } catch (err) { console.error(err); res.status(500).json({ error: 'Database error' }); }
 });
 
-newapp2.post('/update-property/:id', requireAgent, async (req, res) => {
+newapp2.post('/update-property/:id', ensureAuthenticated, (req, res, next) => {
+    upload.fields([
+        { name: 'image', maxCount: 10 },
+        { name: 'video', maxCount: 5 }
+    ])(req, res, (err) => {
+        if (err) return res.status(400).json({ error: err.message });
+        next();
+    });
+}, async (req, res) => {
     const propertyId = req.params.id;
-    const agentId = req.session.userId;
-    const { title, description, amount, rentSell, property_type, status, bedrooms, bathrooms, land_size, building_size, num_flats } = req.body;
+    const userIsAdmin = isAdminEmail(req.user.email);
+    const agentId = req.session.userId || req.user.id;
+    const { title, description, amount, rentSell, property_type, status,
+            bedrooms, bathrooms, land_size, building_size, num_flats,
+            keep_images, keep_videos } = req.body;
     try {
-        const [findResults] = await db.query(`
-            SELECT 'pending' AS tableName FROM sales_approval WHERE id = ? AND agentId = ?
-            UNION SELECT 'approved' AS tableName FROM all_properties WHERE id = ? AND agentId = ?
-            UNION SELECT 'sold' AS tableName FROM sold_properties WHERE id = ? AND agentId = ?
-        `, [propertyId, agentId, propertyId, agentId, propertyId, agentId]);
-        if (findResults.length === 0) return res.status(404).json({ error: 'Property not found or not owned by you' });
+        // Find which table the property is in
+        let findResults;
+        if (userIsAdmin) {
+            [findResults] = await db.query(`
+                SELECT 'pending' AS tableName FROM sales_approval WHERE id = ?
+                UNION SELECT 'approved' AS tableName FROM all_properties WHERE id = ?
+                UNION SELECT 'sold' AS tableName FROM sold_properties WHERE id = ?
+            `, [propertyId, propertyId, propertyId]);
+        } else {
+            [findResults] = await db.query(`
+                SELECT 'pending' AS tableName FROM sales_approval WHERE id = ? AND agentId = ?
+                UNION SELECT 'approved' AS tableName FROM all_properties WHERE id = ? AND agentId = ?
+                UNION SELECT 'sold' AS tableName FROM sold_properties WHERE id = ? AND agentId = ?
+            `, [propertyId, agentId, propertyId, agentId, propertyId, agentId]);
+        }
+        if (findResults.length === 0) return res.status(404).json({ error: 'Property not found' });
+
         const tableName = findResults[0].tableName;
         let table, propertyTypeColumn;
-        if (tableName === 'pending')   { table = 'sales_approval';  propertyTypeColumn = 'property_type'; }
-        else if (tableName === 'approved') { table = 'all_properties'; propertyTypeColumn = '`property-type`'; }
-        else { table = 'sold_properties'; propertyTypeColumn = '`property-type`'; }
+        if (tableName === 'pending')       { table = 'sales_approval';  propertyTypeColumn = 'property_type'; }
+        else if (tableName === 'approved') { table = 'all_properties';  propertyTypeColumn = '`property-type`'; }
+        else                               { table = 'sold_properties'; propertyTypeColumn = '`property-type`'; }
+
+        // --- Handle images ---
+        // keep_images: comma-sep list of existing image paths to retain
+        const existingImages = keep_images
+            ? keep_images.split(',').map(s => s.trim()).filter(Boolean)
+            : [];
+        const newImageFiles = (req.files && req.files.image) || [];
+        const newImagePaths = newImageFiles.map(f => normalizeImagePaths(f.path));
+        const allImages = [...existingImages, ...newImagePaths].join(',');
+
+        // --- Handle videos ---
+        const existingVideos = keep_videos
+            ? keep_videos.split(',').map(s => s.trim()).filter(Boolean)
+            : [];
+        const newVideoFiles = (req.files && req.files.video) || [];
+        const newVideoPaths = newVideoFiles.map(f => normalizeImagePaths(f.path));
+        const allVideos = [...existingVideos, ...newVideoPaths].join(',');
+
+        // Build update query — include images/videos only if they changed
+        const whereClause = userIsAdmin
+            ? `WHERE id = ?`
+            : `WHERE id = ? AND agentId = ?`;
+        const whereParams = userIsAdmin ? [propertyId] : [propertyId, agentId];
+
         await db.query(
-            `UPDATE ${table} SET title = ?, description = ?, amount = ?, rentSell = ?,
-             ${propertyTypeColumn} = ?, status = ?, bedrooms = ?, bathrooms = ?,
-             land_size = ?, building_size = ?, num_flats = ?
-             WHERE id = ? AND agentId = ?`,
-            [title, description, amount, rentSell, property_type, status, bedrooms, bathrooms,
-             land_size || null, building_size || null, num_flats ? parseInt(num_flats) : null,
-             propertyId, agentId]
+            `UPDATE ${table} SET
+                title = ?, description = ?, amount = ?, rentSell = ?,
+                ${propertyTypeColumn} = ?, status = ?,
+                bedrooms = ?, bathrooms = ?,
+                land_size = ?, building_size = ?, num_flats = ?,
+                image_data = ?, video = ?
+             ${whereClause}`,
+            [title, description, amount, rentSell,
+             property_type, status,
+             bedrooms, bathrooms,
+             land_size || null, building_size || null,
+             num_flats ? parseInt(num_flats) : null,
+             allImages, allVideos,
+             ...whereParams]
         );
         res.json({ success: true, message: 'Property updated successfully' });
     } catch (err) { console.error(err); res.status(500).json({ error: 'Update failed: ' + err.message }); }
