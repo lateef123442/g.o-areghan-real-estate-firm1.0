@@ -3,319 +3,423 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Edit Sold Property | G.O AREGBAN REAL ESTATE FIRM</title>
+  <title>Edit Sold Property | G.O AREGHAN REAL ESTATE FIRM</title>
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
   <link rel="stylesheet" href="/css/styles.css">
-  
   <style>
-    /* Toast Styles (for any errors) */
-    #toast-container { position: fixed; top: 20px; right: 20px; z-index: 10000; }
-    .toast { padding: 12px 20px; border-radius: 8px; color: white; font-weight: 500; box-shadow: 0 4px 12px rgba(0,0,0,0.15); max-width: 350px; margin-bottom: 10px; animation: slideIn 0.3s ease-out; }
-    .toast.error { background-color: #ef4444; }
-    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-    /* Form Styles */
-    .form-container { max-width: 600px; margin: 2rem auto; padding: 2rem; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-    .form-group { margin-bottom: 1rem; }
-    .form-group label { display: block; font-weight: 500; margin-bottom: 0.5rem; }
-    .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; }
-    .form-group textarea { height: 100px; resize: vertical; }
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-    .btn { padding: 0.75rem 1.5rem; border: none; border-radius: 4px; cursor: pointer; font-weight: 500; }
-    .btn-primary { background: #3b82f6; color: white; }
-    .btn-secondary { background: #6b7280; color: white; margin-right: 1rem; }
-    .btn:hover { opacity: 0.9; }
-    .image-preview { max-width: 300px; margin: 1rem 0; border-radius: 4px; }
-    .video-preview { max-width: 300px; margin: 1rem 0; border-radius: 4px; }
-    .preview-section { margin-bottom: 2rem; border: 1px solid #d1d5db; padding: 1rem; border-radius: 4px; }
+    /* ── Toast ── */
+    #toast-container { position:fixed;top:20px;right:20px;z-index:10000; }
+    .toast { padding:12px 20px;border-radius:8px;color:#fff;font-weight:500;box-shadow:0 4px 12px rgba(0,0,0,.15);max-width:350px;margin-bottom:10px;animation:slideIn .3s ease-out; }
+    .toast.success { background:#16a34a; }
+    .toast.error   { background:#ef4444; }
+    @keyframes slideIn { from{transform:translateX(100%);opacity:0} to{transform:translateX(0);opacity:1} }
+    @keyframes slideOut { from{transform:translateX(0);opacity:1} to{transform:translateX(100%);opacity:0} }
+
+    /* ── Layout ── */
+    .form-container { max-width:760px;margin:2rem auto;padding:2rem;background:#fff;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,.1); }
+    .page-title { display:flex;align-items:center;gap:10px;font-size:1.4rem;font-weight:700;color:#1e293b;margin-bottom:28px; }
+    .page-title .material-icons { color:#3b82f6;font-size:1.6rem; }
+
+    /* ── Section card ── */
+    .section-card { border:1.5px solid #e2e8f0;border-radius:12px;padding:20px;margin-bottom:20px; }
+    .section-title { display:flex;align-items:center;gap:8px;font-weight:700;font-size:.95rem;color:#334155;margin-bottom:18px; }
+    .section-title .material-icons { color:#3b82f6;font-size:1.1rem; }
+
+    /* ── Form fields ── */
+    .form-row { display:grid;grid-template-columns:1fr 1fr;gap:16px; }
+    @media(max-width:600px){ .form-row{grid-template-columns:1fr;} }
+    .form-group { margin-bottom:14px; }
+    .form-group label { display:block;font-size:.78rem;font-weight:700;color:#64748b;margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em; }
+    .form-group input,
+    .form-group textarea,
+    .form-group select { width:100%;padding:10px 12px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:.9rem;font-family:inherit;color:#1e293b;background:#f8fafc;transition:border-color .2s; }
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus { outline:none;border-color:#3b82f6;background:#fff; }
+    .form-group textarea { resize:vertical;min-height:90px; }
+
+    /* ── Media sections ── */
+    .media-grid { display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px;min-height:40px; }
+    .media-thumb { position:relative;border-radius:8px;overflow:hidden;border:1.5px solid #e2e8f0; }
+    .media-thumb img { width:110px;height:85px;object-fit:cover;display:block; }
+    .media-thumb video { width:150px;height:95px;object-fit:cover;display:block; }
+    .media-thumb .remove-btn {
+      position:absolute;top:4px;right:4px;
+      background:rgba(220,38,38,.85);color:#fff;
+      border:none;border-radius:50%;width:22px;height:22px;
+      font-size:12px;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;
+      line-height:1;font-weight:700;
+    }
+    .media-thumb .remove-btn:hover { background:#dc2626; }
+    .media-empty { color:#aaa;font-size:.85rem;padding:6px 0; }
+
+    .upload-zone {
+      display:flex;align-items:center;gap:10px;
+      padding:12px 16px;border:2px dashed #cbd5e1;border-radius:10px;
+      cursor:pointer;background:#f8fafc;transition:background .2s;
+    }
+    .upload-zone:hover { background:#eff6ff;border-color:#93c5fd; }
+    .upload-zone .material-icons { color:#3b82f6; }
+    .upload-zone span { font-size:.85rem;color:#555; }
+
+    /* ── Buttons ── */
+    .btn-row { display:flex;gap:12px;margin-top:8px; }
+    .btn { padding:11px 24px;border-radius:8px;font-weight:700;cursor:pointer;font-size:.875rem;display:inline-flex;align-items:center;gap:6px;border:none;transition:all .2s; }
+    .btn-primary { background:#3b82f6;color:#fff; }
+    .btn-primary:hover { background:#2563eb; }
+    .btn-secondary { background:#f1f5f9;color:#475569;border:1.5px solid #e2e8f0; }
+    .btn-secondary:hover { background:#e2e8f0; }
+    .btn:disabled { opacity:.6;cursor:not-allowed; }
   </style>
 </head>
 <body>
-  <div id="app" role="application">
-    <!-- Full Sidebar (Copied from sold-properties.ejs for Consistency) -->
-    <aside class="sidebar" aria-label="Main navigation">
-       <nav aria-label="Primary navigation">
-          <a href="track-sales.html" tabindex="0" aria-label="Track Sales" class="active">
+<div id="app" role="application">
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar" aria-label="Main navigation">
+    <nav aria-label="Primary navigation">
+      <a href="track-sales.html" tabindex="0" aria-label="Dashboard">
         <span class="material-icons" aria-hidden="true">assessment</span>DASHBOARD
       </a>
-
-        <a href="index.html"  tabindex="0" aria-current="page" aria-label="Home">
-          <span class="material-icons" aria-hidden="true">home</span>Avialable properties
-        </a>
-        <!--<a href="buy-page.html" tabindex="0" aria-label="Buy Homes">
-          <span class="material-icons" aria-hidden="true">support_agent</span>Buy
-        </a>
-        <a href="rent-page.html" tabindex="0" aria-label="Rent Homes">
-          <span class="material-icons" aria-hidden="true">key</span>Rent
-        </a>-->
-        <a href="sell-page.html" tabindex="0" aria-label="Sell Homes" >
-          <span class="material-icons" aria-hidden="true" >sell</span>Sell
-        </a>
-       <!-- <a href="home-improvemet-page.html" tabindex="0" aria-label="Home Improvement">
-          <span class="material-icons" aria-hidden="true">home_repair_service</span>Home Improvement
-        </a>
-        <a href="message-page.html" tabindex="0" aria-label="Messages">
-          <span class="material-icons" aria-hidden="true">message</span>Messages
-          
-        </a>-->
-       
-
-          <% if (isAdmin) { %> <a href="sales-approval.html" tabindex="0" aria-label="Sales Approval">
-        <span class="material-icons" aria-hidden="true">check_circle</span>Sales Approval
+      <a href="index.html" tabindex="0" aria-label="Available Properties">
+        <span class="material-icons" aria-hidden="true">home</span>Available Properties
       </a>
-      <a href="tour-requested.html" tabindex="0" aria-label="Tour Requested">
-        <span class="material-icons" aria-hidden="true">event_available</span>Tour Requested
+      <a href="sell-page.html" tabindex="0" aria-label="Sell">
+        <span class="material-icons" aria-hidden="true">sell</span>Sell
       </a>
-      <a href="view-customers.html" tabindex="0" aria-label="View All Customers">
-        <span class="material-icons" aria-hidden="true">people</span>View All Customers
-      </a>
-       
-    
-
-       <a href="sold-properties" tabindex="0" aria-label="Track Sales" >
-        <span class="material-icons" aria-hidden="true">check_circle</span>Sold property
-      </a>
-
-       <a href="setting-page.html" tabindex="0" aria-label="Settings">
+      <% if (isAdmin) { %>
+        <a href="sales-approval.html" tabindex="0">
+          <span class="material-icons" aria-hidden="true">check_circle</span>Sales Approval
+        </a>
+        <a href="tour-requested.html" tabindex="0">
+          <span class="material-icons" aria-hidden="true">event_available</span>Tour Requested
+        </a>
+        <a href="view-customers.html" tabindex="0">
+          <span class="material-icons" aria-hidden="true">people</span>View All Customers
+        </a>
+        <a href="sold-properties" tabindex="0" aria-current="page">
+          <span class="material-icons" aria-hidden="true">check_circle</span>Sold Properties
+        </a>
+        <a href="setting-page.html" tabindex="0">
           <span class="material-icons" aria-hidden="true">settings</span>Settings
-        </a>  <% } %>
-        
+        </a>
+      <% } %>
+    </nav>
+    <footer>&copy; 2025 G.O AREGHAN REAL ESTATE FIRM</footer>
+  </aside>
 
-
- <!-- <div class="admin-dropdown">
-    <button class="dropdown-toggle" aria-expanded="false" aria-controls="admin-menu">
-      <span class="material-icons" aria-hidden="true">admin_panel_settings</span>Admin
-      <span class="material-icons dropdown-icon">expand_more</span>
-    </button>
-    <div class="dropdown-menu" id="admin-menu">
-      <a href="sales-approval.html" tabindex="0" aria-label="Sales Approval">
-        <span class="material-icons" aria-hidden="true">check_circle</span>Sales Approval
-      </a>
-      <a href="tour-requested.html" tabindex="0" aria-label="Tour Requested">
-        <span class="material-icons" aria-hidden="true">event_available</span>Tour Requested
-      </a>
-      <a href="view-customers.html" tabindex="0" aria-label="View All Customers">
-        <span class="material-icons" aria-hidden="true">people</span>View All Customers
-      </a>
-       
-                        <a href="track-sales.html" tabindex="0" aria-label="Track Sales">
-                            <span class="material-icons" aria-hidden="true">assessment</span>Track Sales
-                        </a>
-                   
-    </div>
-  </div>-->
-  
-  
+  <!-- ── Header ── -->
+  <header role="banner" aria-label="Primary header">
+    <div class="header-left">
+      <button class="sidebar-toggle-btn material-icons" aria-label="Toggle navigation">menu</button>
+      <a href="#" class="logo"><span class="material-icons" aria-hidden="true">apartment</span>G.O AREGHAN REAL ESTATE FIRM</a>
+      <nav class="primary-nav">
+        <a href="/sell-page.html">Sell</a>
+        <a href="/sold-properties">Sold Properties</a>
       </nav>
-      <footer>&copy; 2025 G.O AREGBAN REAL ESTATE FIRM. All rights reserved.</footer>
-    </aside>
+    </div>
+    <div class="header-right">
+      <button class="icon-btn"><a href="notificatin-page.html"><span class="material-icons">notifications</span></a></button>
+      <button class="icon-btn"><a href="profile-page.html"><span class="material-icons">person</span></a></button>
+    </div>
+  </header>
 
-    <!-- Full Header (Copied from sold-properties.ejs for Consistency) -->
-    <header role="banner" aria-label="Primary header">
-      <div class="header-left">
-        <button class="sidebar-toggle-btn material-icons" aria-label="Toggle navigation">menu</button>
-        <a href="#" class="logo"><span class="material-icons" aria-hidden="true">apartment</span>G.O AREGBAN REAL ESTATE FIRM</a>
-        <nav class="primary-nav">
-          <a href="/sell-page.html">Sell</a>
-          <a href="/sold-properties">Sold Properties</a>
-        </nav>
+  <!-- ── Main ── -->
+  <main role="main">
+    <div class="form-container">
+      <div class="page-title">
+        <span class="material-icons">edit_note</span>
+        Edit Sold Property
       </div>
-      <div class="header-right">
-        <button class="icon-btn"><a href="notificatin-page.html"><span class="material-icons">notifications</span></a></button>
-        <button class="icon-btn"><a href="profile-page.html"><span class="material-icons">person</span></a></button>
-      </div>
-    </header>
 
-    <main role="main" aria-label="Edit sold property">
-      <div class="form-container">
-        <h1 class="text-2xl font-bold mb-4">Edit Sold Property</h1>
-        <form action="/update-sold" method="POST" novalidate>
-          <input type="hidden" name="id" value="<%= property.id %>">
-          
+      <!-- Success / Error banner (from query params) -->
+      <div id="pageBanner" style="display:none;padding:12px 16px;border-radius:8px;font-size:.875rem;font-weight:600;margin-bottom:20px;"></div>
+
+      <form id="editSoldForm" action="/update-sold" method="POST" enctype="multipart/form-data" novalidate>
+        <input type="hidden" name="id" value="<%= property.id %>">
+        <!-- Hidden fields to carry retained media paths -->
+        <input type="hidden" id="keepImages" name="keep_images" value="<%= property.image_data || '' %>">
+        <input type="hidden" id="keepVideos" name="keep_videos" value="<%= property.video || '' %>">
+
+        <!-- ── Property Info ── -->
+        <div class="section-card">
+          <div class="section-title"><span class="material-icons">info</span> Property Information</div>
           <div class="form-group">
-            <label for="title">Title</label>
-            <input type="text" id="title" name="title" value="<%= property.title || '' %>" required maxlength="100">
+            <label for="title">Title *</label>
+            <input type="text" id="title" name="title" value="<%= property.title || '' %>" required maxlength="150">
           </div>
-          
           <div class="form-group">
             <label for="description">Description</label>
-            <textarea id="description" name="description" required><%= property.description || '' %></textarea>
+            <textarea id="description" name="description"><%= property.description || '' %></textarea>
           </div>
-
-          <!-- Owner Details -->
           <div class="form-row">
             <div class="form-group">
-              <label for="ownerName">Owner Name</label>
-              <input type="text" id="ownerName" name="ownerName" value="<%= property.ownerName || '' %>" required>
-            </div>
-            <div class="form-group">
-              <label for="ownerEmail">Owner Email</label>
-              <input type="email" id="ownerEmail" name="ownerEmail" value="<%= property.ownerEmail || '' %>" required>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="ownerPhone">Owner Phone</label>
-            <input type="tel" id="ownerPhone" name="ownerPhone" value="<%= property.ownerPhone || '' %>" required pattern="[0-9+\-\s()]{10,}">
-          </div>
-
-          <!-- Property Details -->
-          <div class="form-row">
-            <div class="form-group">
-              <label for="propertyAddress">Property Address</label>
+              <label for="propertyAddress">Property Address *</label>
               <input type="text" id="propertyAddress" name="propertyAddress" value="<%= property.propertyAddress || '' %>" required>
             </div>
             <div class="form-group">
               <label for="amount">Amount (₦)</label>
-              <input type="number" id="amount" name="amount" value="<%= property.amount || '' %>" min="0" step="1">
+              <input type="number" id="amount" name="amount" value="<%= property.amount || '' %>" min="0">
             </div>
           </div>
-
           <div class="form-row">
             <div class="form-group">
-              <label for="bedrooms">Bedrooms</label>
-              <input type="number" id="bedrooms" name="bedrooms" value="<%= property.bedrooms || '0' %>" min="0" max="10">
-            </div>
-            <div class="form-group">
-              <label for="bathrooms">Bathrooms</label>
-              <input type="number" id="bathrooms" name="bathrooms" value="<%= property.bathrooms || '0' %>" min="0" max="10">
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label for="sqft">Square Feet</label>
-              <input type="number" id="sqft" name="sqft" value="<%= property.sqft || '0' %>" min="0">
-            </div>
-            <div class="form-group">
-              <label for="rentSell">Rent/Sell</label>
+              <label for="rentSell">Listing Type</label>
               <select id="rentSell" name="rentSell">
-                <option value="" <%= !property.rentSell ? 'selected' : '' %>>Select</option>
-                <option value="Sell" <%= property.rentSell === 'Sell' ? 'selected' : '' %>>Sell</option>
-                <option value="Rent" <%= property.rentSell === 'Rent' ? 'selected' : '' %>>Rent</option>
+                <option value="">Select</option>
+                <option value="Sell" <%= property.rentSell === 'Sell' ? 'selected' : '' %>>For Sale</option>
+                <option value="Rent" <%= property.rentSell === 'Rent' ? 'selected' : '' %>>For Rent</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="property-type">Property Type</label>
+              <select id="property-type" name="property-type">
+                <option value="">Select Type</option>
+                <% const ptypes = ['Self Contain','Flat / Apartment','Mini Flat','Room & Parlour','Duplex','Bungalow','Storey Building','Terrace House','Semi-Detached','Detached House','Mansion','Penthouse','Studio Apartment','Commercial Property','Office Space','Shop / Retail','Warehouse','Mixed-Use','Land','Plots of Land']; %>
+                <% ptypes.forEach(pt => { %>
+                  <option value="<%= pt %>" <%= (property['property-type'] === pt) ? 'selected' : '' %>><%= pt %></option>
+                <% }); %>
               </select>
             </div>
           </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="bedrooms">Bedrooms</label>
+              <input type="number" id="bedrooms" name="bedrooms" value="<%= property.bedrooms || 0 %>" min="0" max="30">
+            </div>
+            <div class="form-group">
+              <label for="bathrooms">Bathrooms</label>
+              <input type="number" id="bathrooms" name="bathrooms" value="<%= property.bathrooms || 0 %>" min="0" max="30">
+            </div>
+            <div class="form-group">
+              <label for="sqft">Size (sqft)</label>
+              <input type="number" id="sqft" name="sqft" value="<%= property.sqft || 0 %>" min="0">
+            </div>
+            <div class="form-group">
+              <label for="land_size">Land Size</label>
+              <input type="text" id="land_size" name="land_size" value="<%= property.land_size || '' %>" placeholder="e.g. 500 sqm">
+            </div>
+            <div class="form-group">
+              <label for="building_size">Building Size</label>
+              <input type="text" id="building_size" name="building_size" value="<%= property.building_size || '' %>" placeholder="e.g. 300 sqm">
+            </div>
+            <div class="form-group">
+              <label for="num_flats">No. of Flats</label>
+              <input type="number" id="num_flats" name="num_flats" value="<%= property.num_flats || 0 %>" min="0">
+            </div>
+          </div>
+        </div>
 
+        <!-- ── Owner Details ── -->
+        <div class="section-card">
+          <div class="section-title"><span class="material-icons">person</span> Owner Details</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="ownerName">Owner Name</label>
+              <input type="text" id="ownerName" name="ownerName" value="<%= property.ownerName || '' %>">
+            </div>
+            <div class="form-group">
+              <label for="ownerEmail">Owner Email</label>
+              <input type="email" id="ownerEmail" name="ownerEmail" value="<%= property.ownerEmail || '' %>">
+            </div>
+          </div>
           <div class="form-group">
-            <label for="property-type">Property Type</label>
-            <select id="property-type" name="property-type" required>
-              <option value="" <%= !property['property-type'] ? 'selected' : '' %>>Select Type</option>
-              <option value="Self Contain" <%= property['property-type'] === 'Self Contain' ? 'selected' : '' %>>Self Contain</option>
-              
-              <option value="Plots of Land" <%= property['property-type'] === 'Plots of Land' ? 'selected' : '' %>>Plots of Land</option>
-              <option value="Duplex/Bangalow/Storey building" <%= property['property-type'] === 'Duplex/Bangalow/Storey building' ? 'selected' : '' %>>Duplex/Bangalow/Storey building</option>
-             
-            </select>
+            <label for="ownerPhone">Owner Phone</label>
+            <input type="tel" id="ownerPhone" name="ownerPhone" value="<%= property.ownerPhone || '' %>">
+          </div>
+        </div>
+
+        <!-- ── Images ── -->
+        <div class="section-card">
+          <div class="section-title"><span class="material-icons">photo_library</span> Property Images
+            <span style="margin-left:auto;font-size:.75rem;color:#94a3b8;font-weight:400;">Click ✕ to remove · Upload to add new</span>
           </div>
 
-          <!-- Preview Section (Read-Only Blobs) -->
-          <div class="preview-section">
-            <h3 class="text-lg font-semibold mb-2">Current Media (Not Editable Here)</h3>
-            <% if (property.image_data) { %>
-              <div>
-                <label>Image Preview:</label>
-                <img src="<%= property.image_data %>" alt="Current Property Image" class="image-preview">
+          <!-- Existing images -->
+          <div id="existingImages" class="media-grid">
+            <% if (property.image_data) {
+                 const imgs = property.image_data.split(',').filter(s => s.trim());
+                 imgs.forEach((src, i) => { %>
+              <div class="media-thumb" id="img-thumb-<%= i %>">
+                <img src="<%= src.trim() %>" alt="Image <%= i+1 %>" onerror="this.src='/img/OGA AYO COM CARDXS.jpg'">
+                <button type="button" class="remove-btn" onclick="removeImage('<%= src.trim() %>', '<%= i %>')" title="Remove image">✕</button>
               </div>
-            <% } else { %>
-              <p>No image available.</p>
+            <% }); } else { %>
+              <span class="media-empty">No existing images</span>
             <% } %>
-            <% if (property.video) { %>
-              <div>
-                <label>Video Preview:</label>
-                <video src="<%= property.video %>" controls class="video-preview" width="300">
-                  Your browser does not support the video tag.
-                </video>
+          </div>
+
+          <!-- New image upload -->
+          <label class="upload-zone">
+            <span class="material-icons">add_photo_alternate</span>
+            <span>Click to upload new images (JPG, PNG, WEBP — multiple allowed)</span>
+            <input type="file" name="image" id="newImageInput" accept="image/*" multiple style="display:none" onchange="previewNewImages(this)">
+          </label>
+          <div id="newImagePreviews" class="media-grid" style="margin-top:10px;"></div>
+        </div>
+
+        <!-- ── Videos ── -->
+        <div class="section-card">
+          <div class="section-title"><span class="material-icons">videocam</span> Property Videos
+            <span style="margin-left:auto;font-size:.75rem;color:#94a3b8;font-weight:400;">Click ✕ to remove · Upload to add new</span>
+          </div>
+
+          <!-- Existing videos -->
+          <div id="existingVideos" class="media-grid">
+            <% if (property.video) {
+                 const vids = property.video.split(',').filter(s => s.trim());
+                 vids.forEach((src, i) => { %>
+              <div class="media-thumb" id="vid-thumb-<%= i %>">
+                <video src="<%= src.trim() %>" controls></video>
+                <button type="button" class="remove-btn" onclick="removeVideo('<%= src.trim() %>', '<%= i %>')" title="Remove video">✕</button>
               </div>
-            <% } else { %>
-              <p>No video available.</p>
+            <% }); } else { %>
+              <span class="media-empty">No existing videos</span>
             <% } %>
-            <p class="text-sm text-gray-500 mt-2">To update media, contact admin or use advanced upload feature.</p>
           </div>
 
-          <!-- Submit Buttons -->
-          <div class="form-group">
-            <button type="submit" class="btn btn-primary">
-              <span class="material-icons" aria-hidden="true">save</span> Update Property
-            </button>
-            <a href="/sold-properties" class="btn btn-secondary">
-              <span class="material-icons" aria-hidden="true">arrow_back</span> Cancel/Back
-            </a>
-          </div>
-        </form>
-      </div>
-    </main>
+          <!-- New video upload -->
+          <label class="upload-zone">
+            <span class="material-icons">video_library</span>
+            <span>Click to upload new videos (MP4, MOV, AVI — max 20MB each)</span>
+            <input type="file" name="video" id="newVideoInput" accept="video/*" multiple style="display:none" onchange="previewNewVideos(this)">
+          </label>
+          <div id="newVideoPreviews" class="media-grid" style="margin-top:10px;"></div>
+        </div>
 
-    <footer role="contentinfo" aria-label="Website footer">
-      <div>© 2025 G.O AREGBAN REAL ESTATE FIRM. All rights reserved.</div>
-      <div class="social-links" aria-label="Social media links">
-        <a href="#" target="_blank" rel="noopener" aria-label="Facebook"><span class="material-icons">facebook</span></a>
-        <a href="#" target="_blank" rel="noopener" aria-label="Twitter"><span class="material-icons">twitter</span></a>
-        <a href="#" target="_blank" rel="noopener" aria-label="Instagram"><span class="material-icons">camera_alt</span></a>
-        <a href="#" target="_blank" rel="noopener" aria-label="LinkedIn"><span class="material-icons">linkedin</span></a>
-      </div>
-    </footer>
-  </div>
+        <!-- ── Submit ── -->
+        <div class="btn-row">
+          <button type="submit" id="submitBtn" class="btn btn-primary">
+            <span class="material-icons">save</span> Save Changes
+          </button>
+          <a href="/sold-properties" class="btn btn-secondary">
+            <span class="material-icons">arrow_back</span> Cancel
+          </a>
+        </div>
+      </form>
+    </div>
+  </main>
 
-  <!-- Toast notifications container -->
-  <div id="toast-container" aria-live="assertive" role="alert"></div>
+  <footer role="contentinfo">
+    <div>© 2025 G.O AREGHAN REAL ESTATE FIRM. All rights reserved.</div>
+    <div class="social-links">
+      <a href="#" target="_blank" rel="noopener" aria-label="Facebook"><span class="material-icons">facebook</span></a>
+      <a href="#" target="_blank" rel="noopener" aria-label="Twitter"><span class="material-icons">twitter</span></a>
+      <a href="#" target="_blank" rel="noopener" aria-label="Instagram"><span class="material-icons">camera_alt</span></a>
+    </div>
+  </footer>
+</div>
 
-  <script src="/js/script.js"></script>
-  <!-- Sidebar Toggle (if not in script.js) -->
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const sidebarToggle = document.querySelector('.sidebar-toggle-btn');
-      const sidebar = document.querySelector('.sidebar');
-      if (sidebarToggle && sidebar) {
-        sidebarToggle.addEventListener('click', () => {
-          sidebar.classList.toggle('hidden');
-        });
-      }
+<div id="toast-container" aria-live="assertive" role="alert"></div>
 
-      // Basic Form Validation Feedback (Optional)
-      const form = document.querySelector('form');
-      if (form) {
-        form.addEventListener('submit', (e) => {
-          if (!form.checkValidity()) {
-            e.preventDefault();
-            alert('Please fill in all required fields correctly.');
-          }
-        });
-      }
-    });
-  </script>
+<script src="/js/script.js"></script>
+<script>
+// ── Sidebar toggle ──
+document.addEventListener('DOMContentLoaded', () => {
+  const btn = document.querySelector('.sidebar-toggle-btn');
+  const sb  = document.querySelector('.sidebar');
+  if (btn && sb) btn.addEventListener('click', () => sb.classList.toggle('hidden'));
 
-  <!-- Toast Handling Script (For Errors from Redirects) -->
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const urlParams = new URLSearchParams(window.location.search);
-      const error = urlParams.get('error');
+  // Show success / error from query params
+  const p = new URLSearchParams(window.location.search);
+  const banner = document.getElementById('pageBanner');
+  if (p.get('success')) {
+    banner.style.cssText = 'display:block;background:#f0fdf4;border:1px solid #bbf7d0;color:#16a34a;padding:12px 16px;border-radius:8px;font-size:.875rem;font-weight:600;margin-bottom:20px;';
+    banner.textContent = '✓ ' + p.get('success');
+    window.history.replaceState({}, '', location.pathname);
+  } else if (p.get('error')) {
+    banner.style.cssText = 'display:block;background:#fef2f2;border:1px solid #fecaca;color:#dc2626;padding:12px 16px;border-radius:8px;font-size:.875rem;font-weight:600;margin-bottom:20px;';
+    banner.textContent = '✗ ' + p.get('error');
+    window.history.replaceState({}, '', location.pathname);
+  }
+});
 
-      const toastContainer = document.getElementById('toast-container');
+// ── Track which existing images/videos to keep ──
+// Initialise from the server-rendered hidden fields
+let keepImages = document.getElementById('keepImages').value
+  .split(',').map(s => s.trim()).filter(Boolean);
+let keepVideos = document.getElementById('keepVideos').value
+  .split(',').map(s => s.trim()).filter(Boolean);
 
-      function showToast(message, type) {
-        if (!toastContainer) return;
-        const toast = document.createElement('div');
-        toast.className = `toast ${type}`;
-        toast.textContent = message;
-        toast.setAttribute('role', 'alert');
-        toast.setAttribute('aria-live', 'assertive');
-        toastContainer.appendChild(toast);
+function syncHidden() {
+  document.getElementById('keepImages').value = keepImages.join(',');
+  document.getElementById('keepVideos').value = keepVideos.join(',');
+}
 
-        setTimeout(() => {
-          toast.style.animation = 'slideOut 0.3s ease-in';  // Add @keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } } to <style> if needed
-          setTimeout(() => {
-            if (toast.parentNode) toast.parentNode.removeChild(toast);
-          }, 300);
-        }, 5000);
-      }
+function removeImage(src, idx) {
+  keepImages = keepImages.filter(s => s !== src);
+  syncHidden();
+  const el = document.getElementById('img-thumb-' + idx);
+  if (el) el.remove();
+  if (document.getElementById('existingImages').children.length === 0) {
+    document.getElementById('existingImages').innerHTML = '<span class="media-empty">No existing images</span>';
+  }
+}
 
-      if (error) {
-        showToast(decodeURIComponent(error), 'error');
-        // Clear URL params
-        window.history.replaceState({}, document.title, window.location.pathname);
-      }
-    });
-  </script>
+function removeVideo(src, idx) {
+  keepVideos = keepVideos.filter(s => s !== src);
+  syncHidden();
+  const el = document.getElementById('vid-thumb-' + idx);
+  if (el) el.remove();
+  if (document.getElementById('existingVideos').children.length === 0) {
+    document.getElementById('existingVideos').innerHTML = '<span class="media-empty">No existing videos</span>';
+  }
+}
+
+// ── New file previews ──
+function previewNewImages(input) {
+  const container = document.getElementById('newImagePreviews');
+  container.innerHTML = '';
+  Array.from(input.files).forEach(file => {
+    if (!file.type.startsWith('image/')) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      const div = document.createElement('div');
+      div.className = 'media-thumb';
+      div.innerHTML = `<img src="${e.target.result}" style="width:110px;height:85px;object-fit:cover;">`;
+      container.appendChild(div);
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function previewNewVideos(input) {
+  const container = document.getElementById('newVideoPreviews');
+  container.innerHTML = '';
+  Array.from(input.files).forEach(file => {
+    if (!file.type.startsWith('video/')) return;
+    const url = URL.createObjectURL(file);
+    const div = document.createElement('div');
+    div.className = 'media-thumb';
+    div.innerHTML = `<video src="${url}" controls style="width:150px;height:95px;object-fit:cover;"></video>`;
+    container.appendChild(div);
+  });
+}
+
+// ── Submit feedback ──
+document.getElementById('editSoldForm').addEventListener('submit', function() {
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="material-icons" style="animation:spin 1s linear infinite;">refresh</span> Saving...';
+});
+
+const spinStyle = document.createElement('style');
+spinStyle.textContent = '@keyframes spin { to { transform: rotate(360deg); } }';
+document.head.appendChild(spinStyle);
+
+// ── Toast helper (for redirect-based errors) ──
+function showToast(message, type = 'success') {
+  const c = document.getElementById('toast-container');
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.textContent = message;
+  c.appendChild(t);
+  setTimeout(() => {
+    t.style.animation = 'slideOut .3s ease-in';
+    setTimeout(() => t.remove(), 300);
+  }, 5000);
+}
+</script>
 </body>
-
 </html>
