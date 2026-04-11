@@ -2404,7 +2404,7 @@ document.addEventListener('DOMContentLoaded', () => {
         .catch(() => {});
 
     // ---- Requires Login ----
-    /*document.querySelectorAll('.requires-login').forEach(el => {
+    document.querySelectorAll('.requires-login').forEach(el => {
         el.addEventListener('click', (e) => {
             e.preventDefault();
             fetch('/api/check-login', { credentials: 'include' })
@@ -2419,7 +2419,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 })
                 .catch(() => { window.location.href = '/login'; });
         });
-    });*/
+    });
 
     // ---- Contact Form ----
     const contactForm = document.getElementById('contact-form');
