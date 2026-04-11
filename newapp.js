@@ -939,7 +939,7 @@ newapp2.get('/customer-rent-page.html', async (req, res) => {
 });
 
 // ==================== PROPERTY DETAIL ====================
-newapp2.get('/property-detail', ensureAuthenticated, async (req, res) => {
+newapp2.get('/property-detail', async (req, res) => {
     const propertyId = req.query.id;
     if (!propertyId) return res.status(400).send('Property ID is required.');
     try {
