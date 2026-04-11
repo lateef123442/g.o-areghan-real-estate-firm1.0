@@ -1773,6 +1773,24 @@
     </div>
 </section>
 
+<!-- ===== SAVED PROPERTIES ===== -->
+<section id="saved-properties" class="saved-section">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-eyebrow">Your Collection</span>
+            <h2 class="section-title">Saved Properties</h2>
+            <div class="gold-divider"></div>
+            <p class="section-desc">Properties you've bookmarked for later. Click the bookmark icon on any listing to save it here.</p>
+        </div>
+        <div class="property-grid" id="saved-properties-grid">
+            <div class="saved-empty">You haven't saved any properties yet. Browse listings and click the bookmark icon to save them here.</div>
+        </div>
+        <div class="view-all-wrap">
+            <button onclick="clearSaved()" style="border:none;background:none;color:#94a3b8;font-size:0.8rem;cursor:pointer;text-decoration:underline;">Clear all saved</button>
+        </div>
+    </div>
+</section>
+
 <!-- ===== WHY CHOOSE US ===== -->
 <section class="section section-cream">
     <div class="container">
@@ -2589,6 +2607,131 @@ if (valForm) {
         document.querySelectorAll('img[data-src]').forEach(img => io.observe(img));
     }
 });
+
+// ── Like & Save functionality ──
+const LIKES_KEY  = 'go_areghan_likes';
+const SAVES_KEY  = 'go_areghan_saves';
+
+function getSet(key) {
+    try { return new Set(JSON.parse(localStorage.getItem(key)) || []); }
+    catch(e) { return new Set(); }
+}
+function saveSet(key, set) {
+    localStorage.setItem(key, JSON.stringify([...set]));
+}
+
+function applyStates() {
+    const likes = getSet(LIKES_KEY);
+    const saves = getSet(SAVES_KEY);
+    document.querySelectorAll('.like-btn').forEach(btn => {
+        const id = btn.dataset.id;
+        btn.classList.toggle('liked', likes.has(id));
+        btn.querySelector('i').className = likes.has(id) ? 'fas fa-heart' : 'far fa-heart';
+        btn.title = likes.has(id) ? 'Unlike' : 'Like this property';
+    });
+    document.querySelectorAll('.save-btn').forEach(btn => {
+        const id = btn.dataset.id;
+        btn.classList.toggle('saved', saves.has(id));
+        btn.querySelector('i').className = saves.has(id) ? 'fas fa-bookmark' : 'far fa-bookmark';
+        btn.title = saves.has(id) ? 'Unsave' : 'Save property';
+    });
+    updateSaveBadge();
+}
+
+function updateSaveBadge() {
+    const count = getSet(SAVES_KEY).size;
+    document.querySelectorAll('.saved-count-badge').forEach(b => {
+        b.textContent = count;
+        b.style.display = count > 0 ? 'inline-flex' : 'none';
+    });
+}
+
+document.querySelectorAll('.like-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const id = btn.dataset.id;
+        const likes = getSet(LIKES_KEY);
+        if (likes.has(id)) likes.delete(id); else likes.add(id);
+        saveSet(LIKES_KEY, likes);
+        applyStates();
+        const icon = btn.querySelector('i');
+        icon.style.transform = 'scale(1.4)';
+        setTimeout(() => icon.style.transform = '', 200);
+    });
+});
+
+document.querySelectorAll('.save-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const id = btn.dataset.id;
+        const saves = getSet(SAVES_KEY);
+        if (saves.has(id)) saves.delete(id); else saves.add(id);
+        saveSet(SAVES_KEY, saves);
+        applyStates();
+        // if on homepage, re-render saved section
+        if (typeof renderSavedSection === 'function') renderSavedSection();
+    });
+});
+
+applyStates();
+
+// Homepage: render saved properties section
+function renderSavedSection() {
+    const saves = getSet(SAVES_KEY);
+    const section = document.getElementById('saved-properties');
+    const grid = document.getElementById('saved-properties-grid');
+    if (!section || !grid) return;
+
+    if (saves.size === 0) {
+        section.classList.remove('has-items');
+        return;
+    }
+
+    // Collect card data from all .property-card elements on the page
+    const allCards = document.querySelectorAll('#properties .property-card');
+    const savedCards = [];
+    allCards.forEach(card => {
+        const saveBtn = card.querySelector('.save-btn');
+        if (saveBtn && saves.has(saveBtn.dataset.id)) {
+            savedCards.push(card.cloneNode(true));
+        }
+    });
+
+    if (savedCards.length === 0) {
+        section.classList.remove('has-items');
+        return;
+    }
+
+    section.classList.add('has-items');
+    grid.innerHTML = '';
+    savedCards.forEach(clone => {
+        // Make save button in clone functional
+        const sb = clone.querySelector('.save-btn');
+        if (sb) sb.addEventListener('click', e => {
+            e.stopPropagation();
+            const id = sb.dataset.id;
+            const saves2 = getSet(SAVES_KEY);
+            if (saves2.has(id)) saves2.delete(id); else saves2.add(id);
+            saveSet(SAVES_KEY, saves2);
+            applyStates();
+            renderSavedSection();
+        });
+        grid.appendChild(clone);
+    });
+    applyStates();
+}
+
+function clearSaved() {
+    if (confirm('Clear all saved properties?')) {
+        localStorage.removeItem(SAVES_KEY);
+        applyStates();
+        renderSavedSection();
+    }
+}
+
+// Also add a nav link for saved properties on the homepage navbar
+// Find the nav-links div and add:
+// <a href="#saved-properties" class="nav-link"><i class="fas fa-bookmark"></i> Saved <span class="saved-count-badge" style="display:none;">0</span></a>
 </script>
 </body>
 </html>
