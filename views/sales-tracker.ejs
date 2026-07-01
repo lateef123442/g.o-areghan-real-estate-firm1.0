@@ -254,6 +254,40 @@
     
     .property-types-grid .stat-card { padding: 1.25rem; }
 
+    .engagement-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.25rem;
+      margin: 2rem 0;
+    }
+
+    .engagement-list {
+      display: grid;
+      gap: 0.8rem;
+      margin-top: 1rem;
+    }
+
+    .engagement-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 0.9rem 1rem;
+      gap: 0.75rem;
+    }
+
+    .engagement-score {
+      min-width: 44px;
+      text-align: center;
+      font-weight: 700;
+      color: #0f766e;
+      background: #ccfbf1;
+      border-radius: 999px;
+      padding: 0.35rem 0.6rem;
+    }
+
     /* Charts Grid */
     .charts-grid { 
       display: grid; 
@@ -460,6 +494,48 @@
             <h3><%= stats.soldThisMonth %></h3>
             <div class="label">Sold This Month</div>
             <span class="material-icons" style="color: #10b981;">trending_up</span>
+          </div>
+        </div>
+
+        <!-- Property Engagement -->
+        <div class="engagement-grid">
+          <div class="stat-card sold">
+            <h3><%= stats.totalLikes %></h3>
+            <div class="label">Property Likes</div>
+            <span class="material-icons" style="color: #10b981;">favorite</span>
+          </div>
+          <div class="stat-card customers">
+            <h3><%= stats.totalSaves %></h3>
+            <div class="label">Property Saves</div>
+            <span class="material-icons" style="color: #3b82f6;">bookmark</span>
+          </div>
+          <div class="stat-card pending">
+            <h3><%= stats.usersWhoLiked %></h3>
+            <div class="label">Users Who Liked</div>
+            <span class="material-icons" style="color: #f59e0b;">people_alt</span>
+          </div>
+          <div class="stat-card sold">
+            <h3><%= stats.usersWhoSaved %></h3>
+            <div class="label">Users Who Saved</div>
+            <span class="material-icons" style="color: #10b981;">collections_bookmark</span>
+          </div>
+        </div>
+
+        <div class="chart-container">
+          <h3>Top Engaged Properties</h3>
+          <div class="engagement-list">
+            <% stats.topEngagement.forEach(property => { %>
+              <div class="engagement-row">
+                <div>
+                  <strong><%= property.title %></strong>
+                  <div class="label">Likes <%= property.likes %> • Saves <%= property.saves %></div>
+                </div>
+                <div class="engagement-score"><%= Number(property.likes) + Number(property.saves) %></div>
+              </div>
+            <% }) %>
+            <% if (!stats.topEngagement || stats.topEngagement.length === 0) { %>
+              <div class="engagement-row" style="justify-content:center;">No engagement data yet.</div>
+            <% } %>
           </div>
         </div>
 

@@ -273,6 +273,16 @@
                   </div>
                 </div>
                 <div class="property-price"># <%= card.amount %></div>
+                <div class="property-card-actions">
+                  <button class="card-action-btn like-btn" data-id="<%= card.id %>" type="button" aria-label="Like this property">
+                    <span class="material-icons" aria-hidden="true">favorite_border</span>
+                    <span class="action-count" id="like-count-<%= card.id %>">0</span>
+                  </button>
+                  <button class="card-action-btn save-btn" data-id="<%= card.id %>" type="button" aria-label="Save this property">
+                    <span class="material-icons" aria-hidden="true">bookmark_border</span>
+                    <span class="action-count" id="save-count-<%= card.id %>">0</span>
+                  </button>
+                </div>
                 <div>
                 <a href="/request-tour?id=<%= card.id %>"><button class="request-tour">View</button></a>
                   <a href="/sold?id=<%= card.id %>" class="requires-login"><button class="request-tour" style="background-color:gold">Sold</button></a>
@@ -320,6 +330,101 @@
         document.getElementById('admin-menu').classList.toggle('show');
       });
     })();
+
+    async function ensureLoggedIn() {
+      try {
+        const res = await fetch('/api/check-login', { credentials: 'include' });
+        const data = await res.json();
+        if (!data.loggedIn) {
+          window.location.href = '/login';
+          return false;
+        }
+        return true;
+      } catch (err) {
+        return false;
+      }
+    }
+
+    function setButtonState(button, active, type) {
+      if (!button) return;
+      button.classList.toggle(type === 'like' ? 'liked' : 'saved', active);
+      const icon = button.querySelector('.material-icons');
+      if (icon) {
+        icon.textContent = active ? (type === 'like' ? 'favorite' : 'bookmark') : (type === 'like' ? 'favorite_border' : 'bookmark_border');
+      }
+      button.title = active ? (type === 'like' ? 'Unlike this property' : 'Unsave this property') : (type === 'like' ? 'Like this property' : 'Save this property');
+    }
+
+    async function syncPropertyState(propertyId) {
+      try {
+        const response = await fetch(`/property/stats?propertyId=${encodeURIComponent(propertyId)}`, { credentials: 'include' });
+        if (!response.ok) return;
+        const data = await response.json();
+        const likeButton = document.querySelector(`.like-btn[data-id="${propertyId}"]`);
+        const saveButton = document.querySelector(`.save-btn[data-id="${propertyId}"]`);
+        const likeCount = document.getElementById(`like-count-${propertyId}`);
+        const saveCount = document.getElementById(`save-count-${propertyId}`);
+        if (likeCount) likeCount.textContent = data.likes || 0;
+        if (saveCount) saveCount.textContent = data.saves || 0;
+        if (likeButton) setButtonState(likeButton, Boolean(data.liked), 'like');
+        if (saveButton) setButtonState(saveButton, Boolean(data.saved), 'save');
+      } catch (err) {
+        console.error('Could not sync property state', err);
+      }
+    }
+
+    async function togglePropertyEngagement(type, button) {
+      const propertyId = button?.dataset?.id;
+      if (!propertyId) return;
+      const loggedIn = await ensureLoggedIn();
+      if (!loggedIn) return;
+      button.disabled = true;
+      try {
+        const endpoint = type === 'like' ? '/property/like' : '/property/save';
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ propertyId })
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Request failed');
+        const countId = type === 'like' ? `like-count-${propertyId}` : `save-count-${propertyId}`;
+        const countEl = document.getElementById(countId);
+        if (countEl) countEl.textContent = type === 'like' ? (data.likes || 0) : (data.saves || 0);
+        if (type === 'like') {
+          setButtonState(document.querySelector(`.like-btn[data-id="${propertyId}"]`), Boolean(data.liked), 'like');
+        } else {
+          setButtonState(document.querySelector(`.save-btn[data-id="${propertyId}"]`), Boolean(data.saved), 'save');
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Could not update property. Please try again.');
+      } finally {
+        button.disabled = false;
+      }
+    }
+
+    document.querySelectorAll('.like-btn').forEach((button) => {
+      button.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        togglePropertyEngagement('like', button);
+      });
+    });
+
+    document.querySelectorAll('.save-btn').forEach((button) => {
+      button.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        togglePropertyEngagement('save', button);
+      });
+    });
+
+    document.querySelectorAll('.like-btn, .save-btn').forEach((button) => {
+      const propertyId = button.dataset.id;
+      if (propertyId) syncPropertyState(propertyId);
+    });
   </script>
 
   <!-- New Script: Handle Success/Error Toasts from URL Params -->

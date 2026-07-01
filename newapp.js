@@ -591,7 +591,9 @@ newapp2.get('/track-sales.html', ensureAuthenticated, async (req, res) => {
             [customersRows],
             [soldThisMonthRows],
             [propertyTypesRows],
-            [monthlySoldRows]
+            [monthlySoldRows],
+            [engagementRows],
+            [topEngagementRows]
         ] = await Promise.all([
             db.query("SELECT COUNT(*) as count FROM sales_approval"),
             db.query("SELECT COUNT(*) as count FROM all_properties"),
@@ -603,7 +605,22 @@ newapp2.get('/track-sales.html', ensureAuthenticated, async (req, res) => {
                 "SELECT DATE_FORMAT(created_at, '%b %Y') as month, COUNT(*) as count " +
                 "FROM sold_properties WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH) " +
                 "GROUP BY DATE_FORMAT(created_at, '%Y-%m') ORDER BY DATE_FORMAT(created_at, '%Y-%m') ASC"
-            )
+            ),
+            db.query(`
+                SELECT
+                    (SELECT COUNT(*) FROM property_likes) AS totalLikes,
+                    (SELECT COUNT(*) FROM property_saves) AS totalSaves,
+                    (SELECT COUNT(DISTINCT user_id) FROM property_likes) AS usersWhoLiked,
+                    (SELECT COUNT(DISTINCT user_id) FROM property_saves) AS usersWhoSaved
+            `),
+            db.query(`
+                SELECT p.id, p.title,
+                    (SELECT COUNT(*) FROM property_likes pl WHERE pl.property_id = p.id) AS likes,
+                    (SELECT COUNT(*) FROM property_saves ps WHERE ps.property_id = p.id) AS saves
+                FROM all_properties p
+                ORDER BY likes DESC, saves DESC
+                LIMIT 8
+            `)
         ]);
 
         const stats = {
@@ -613,7 +630,12 @@ newapp2.get('/track-sales.html', ensureAuthenticated, async (req, res) => {
             customers: customersRows[0].count || 0,
             soldThisMonth: soldThisMonthRows[0].count || 0,
             propertyTypes: propertyTypesRows,
-            monthlySold: monthlySoldRows.map(row => ({ month: row.month, count: parseInt(row.count) || 0 }))
+            monthlySold: monthlySoldRows.map(row => ({ month: row.month, count: parseInt(row.count) || 0 })),
+            totalLikes: engagementRows[0]?.totalLikes || 0,
+            totalSaves: engagementRows[0]?.totalSaves || 0,
+            usersWhoLiked: engagementRows[0]?.usersWhoLiked || 0,
+            usersWhoSaved: engagementRows[0]?.usersWhoSaved || 0,
+            topEngagement: topEngagementRows || []
         };
 
         res.render('sales-tracker', { stats, isAdmin: true });
