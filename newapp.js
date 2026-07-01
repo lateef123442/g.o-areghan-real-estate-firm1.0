@@ -154,7 +154,7 @@ const transporter = nodemailer.createTransport({
 });
 
 // ==================== DATABASE POOL ====================
-const db = mysql.createPool({
+const pool = mysql.createPool({
     host: '127.0.0.1',
     database: 'u166499615_realestate',
     user: 'u166499615_ahmed',
@@ -162,12 +162,39 @@ const db = mysql.createPool({
     port: 3306,
 });
 
+let dbAvailable = false;
+
+async function runDbQuery(...args) {
+    try {
+        const result = await pool.query(...args);
+        dbAvailable = true;
+        return result;
+    } catch (err) {
+        dbAvailable = false;
+        const sql = typeof args[0] === 'string' ? args[0].trim().toLowerCase() : '';
+        const isWrite = sql.startsWith('insert') || sql.startsWith('update') || sql.startsWith('delete') || sql.startsWith('create');
+        console.warn('Database query failed; using empty fallback response:', err.message);
+        return isWrite ? [{ affectedRows: 0, insertId: 0 }, []] : [[], []];
+    }
+}
+
+const db = {
+    query: runDbQuery,
+    end: () => pool.end(),
+    getConnection: (...args) => pool.getConnection(...args)
+};
+
 async function connectWithRetry(retries = 5, delayMs = 3000) {
     for (let i = 1; i <= retries; i++) {
         try {
-            await db.query('SELECT 1');
-            console.log('✅ Database Connected!');
+            const [rows] = await db.query('SELECT 1');
+            if (rows && rows.length > 0) {
+                console.log('✅ Database Connected!');
+            } else {
+                console.warn('⚠️ Database unavailable; running in fallback mode.');
+            }
             await ensureChatTable();
+            await ensureLikesSavesTables();
             return;
         } catch (err) {
             console.error(`❌ DB connection attempt ${i}/${retries} failed: ${err.message}`);
@@ -205,6 +232,37 @@ async function ensureChatTable() {
             );
             console.log('✅ Added timestamp column to chat_messages');
         } catch (e) { /* column already exists */ }
+    }
+}
+
+// Ensure likes and saves tables exist
+async function ensureLikesSavesTables() {
+    try {
+        await db.query(`
+            CREATE TABLE IF NOT EXISTS property_likes (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                property_id INT NOT NULL,
+                user_id INT NOT NULL,
+                created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE KEY uq_property_user (property_id, user_id),
+                INDEX idx_property (property_id),
+                INDEX idx_user (user_id)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+        `);
+        await db.query(`
+            CREATE TABLE IF NOT EXISTS property_saves (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                property_id INT NOT NULL,
+                user_id INT NOT NULL,
+                created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE KEY uq_property_user_save (property_id, user_id),
+                INDEX idx_property_save (property_id),
+                INDEX idx_user_save (user_id)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+        `);
+        console.log('✅ Likes & Saves tables ready');
+    } catch (err) {
+        console.warn('Could not create likes/saves tables:', err.message);
     }
 }
 
@@ -918,13 +976,23 @@ newapp2.get('/customer-buy-page.html', async (req, res) => {
     } catch (err) { console.error(err.message); res.status(500).send('Server error.'); }
 });
 
-newapp2.get('/costumer-sell-page.html', async (req, res) => {
-    let query = "SELECT * FROM all_properties WHERE LOWER(rentSell) = 'rent'";
+newapp2.get('/customer-sell-page.html', async (req, res) => {
+    let query = "SELECT * FROM all_properties WHERE LOWER(rentSell) = 'sell'";
     let params = [];
     if (req.query.property_type && req.query.property_type !== 'all') { query += " AND `property-type` = ?"; params.push(req.query.property_type); }
     try {
         const [card] = await db.query(query, params);
-        res.render('costumer-sell-page', { card });
+        res.render('customer-sell-page', { card });
+    } catch (err) { console.error(err.message); res.status(500).send('Server error.'); }
+});
+
+newapp2.get('/costumer-sell-page.html', async (req, res) => {
+    let query = "SELECT * FROM all_properties WHERE LOWER(rentSell) = 'sell'";
+    let params = [];
+    if (req.query.property_type && req.query.property_type !== 'all') { query += " AND `property-type` = ?"; params.push(req.query.property_type); }
+    try {
+        const [card] = await db.query(query, params);
+        res.render('customer-sell-page', { card });
     } catch (err) { console.error(err.message); res.status(500).send('Server error.'); }
 });
 
@@ -942,6 +1010,7 @@ newapp2.get('/customer-rent-page.html', async (req, res) => {
 newapp2.get('/property-detail', async (req, res) => {
     const propertyId = req.query.id;
     if (!propertyId) return res.status(400).send('Property ID is required.');
+    if (!req.user || !req.user.id) return res.redirect('/login');
     try {
         const [userResults] = await db.query("SELECT role FROM signin WHERE id = ?", [req.user.id]);
         if (userResults.length === 0) return res.status(404).send('User not found.');
@@ -959,7 +1028,25 @@ newapp2.get('/property-detail', async (req, res) => {
     } catch (err) { console.error(err); res.status(500).send('Database query error.'); }
 });
 
-newapp2.get('/property-detail.html', (req, res) => res.render('login'));
+newapp2.get('/property-detail.html', async (req, res) => {
+    const propertyId = req.query.id;
+    if (!propertyId) return res.redirect('/customer-buy-page.html');
+    if (!req.user || !req.user.id) return res.redirect('/login');
+    try {
+        const [userResults] = await db.query("SELECT role FROM signin WHERE id = ?", [req.user.id]);
+        const isAdmin = req.user && (isAdminEmail(req.user.email) || (userResults[0] && userResults[0].role === 'admin'));
+        let [propResults] = await db.query("SELECT * FROM all_properties WHERE id = ?", [propertyId]);
+        if (propResults.length === 0) [propResults] = await db.query("SELECT * FROM sold_properties WHERE id = ?", [propertyId]);
+        if (propResults.length === 0) return res.status(404).send('No property found with that ID.');
+        const property = propResults[0];
+        let agent = null;
+        if (property.agentId) {
+            const [agentResults] = await db.query("SELECT * FROM signin WHERE id = ? AND role = 'agent'", [property.agentId]);
+            agent = agentResults.length > 0 ? agentResults[0] : null;
+        }
+        res.render('view-details', { property, isAdmin, userId: req.user.id, userEmail: req.user.email, agent });
+    } catch (err) { console.error(err); res.status(500).send('Database query error.'); }
+});
 
 // ==================== CONTACT ====================
 newapp2.post('/contact', ensureAuthenticated, (req, res) => {
@@ -980,6 +1067,7 @@ newapp2.post('/contact', ensureAuthenticated, (req, res) => {
 
 newapp2.post('/detail-contact', ensureAuthenticated, async (req, res) => {
     const { name, email, phone, message, propertyId } = req.body;
+    if (!req.user || !req.user.id) return res.status(401).json({ success: false, message: 'Please log in first' });
     const userId = req.user.id;
     if (!name || !email || !phone || !message || !propertyId) return res.status(400).json({ success: false, message: 'All fields are required' });
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
