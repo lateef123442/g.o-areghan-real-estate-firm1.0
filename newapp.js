@@ -1691,6 +1691,92 @@ newapp2.get('/chat', ensureAuthenticated, async (req, res) => {
     } catch (err) { console.error(err); res.status(500).send('Error loading chat'); }
 });
 
+// ==================== PROPERTY LIKE / SAVE API ====================
+// Get counts and whether current user liked/saved a property
+newapp2.get('/property/stats', async (req, res) => {
+    const propertyId = req.query.propertyId;
+    if (!propertyId) return res.status(400).json({ error: 'propertyId required' });
+    try {
+        const [[likeCountRows]] = await db.query('SELECT COUNT(*) AS cnt FROM property_likes WHERE property_id = ?', [propertyId]);
+        const [[saveCountRows]] = await db.query('SELECT COUNT(*) AS cnt FROM property_saves WHERE property_id = ?', [propertyId]);
+        let liked = false, saved = false;
+        if (req.user && req.user.id) {
+            const [[lrows]] = await db.query('SELECT id FROM property_likes WHERE property_id = ? AND user_id = ?', [propertyId, req.user.id]);
+            const [[srows]] = await db.query('SELECT id FROM property_saves WHERE property_id = ? AND user_id = ?', [propertyId, req.user.id]);
+            liked = Array.isArray(lrows) ? lrows.length > 0 : !!lrows;
+            saved = Array.isArray(srows) ? srows.length > 0 : !!srows;
+        }
+        res.json({ likes: (likeCountRows && likeCountRows.cnt) || 0, saves: (saveCountRows && saveCountRows.cnt) || 0, liked, saved });
+    } catch (err) { console.error('property/stats error:', err.message); res.status(500).json({ error: 'Server error' }); }
+});
+
+// Toggle like
+newapp2.post('/property/like', ensureAuthenticated, async (req, res) => {
+    const { propertyId } = req.body;
+    if (!propertyId) return res.status(400).json({ error: 'propertyId required' });
+    const userId = req.user.id;
+    try {
+        const [existing] = await db.query('SELECT id FROM property_likes WHERE property_id = ? AND user_id = ?', [propertyId, userId]);
+        if (existing && existing.length > 0) {
+            await db.query('DELETE FROM property_likes WHERE property_id = ? AND user_id = ?', [propertyId, userId]);
+            const [[c]] = await db.query('SELECT COUNT(*) AS cnt FROM property_likes WHERE property_id = ?', [propertyId]);
+            return res.json({ liked: false, likes: c.cnt || 0 });
+        }
+        await db.query('INSERT INTO property_likes (property_id, user_id) VALUES (?, ?)', [propertyId, userId]);
+        const [[c2]] = await db.query('SELECT COUNT(*) AS cnt FROM property_likes WHERE property_id = ?', [propertyId]);
+        res.json({ liked: true, likes: c2.cnt || 0 });
+    } catch (err) { console.error('property/like error:', err.message); res.status(500).json({ error: 'Server error' }); }
+});
+
+// Toggle save
+newapp2.post('/property/save', ensureAuthenticated, async (req, res) => {
+    const { propertyId } = req.body;
+    if (!propertyId) return res.status(400).json({ error: 'propertyId required' });
+    const userId = req.user.id;
+    try {
+        const [existing] = await db.query('SELECT id FROM property_saves WHERE property_id = ? AND user_id = ?', [propertyId, userId]);
+        if (existing && existing.length > 0) {
+            await db.query('DELETE FROM property_saves WHERE property_id = ? AND user_id = ?', [propertyId, userId]);
+            const [[c]] = await db.query('SELECT COUNT(*) AS cnt FROM property_saves WHERE property_id = ?', [propertyId]);
+            return res.json({ saved: false, saves: c.cnt || 0 });
+        }
+        await db.query('INSERT INTO property_saves (property_id, user_id) VALUES (?, ?)', [propertyId, userId]);
+        const [[c2]] = await db.query('SELECT COUNT(*) AS cnt FROM property_saves WHERE property_id = ?', [propertyId]);
+        res.json({ saved: true, saves: c2.cnt || 0 });
+    } catch (err) { console.error('property/save error:', err.message); res.status(500).json({ error: 'Server error' }); }
+});
+
+// User endpoints
+newapp2.get('/user/saved', ensureAuthenticated, async (req, res) => {
+    try {
+        const [rows] = await db.query('SELECT p.* FROM all_properties p JOIN property_saves ps ON ps.property_id = p.id WHERE ps.user_id = ? ORDER BY ps.created_at DESC', [req.user.id]);
+        res.json(rows);
+    } catch (err) { console.error('user/saved error:', err.message); res.status(500).json({ error: 'Server error' }); }
+});
+
+newapp2.get('/user/liked', ensureAuthenticated, async (req, res) => {
+    try {
+        const [rows] = await db.query('SELECT p.* FROM all_properties p JOIN property_likes pl ON pl.property_id = p.id WHERE pl.user_id = ? ORDER BY pl.created_at DESC', [req.user.id]);
+        res.json(rows);
+    } catch (err) { console.error('user/liked error:', err.message); res.status(500).json({ error: 'Server error' }); }
+});
+
+// Admin: property stats (likes & saves counts)
+newapp2.get('/admin/property-stats', ensureAuthenticated, async (req, res) => {
+    if (!isAdminEmail(req.user.email)) return res.status(403).json({ error: 'Forbidden' });
+    try {
+        const [rows] = await db.query(`
+            SELECT p.id, p.title,
+                (SELECT COUNT(*) FROM property_likes pl WHERE pl.property_id = p.id) AS likes,
+                (SELECT COUNT(*) FROM property_saves ps WHERE ps.property_id = p.id) AS saves
+            FROM all_properties p
+            ORDER BY likes DESC, saves DESC
+            LIMIT 500
+        `);
+        res.json(rows);
+    } catch (err) { console.error('admin/property-stats error:', err.message); res.status(500).json({ error: 'Server error' }); }
+});
+
 newapp2.get('/customer-chat', ensureAuthenticated, async (req, res) => {
     if (!req.user) return res.redirect('/login');
     const clientId = req.user.id;

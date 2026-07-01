@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <base href="/">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><%= property.title %> | G.O AREGBAN REAL ESTATE FIRM</title>
@@ -334,6 +335,17 @@
                             <i class="fas fa-circle" style="font-size:0.5rem;"></i>
                             <%= property.rentSell || 'For Sale' %>
                         </div>
+                    </div>
+
+                    <div style="display:flex;gap:10px;align-items:center;margin-bottom:16px;">
+                        <button id="likeBtn-<%= property.id %>" onclick="toggleLike(<%= property.id %>, this)" class="btn-primary" style="background:#fff;color:var(--navy);border:1.5px solid var(--navy);">
+                            <i class="fas fa-heart" style="color:#dc2626;margin-right:8px;"></i>
+                            <span id="like-count-<%= property.id %>">0</span>
+                        </button>
+                        <button id="saveBtn-<%= property.id %>" onclick="toggleSave(<%= property.id %>, this)" class="btn-primary" style="background:#fff;color:var(--navy);border:1.5px solid var(--gray-200);">
+                            <i class="fas fa-bookmark" style="margin-right:8px;"></i>
+                            <span id="save-count-<%= property.id %>">0</span>
+                        </button>
                     </div>
 
                     <!-- ── Primary specs: Bedrooms · Bathrooms · Floor Area · No. of Flats ── -->
@@ -684,6 +696,22 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         document.querySelectorAll('img[data-src]').forEach(img => obs.observe(img));
     }
+    // Load like/save counts and user state for this property
+    (async function(){
+        try {
+            const resp = await fetch('/property/stats?propertyId=<%= property.id %>', { credentials: 'include' });
+            if (!resp.ok) return; // ignore
+            const j = await resp.json();
+            const likeCount = document.getElementById('like-count-<%= property.id %>');
+            const saveCount = document.getElementById('save-count-<%= property.id %>');
+            const likeBtn = document.getElementById('likeBtn-<%= property.id %>');
+            const saveBtn = document.getElementById('saveBtn-<%= property.id %>');
+            if (likeCount) likeCount.textContent = j.likes || 0;
+            if (saveCount) saveCount.textContent = j.saves || 0;
+            if (j.liked && likeBtn) likeBtn.classList.add('liked');
+            if (j.saved && saveBtn) saveBtn.classList.add('saved');
+        } catch (e) { /* ignore */ }
+    })();
 });
 </script>
 </body>

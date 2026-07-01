@@ -151,5 +151,36 @@
     document.getElementById('admin-menu').classList.toggle('show');
   });
 
+    // Like / Save helpers (exposed globally)
+    window.toggleLike = async function(propertyId, btn) {
+      try {
+        btn.disabled = true;
+        const res = await fetch('/property/like', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ propertyId }) });
+        const j = await res.json();
+        if (!res.ok) throw new Error(j.error || 'Failed');
+        const countSpan = document.querySelector(`#like-count-${propertyId}`);
+        if (countSpan) countSpan.textContent = j.likes || 0;
+        if (j.liked) btn.classList.add('liked'); else btn.classList.remove('liked');
+      } catch (err) {
+        console.error('Like error', err);
+        alert('Could not like property. Please try again.');
+      } finally { btn.disabled = false; }
+    };
+
+    window.toggleSave = async function(propertyId, btn) {
+      try {
+        btn.disabled = true;
+        const res = await fetch('/property/save', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ propertyId }) });
+        const j = await res.json();
+        if (!res.ok) throw new Error(j.error || 'Failed');
+        const countSpan = document.querySelector(`#save-count-${propertyId}`);
+        if (countSpan) countSpan.textContent = j.saves || 0;
+        if (j.saved) btn.classList.add('saved'); else btn.classList.remove('saved');
+      } catch (err) {
+        console.error('Save error', err);
+        alert('Could not save property. Please try again.');
+      } finally { btn.disabled = false; }
+    };
+
 })();
 
