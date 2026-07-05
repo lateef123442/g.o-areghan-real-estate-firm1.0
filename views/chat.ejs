@@ -7,25 +7,24 @@
   <title><%= receiverId ? `Chat with ${receiverName}` : 'Messages' %> — G.O AREGHAN REAL ESTATE</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="/socket.io/socket.io.js"></script>
   <style>
     :root {
-      --navy:#0d2137; --navy-mid:#163352; --navy-light:#1e4a78;
-      --gold:#c8922a; --gold-light:#e0aa45;
-      --cream:#faf7f2; --white:#ffffff;
+      --navy: #0a1128; --navy-mid: #101c3d; --navy-light: #1c2d5a;
+      --gold: #b38a38; --gold-light: #d4af37;
+      --cream: #faf9f6; --white: #ffffff;
       --gray-100:#f1f5f9; --gray-200:#e2e8f0; --gray-400:#94a3b8; --gray-600:#475569;
-      --text:#0d1f35; --online:#22c55e;
-      --shadow-sm:0 1px 3px rgba(13,33,55,0.08);
-      --shadow-md:0 4px 20px rgba(13,33,55,0.10);
-      --shadow-lg:0 12px 50px rgba(13,33,55,0.15);
+      --text: #0a1128; --online:#22c55e;
+      --shadow-sm: 0 2px 8px rgba(10, 17, 40, 0.04); --shadow-md: 0 10px 30px rgba(10, 17, 40, 0.06);
+      --shadow-lg: 0 20px 50px -12px rgba(10, 17, 40, 0.12);
       --radius:16px; --radius-sm:10px;
       --navbar-h:70px;
     }
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
     html{height:100%;}
-    body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text);min-height:100%;display:flex;flex-direction:column;}
+    body{font-family: 'Plus Jakarta Sans', 'DM Sans',sans-serif;background:var(--cream);color:var(--text);min-height:100%;display:flex;flex-direction:column;}
 
     /* ── NAVBAR ── */
     .navbar{position:sticky;top:0;z-index:200;background:rgba(255,255,255,0.97);backdrop-filter:blur(12px);border-bottom:1px solid var(--gray-200);box-shadow:var(--shadow-sm);}

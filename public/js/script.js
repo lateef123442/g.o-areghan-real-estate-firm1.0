@@ -68,57 +68,64 @@
   // Sidebar toggle for mobile
   const sidebar = document.querySelector('.sidebar');
   const sidebarToggleBtn = document.querySelector('.sidebar-toggle-btn');
-  sidebarToggleBtn.addEventListener('click', () => {
-    const expanded = sidebarToggleBtn.getAttribute('aria-expanded') === 'true';
-    sidebarToggleBtn.setAttribute('aria-expanded', (!expanded).toString());
-    sidebar.classList.toggle('open');
-  });
+  if (sidebar && sidebarToggleBtn) {
+    sidebarToggleBtn.addEventListener('click', () => {
+      const expanded = sidebarToggleBtn.getAttribute('aria-expanded') === 'true';
+      sidebarToggleBtn.setAttribute('aria-expanded', (!expanded).toString());
+      sidebar.classList.toggle('open');
+    });
 
-  // Close sidebar if click outside on mobile
-  document.body.addEventListener('click', e => {
-    if (
-      sidebar.classList.contains('open') &&
-      !sidebar.contains(e.target) &&
-      !sidebarToggleBtn.contains(e.target)
-    ) {
-      sidebar.classList.remove('open');
-      sidebarToggleBtn.setAttribute('aria-expanded', 'false');
-    }
-  });
+    // Close sidebar if click outside on mobile
+    document.body.addEventListener('click', e => {
+      if (
+        sidebar.classList.contains('open') &&
+        !sidebar.contains(e.target) &&
+        !sidebarToggleBtn.contains(e.target)
+      ) {
+        sidebar.classList.remove('open');
+        sidebarToggleBtn.setAttribute('aria-expanded', 'false');
+      }
+    });
+  }
 
   // Header user icon buttons (simulate notifications)
   const notificationsBtn = document.querySelector('.header-right > button[aria-label="Notifications"]');
-  notificationsBtn.addEventListener('click', () => {
-    showToast('You have 4 new alerts', { icon: 'notifications', duration: 4000 });
-  });
+  if (notificationsBtn) {
+    notificationsBtn.addEventListener('click', () => {
+      showToast('You have 4 new alerts', { icon: 'notifications', duration: 4000 });
+    });
+  }
 
   const profileBtn = document.querySelector('.header-right > button[aria-label="User profile menu"]');
-  profileBtn.addEventListener('click', () => {
-    showToast('User profile menu opened', { icon: 'person', duration: 3000 });
-  });
+  if (profileBtn) {
+    profileBtn.addEventListener('click', () => {
+      showToast('User profile menu opened', { icon: 'person', duration: 3000 });
+    });
+  }
 
   // Search submit button with validation
   const searchBtn = document.getElementById('search-submit');
-  searchBtn.addEventListener('click', e => {
-    e.preventDefault();
-    // Basic validation: location required
-    const locationVal = document.getElementById('search-location').value.trim();
-    if (locationVal.length < 3) {
-      showToast('Please enter at least 3 characters in Location', { icon: 'error', duration: 4000 });
-      document.getElementById('search-location').focus();
-      return;
-    }
-    filterListings();
-  });
-
-  // Keyboard navigation enhancement and submit by enter on location input
   const locationInput = document.getElementById('search-location');
-  locationInput.addEventListener('keydown', e => {
-    if (e.key === 'Enter') {
-    
-      searchBtn.click();
-    }
-  });
+  if (searchBtn && locationInput) {
+    searchBtn.addEventListener('click', e => {
+      e.preventDefault();
+      // Basic validation: location required
+      const locationVal = locationInput.value.trim();
+      if (locationVal.length < 3) {
+        showToast('Please enter at least 3 characters in Location', { icon: 'error', duration: 4000 });
+        locationInput.focus();
+        return;
+      }
+      filterListings();
+    });
+
+    // Keyboard navigation enhancement and submit by enter on location input
+    locationInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        searchBtn.click();
+      }
+    });
+  }
 
   // Keyboard shortcuts for pagination
   document.addEventListener('keydown', e => {
@@ -131,9 +138,12 @@
   });
 
   // Pagination buttons
-  document.getElementById('prev-page').addEventListener('click', goToPreviousPage);
-  document.getElementById('next-page').addEventListener('click', goToNextPage);
-
+  const prevPageBtn = document.getElementById('prev-page');
+  const nextPageBtn = document.getElementById('next-page');
+  if (prevPageBtn && nextPageBtn) {
+    prevPageBtn.addEventListener('click', goToPreviousPage);
+    nextPageBtn.addEventListener('click', goToNextPage);
+  }
   
   // Accessibility enhancements: focus outline visible for keyboard users only
   function handleFirstTab(e) {
@@ -144,12 +154,16 @@
   }
   window.addEventListener('keydown', handleFirstTab);
 
-     // Admin dropdown toggle
-  document.querySelector('.dropdown-toggle').addEventListener('click', function() {
-    const expanded = this.getAttribute('aria-expanded') === 'true';
-    this.setAttribute('aria-expanded', !expanded);
-    document.getElementById('admin-menu').classList.toggle('show');
-  });
+  // Admin dropdown toggle
+  const dropdownToggle = document.querySelector('.dropdown-toggle');
+  const adminMenu = document.getElementById('admin-menu');
+  if (dropdownToggle && adminMenu) {
+    dropdownToggle.addEventListener('click', function() {
+      const expanded = this.getAttribute('aria-expanded') === 'true';
+      this.setAttribute('aria-expanded', !expanded);
+      adminMenu.classList.toggle('show');
+    });
+  }
 
     // Like / Save helpers (exposed globally)
     window.toggleLike = async function(propertyId, btn) {

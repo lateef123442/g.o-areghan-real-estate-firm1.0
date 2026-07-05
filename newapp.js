@@ -1,12 +1,15 @@
 // Step 1: Node modules export
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 const express = require('express');
 const ejs = require('ejs');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const multer = require('multer');
 const cors = require('cors');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 const passport = require('passport');
 const session = require('express-session');
 const bcrypt = require('bcrypt');
@@ -24,15 +27,164 @@ const newapp2 = express();
 const server = http.createServer(newapp2);
 const io = socketIo(server);
 
+newapp2.disable('x-powered-by');
+newapp2.set('trust proxy', 1);
 newapp2.use(cors());
-newapp2.use(express.json());
-newapp2.use(express.urlencoded({ extended: true }));
+newapp2.use(helmet({
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"],
+            scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+            styleSrc: ["'self'", "'unsafe-inline'"],
+            imgSrc: ["'self'", 'data:', 'https:'],
+            connectSrc: ["'self'"],
+            objectSrc: ["'none'"],
+            baseUri: ["'self'"],
+            frameAncestors: ["'none'"]
+        }
+    }
+}));
+newapp2.use(express.json({ limit: '1mb' }));
+newapp2.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
 // ==================== ADMIN EMAILS ====================
 const ADMIN_EMAILS = ['ibarealestate2023@gmail.com', 'esvgoddey@gmail.com'];
 
 function isAdminEmail(email) {
     return ADMIN_EMAILS.includes(email);
+}
+
+// ==================== DATA FALLBACK STORAGE ====================
+const DATA_DIR = path.join(__dirname, 'data');
+const FALLBACK_STORE_PATH = path.join(DATA_DIR, 'fallback-store.json');
+const FALLBACK_QUEUE_PATH = path.join(DATA_DIR, 'email-queue.json');
+
+function ensureDataDirectories() {
+    if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+}
+
+function readJsonFile(filePath, fallback = null) {
+    ensureDataDirectories();
+    if (!fs.existsSync(filePath)) return fallback;
+    try {
+        return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+    } catch (err) {
+        return fallback;
+    }
+}
+
+function writeJsonFile(filePath, data) {
+    ensureDataDirectories();
+    fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+}
+
+function loadFallbackStore() {
+    return readJsonFile(FALLBACK_STORE_PATH, {
+        users: [],
+        enquiries: [],
+        tours: [],
+        messages: [],
+        chats: [],
+        homeImprovement: []
+    });
+}
+
+let fallbackStore = loadFallbackStore();
+
+function saveFallbackStore() {
+    writeJsonFile(FALLBACK_STORE_PATH, fallbackStore);
+}
+
+function handleFallbackQuery(sql, values = []) {
+    const normalized = (sql || '').trim().toLowerCase();
+    const emailValue = Array.isArray(values) && values.length > 0 ? values[0] : null;
+
+    if (normalized.startsWith('insert into signin')) {
+        const [firstName, middleName, lastName, email, phone, hashedPassword, role] = values;
+        const user = {
+            id: Date.now(),
+            firstName,
+            middleName,
+            lastName,
+            email,
+            phone,
+            confirmPassword: hashedPassword,
+            role: role || 'user',
+            created_at: new Date().toISOString()
+        };
+        fallbackStore.users.push(user);
+        saveFallbackStore();
+        return [{ affectedRows: 1, insertId: user.id }, []];
+    }
+
+    if (normalized.includes('select count(*) as count from signin') && normalized.includes('where email = ?')) {
+        const matching = fallbackStore.users.filter(user => user.email === emailValue);
+        return [[{ count: matching.length }], []];
+    }
+
+    if (normalized.startsWith('select * from signin where email = ?')) {
+        const matching = fallbackStore.users.filter(user => user.email === emailValue);
+        return [matching, []];
+    }
+
+    if (normalized.startsWith('select * from signin where id = ?')) {
+        const idValue = values[0];
+        const matching = fallbackStore.users.filter(user => Number(user.id) === Number(idValue));
+        return [matching, []];
+    }
+
+    if (normalized.startsWith('update signin set')) {
+        const userId = values[values.length - 1];
+        const index = fallbackStore.users.findIndex(user => Number(user.id) === Number(userId));
+        if (index !== -1) {
+            const [firstName, middleName, lastName, email, phone] = values;
+            fallbackStore.users[index] = { ...fallbackStore.users[index], firstName, middleName, lastName, email, phone };
+            saveFallbackStore();
+        }
+        return [{ affectedRows: index !== -1 ? 1 : 0 }, []];
+    }
+
+    if (normalized.startsWith('insert into request_tour')) {
+        const [name, email, phone, date, time] = values;
+        const tour = { id: Date.now(), name, email, phone, date, time, created_at: new Date().toISOString() };
+        fallbackStore.tours.push(tour);
+        saveFallbackStore();
+        return [{ affectedRows: 1, insertId: tour.id }, []];
+    }
+
+    if (normalized.startsWith('select * from request_tour')) {
+        return [fallbackStore.tours, []];
+    }
+
+    if (normalized.startsWith('delete from request_tour where id = ?')) {
+        const idValue = values[0];
+        const before = fallbackStore.tours.length;
+        fallbackStore.tours = fallbackStore.tours.filter(tour => Number(tour.id) !== Number(idValue));
+        saveFallbackStore();
+        return [{ affectedRows: before - fallbackStore.tours.length }, []];
+    }
+
+    if (normalized.startsWith('insert into homeimprovement')) {
+        const [name, email, phone, message] = values;
+        const record = { id: Date.now(), name, email, phone, message, created_at: new Date().toISOString() };
+        fallbackStore.homeImprovement.push(record);
+        saveFallbackStore();
+        return [{ affectedRows: 1, insertId: record.id }, []];
+    }
+
+    if (normalized.startsWith('insert into chat_messages')) {
+        const [senderId, receiverId, message] = values;
+        const record = { id: Date.now(), sender_id: senderId, receiver_id: receiverId, message, timestamp: new Date().toISOString() };
+        fallbackStore.chats.push(record);
+        saveFallbackStore();
+        return [{ affectedRows: 1, insertId: record.id }, []];
+    }
+
+    if (normalized.startsWith('insert into property_likes') || normalized.startsWith('insert into property_saves')) {
+        return [{ affectedRows: 1, insertId: Date.now() }, []];
+    }
+
+    return [[], []];
 }
 
 // ==================== IMAGE PATH HELPER ====================
@@ -108,11 +260,50 @@ const upload = multer({
 });
 
 // ==================== SESSION ====================
-newapp2.use(session({
-    secret: process.env.SESSION_SECRET || 'lateef.2008',
+const isProduction = process.env.NODE_ENV === 'production';
+const sessionSecret = process.env.SESSION_SECRET || crypto.randomBytes(32).toString('hex');
+if (!process.env.SESSION_SECRET) {
+    console.warn('⚠️  SESSION_SECRET not set; using a generated ephemeral secret for this process.');
+}
+
+const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 20,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: 'Too many login attempts. Please try again later.' }
+});
+
+const publicLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 50,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: 'Too many requests. Please try again later.' }
+});
+
+const sessionMiddleware = session({
+    secret: sessionSecret,
     resave: false,
-    saveUninitialized: false
-}));
+    saveUninitialized: false,
+    name: 'sid',
+    cookie: {
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: isProduction,
+        maxAge: 1000 * 60 * 60 * 4
+    }
+});
+
+newapp2.use(sessionMiddleware);
+
+// Warn if MemoryStore is used in production
+try {
+    const storeName = sessionMiddleware.store && sessionMiddleware.store.constructor && sessionMiddleware.store.constructor.name;
+    if (isProduction && storeName === 'MemoryStore') {
+        console.warn('⚠️ Using express-session MemoryStore in production is insecure. Configure a durable store (Redis, Memcached, etc.).');
+    }
+} catch (e) { /* ignore */ }
 
 // ==================== AUTH MIDDLEWARE ====================
 function ensureAuthenticated(req, res, next) {
@@ -127,6 +318,20 @@ function requireAgent(req, res, next) {
         console.log('Unauthorized access attempt:', req.session);
         res.status(401).json({ error: 'Unauthorized: Please log in as an agent' });
     }
+}
+
+function escapeHtml(value = '') {
+    return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function trimAndLimit(value, maxLength = 200) {
+    if (typeof value !== 'string') return '';
+    return value.trim().slice(0, maxLength);
 }
 
 // ==================== PASSPORT ====================
@@ -145,13 +350,48 @@ passport.deserializeUser(async (id, done) => {
 });
 
 // ==================== NODEMAILER ====================
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: process.env.EMAIL_USER || 'goareghanconsulting@gmail.com',
-        pass: process.env.EMAIL_PASS || 'ldhn cvte bldt piij'
+function createTransporter() {
+    const host = process.env.EMAIL_HOST || 'smtp.gmail.com';
+    const port = Number(process.env.EMAIL_PORT || 587);
+    const secure = process.env.EMAIL_SECURE === 'true' || port === 465;
+    return nodemailer.createTransport({
+        host,
+        port,
+        secure,
+        auth: {
+            user: process.env.EMAIL_USER || 'goareghanconsulting@gmail.com',
+            pass: process.env.EMAIL_PASS || 'ldhn cvte bldt piij'
+        }
+    });
+}
+
+const transporter = createTransporter();
+
+async function sendMail(options = {}) {
+    const defaultFrom = process.env.EMAIL_FROM || process.env.EMAIL_USER || 'goareghanconsulting@gmail.com';
+    const mailOptions = {
+        from: options.from || `"G.O AREGHAN Real Estate Firm & Consultant" <${defaultFrom}>`,
+        ...options
+    };
+
+    try {
+        await transporter.verify();
+        const info = await transporter.sendMail(mailOptions);
+        console.log('📧 Email sent:', info.messageId);
+        return info;
+    } catch (error) {
+        console.error('📧 Email delivery failed:', error.message);
+        ensureDataDirectories();
+        const queue = readJsonFile(FALLBACK_QUEUE_PATH, []);
+        queue.push({
+            ...mailOptions,
+            queuedAt: new Date().toISOString(),
+            error: error.message
+        });
+        writeJsonFile(FALLBACK_QUEUE_PATH, queue);
+        return null;
     }
-});
+}
 
 // ==================== DATABASE POOL ====================
 const pool = mysql.createPool({
@@ -173,8 +413,11 @@ async function runDbQuery(...args) {
         dbAvailable = false;
         const sql = typeof args[0] === 'string' ? args[0].trim().toLowerCase() : '';
         const isWrite = sql.startsWith('insert') || sql.startsWith('update') || sql.startsWith('delete') || sql.startsWith('create');
-        console.warn('Database query failed; using empty fallback response:', err.message);
-        return isWrite ? [{ affectedRows: 0, insertId: 0 }, []] : [[], []];
+        console.warn('Database query failed; using fallback response:', err.message);
+        if (isWrite || sql.includes('from signin') || sql.includes('from request_tour') || sql.includes('from homeimprovement') || sql.includes('from chat_messages')) {
+            return handleFallbackQuery(args[0], Array.isArray(args[1]) ? args[1] : []);
+        }
+        return [[], []];
     }
 }
 
@@ -288,25 +531,50 @@ newapp2.use(cookieParser());
 // ==================== SOCKET.IO ====================
 io.on('connection', (socket) => {
     socket.on('joinChat', (userId) => {
-        socket.join(String(userId));
-        console.log(`User ${userId} joined their room`);
+        // Require numeric-ish userId and only join if it looks valid
+        const uid = String(userId || '').trim();
+        if (!uid.match(/^\d+$/)) return socket.emit('joinError', { error: 'Invalid user ID' });
+        socket.join(uid);
+        console.log(`User ${uid} joined their room`);
     });
 
-    socket.on('sendMessage', async ({ senderId, receiverId, message }) => {
+    socket.on('sendMessage', async (payload) => {
+        const senderId = String(payload && payload.senderId || '').trim();
+        const receiverId = String(payload && payload.receiverId || '').trim();
+        let message = trimAndLimit(payload && payload.message || '', 1000);
+        if (!senderId || !receiverId || !message) return socket.emit('messageError', { error: 'Missing required fields' });
+        if (!senderId.match(/^\d+$/) || !receiverId.match(/^\d+$/)) return socket.emit('messageError', { error: 'Invalid IDs' });
+
+        // Basic existence check (defense-in-depth)
         try {
+            const [[sRow]] = await db.query('SELECT id FROM signin WHERE id = ?', [senderId]);
+            const [[rRow]] = await db.query('SELECT id FROM signin WHERE id = ?', [receiverId]);
+            if (!sRow || !rRow) return socket.emit('messageError', { error: 'Sender or receiver not found' });
+
+            const safeMessage = escapeHtml(message);
             await db.query(
                 'INSERT INTO chat_messages (sender_id, receiver_id, message) VALUES (?, ?, ?)',
-                [senderId, receiverId, message]
+                [senderId, receiverId, safeMessage]
             );
             const timestamp = new Date();
-            socket.emit('messageSent', { message, timestamp });
-            io.to(String(receiverId)).emit('receiveMessage', { message, senderId, timestamp });
+            socket.emit('messageSent', { message: safeMessage, timestamp });
+            io.to(String(receiverId)).emit('receiveMessage', { message: safeMessage, senderId, timestamp });
         } catch (err) {
-            console.error('DB error in sendMessage:', err);
+            console.error('DB error in sendMessage:', err && err.message ? err.message : err);
             socket.emit('messageError', { error: 'Failed to send message' });
         }
     });
 });
+
+// Attach session parsing to Socket.IO so `socket.request.session` is available
+try {
+    io.use((socket, next) => {
+        sessionMiddleware(socket.request, {}, (err) => {
+            if (err) return next(err);
+            return next();
+        });
+    });
+} catch (e) { console.warn('Socket session integration skipped:', e && e.message); }
 
 // ==================== API ROUTES ====================
 newapp2.get('/api/check-login', (req, res) => {
@@ -339,8 +607,13 @@ newapp2.get('/login', (req, res) => res.render('login'));
 newapp2.get('/forgot-password.html', (req, res) => res.render('forgotten-password'));
 
 // ==================== REGISTRATION ====================
-newapp2.post('/submit', async (req, res) => {
-    const { firstName, middleName, lastName, email, phone, confirmPassword } = req.body;
+newapp2.post('/submit', authLimiter, async (req, res) => {
+    const firstName = trimAndLimit(req.body.firstName, 80);
+    const middleName = trimAndLimit(req.body.middleName, 80);
+    const lastName = trimAndLimit(req.body.lastName, 80);
+    const email = trimAndLimit(req.body.email, 255).toLowerCase();
+    const phone = trimAndLimit(req.body.phone, 40);
+    const confirmPassword = trimAndLimit(req.body.confirmPassword, 200);
 
     if (!validator.isEmail(email)) {
         return res.status(400).render('invalid-email', { error: 'Please provide a valid email address' });
@@ -362,15 +635,12 @@ newapp2.post('/submit', async (req, res) => {
             subject: 'Welcome to G.O AREGHAN Real Estate Firm & Consultant',
             html: `
                 <h1>Welcome to G.O AREGHAN Real Estate Firm & Consultant!</h1>
-                <p>Dear ${firstName} ${lastName},</p>
+                <p>Dear ${escapeHtml(firstName)} ${escapeHtml(lastName)},</p>
                 <p>Thank you for creating an account with G.O AREGHAN Real Estate Firm & Consultant. We're excited to help you find your dream property!</p>
                 <p>Best regards,<br>The G.O AREGHAN Real Estate Firm & Consultant Team</p>
             `
         };
-        transporter.sendMail(mailOptions, (error, info) => {
-            if (error) console.error('Error sending welcome email:', error);
-            else console.log('Welcome email sent:', info.response);
-        });
+        await sendMail(mailOptions);
 
         return res.render('valid-email');
     } catch (err) {
@@ -384,8 +654,9 @@ newapp2.get('/valid-reg-details',   (req, res) => res.render('login'));
 newapp2.get('/already-have-acct',   (req, res) => res.render('login'));
 
 // ==================== LOGIN ====================
-newapp2.post('/dashboard', async (req, res) => {
-    const { email, password } = req.body;
+newapp2.post('/dashboard', authLimiter, async (req, res) => {
+    const email = trimAndLimit(req.body.email, 255).toLowerCase();
+    const password = trimAndLimit(req.body.password, 200);
 
     try {
         const [results] = await db.query('SELECT * FROM signin WHERE email = ?', [email]);
@@ -837,10 +1108,11 @@ newapp2.post('/message', ensureAuthenticated, async (req, res) => {
             text: message,
             html: `<p><strong>From:</strong> ${user.firstName} (${user.email})</p><p>${message}</p>`
         };
-        transporter.sendMail(mailOptions, (err) => {
-            if (err) { console.error('Error sending email:', err); return res.status(500).json({ error: 'Failed to send message' }); }
-            res.status(200).json({ success: true, message: 'Message sent successfully' });
-        });
+        const mailInfo = await sendMail(mailOptions);
+        if (!mailInfo) {
+            console.warn('Message email queued for later delivery');
+        }
+        res.status(200).json({ success: true, message: 'Message sent successfully' });
     } catch (err) { console.error(err); res.status(500).json({ error: 'Internal server error' }); }
 });
 
@@ -902,16 +1174,14 @@ newapp2.get('/approve-tour', ensureAuthenticated, async (req, res) => {
         const [results] = await db.query('SELECT * FROM request_tour WHERE id = ?', [tourId]);
         if (results.length === 0) return res.status(404).send('Tour not found.');
         const tour = results[0];
-        transporter.sendMail({
+        await sendMail({
             from: process.env.EMAIL_USER || 'goareghanconsulting@gmail.com',
             to: tour.email,
             subject: 'Tour Request Approved',
             text: `Dear ${tour.name},\n\nYour tour request has been approved.\n\nBest regards,\nG.O AREGHAN Real Estate Firm & Consultant`
-        }, async (error) => {
-            if (error) { console.error(error); return res.status(500).send('Error sending email.'); }
-            await db.query('DELETE FROM request_tour WHERE id = ?', [tourId]);
-            res.render('tour-approved-successfully');
         });
+        await db.query('DELETE FROM request_tour WHERE id = ?', [tourId]);
+        res.render('tour-approved-successfully');
     } catch (err) { console.error(err); res.status(500).send('Database query error.'); }
 });
 
@@ -921,16 +1191,14 @@ newapp2.get('/decline-tour', ensureAuthenticated, async (req, res) => {
         const [results] = await db.query('SELECT * FROM request_tour WHERE id = ?', [tourId]);
         if (results.length === 0) return res.status(404).send('Tour not found.');
         const tour = results[0];
-        transporter.sendMail({
+        await sendMail({
             from: process.env.EMAIL_USER || 'goareghanconsulting@gmail.com',
             to: tour.email,
             subject: 'Tour Request Declined',
             text: `Dear ${tour.name},\n\nYour tour request has been declined.\n\nBest regards,\nG.O AREGHAN Real Estate Firm & Consultant`
-        }, async (error) => {
-            if (error) { console.error(error); return res.status(500).send('Error sending email.'); }
-            await db.query('DELETE FROM request_tour WHERE id = ?', [tourId]);
-            res.render('tour-declined-successfully');
         });
+        await db.query('DELETE FROM request_tour WHERE id = ?', [tourId]);
+        res.render('tour-declined-successfully');
     } catch (err) { console.error(err); res.status(500).send('Database query error.'); }
 });
 
@@ -950,6 +1218,29 @@ newapp2.get('/tour-declined-successfully', ensureAuthenticated, async (req, res)
         const rowCount = results.length > 0 ? results[0].count : 0;
         res.render('requested-tour', { card: results, rowCount, isAdmin, userId: req.user.id, userEmail: req.user.email });
     } catch (err) { console.error(err.message); res.status(500).send('Database query error.'); }
+});
+
+// ==================== ADMIN EMAIL TO CUSTOMER ====================
+newapp2.post('/admin/send-customer-email', ensureAuthenticated, authLimiter, async (req, res) => {
+    const customerEmail = trimAndLimit(req.body.customerEmail || '', 255).toLowerCase();
+    const subject = trimAndLimit(req.body.subject || '', 200);
+    const message = trimAndLimit(req.body.message || '', 2000);
+    const isAdminUser = isAdminEmail(req.user?.email) || req.user?.role === 'admin';
+    if (!isAdminUser) return res.status(403).json({ success: false, message: 'Admin access required' });
+    if (!validator.isEmail(customerEmail) || !subject || !message) return res.status(400).json({ success: false, message: 'All fields are required' });
+
+    const mailInfo = await sendMail({
+        to: customerEmail,
+        subject: escapeHtml(subject),
+        text: message,
+        html: `<p>${escapeHtml(message).replace(/\n/g, '<br>')}</p>`
+    });
+
+    if (!mailInfo) {
+        return res.status(200).json({ success: true, message: 'Customer email queued for delivery' });
+    }
+
+    return res.status(200).json({ success: true, message: 'Customer email sent successfully' });
 });
 
 // ==================== SEARCH ====================
@@ -1071,24 +1362,36 @@ newapp2.get('/property-detail.html', async (req, res) => {
 });
 
 // ==================== CONTACT ====================
-newapp2.post('/contact', ensureAuthenticated, (req, res) => {
-    const { name, email, phone, subject, message } = req.body;
+newapp2.post('/contact', ensureAuthenticated, publicLimiter, async (req, res) => {
+    const name = trimAndLimit(req.body.name, 120);
+    const email = trimAndLimit(req.body.email, 255).toLowerCase();
+    const phone = trimAndLimit(req.body.phone, 40);
+    const subject = trimAndLimit(req.body.subject, 200);
+    const message = trimAndLimit(req.body.message, 2000);
     if (!name || !email || !phone || !message) return res.status(400).json({ success: false, message: 'All fields are required' });
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) return res.status(400).json({ success: false, message: 'Please enter a valid email address' });
-    transporter.sendMail({
+
+    const mailInfo = await sendMail({
         from: `"G.O AREGHAN Real Estate Firm & Consultant" <${process.env.EMAIL_USER || 'goareghanconsulting@gmail.com'}>`,
         to: ADMIN_EMAILS.join(','),
         subject: `Contact Form: ${subject || 'New Inquiry'}`,
-        html: `<h2>New Contact Message</h2><p><strong>Name:</strong> ${name}</p><p><strong>Email:</strong> ${email}</p><p><strong>Phone:</strong> ${phone}</p><p><strong>Subject:</strong> ${subject || 'N/A'}</p><p>${message.replace(/\n/g, '<br>')}</p>`
-    }, (error, info) => {
-        if (error) { console.error(error); return res.status(500).json({ success: false, message: 'Failed to send email.' }); }
-        return res.status(200).json({ success: true, message: "Message sent successfully!" });
+        html: `<h2>New Contact Message</h2><p><strong>Name:</strong> ${escapeHtml(name)}</p><p><strong>Email:</strong> ${escapeHtml(email)}</p><p><strong>Phone:</strong> ${escapeHtml(phone)}</p><p><strong>Subject:</strong> ${escapeHtml(subject || 'N/A')}</p><p>${escapeHtml(message).replace(/\n/g, '<br>')}</p>`
     });
+
+    if (!mailInfo) {
+        console.warn('Contact email queued for later delivery');
+    }
+
+    return res.status(200).json({ success: true, message: 'Message sent successfully!' });
 });
 
-newapp2.post('/detail-contact', ensureAuthenticated, async (req, res) => {
-    const { name, email, phone, message, propertyId } = req.body;
+newapp2.post('/detail-contact', ensureAuthenticated, publicLimiter, async (req, res) => {
+    const name = trimAndLimit(req.body.name, 120);
+    const email = trimAndLimit(req.body.email, 255).toLowerCase();
+    const phone = trimAndLimit(req.body.phone, 40);
+    const message = trimAndLimit(req.body.message, 2000);
+    const propertyId = trimAndLimit(req.body.propertyId, 50);
     if (!req.user || !req.user.id) return res.status(401).json({ success: false, message: 'Please log in first' });
     const userId = req.user.id;
     if (!name || !email || !phone || !message || !propertyId) return res.status(400).json({ success: false, message: 'All fields are required' });
@@ -1124,17 +1427,17 @@ newapp2.post('/detail-contact', ensureAuthenticated, async (req, res) => {
 
         // 3. Send email — always CC goareghanconsulting@gmail.com
         try {
-            await transporter.sendMail({
+            await sendMail({
                 from: `"G.O AREGHAN Real Estate Firm & Consultant" <${process.env.EMAIL_USER || 'goareghanconsulting@gmail.com'}>`,
                 to: recipientEmail,
                 cc: 'goareghanconsulting@gmail.com',
                 subject: 'New Contact Message from Property Detail Page',
                 html: `<h2>New Contact Inquiry</h2>
-                    <p><strong>Name:</strong> ${name}</p>
-                    <p><strong>Email:</strong> ${email}</p>
-                    <p><strong>Phone:</strong> ${phone}</p>
-                    <p><strong>Property ID:</strong> ${propertyId}</p>
-                    <p><strong>Message:</strong><br>${message.replace(/\n/g, '<br>')}</p>`
+                    <p><strong>Name:</strong> ${escapeHtml(name)}</p>
+                    <p><strong>Email:</strong> ${escapeHtml(email)}</p>
+                    <p><strong>Phone:</strong> ${escapeHtml(phone)}</p>
+                    <p><strong>Property ID:</strong> ${escapeHtml(propertyId)}</p>
+                    <p><strong>Message:</strong><br>${escapeHtml(message).replace(/\n/g, '<br>')}</p>`
             });
         } catch (mailErr) {
             console.error('detail-contact email error:', mailErr.message);
@@ -2261,4 +2564,11 @@ connectWithRetry().then(() => {
     server.listen(PORT, '0.0.0.0', () => console.log(`✅ Server running on port ${PORT}`));
 }).catch(() => {
     server.listen(PORT, '0.0.0.0', () => console.log(`⚠️  Server started (DB may be unavailable)`));
+});
+
+// Centralized error handler — do not expose stack traces to clients
+newapp2.use((err, req, res, next) => {
+    console.error('Unhandled error:', err && err.message ? err.message : err);
+    if (res.headersSent) return next(err);
+    res.status(500).send('Server error');
 });
